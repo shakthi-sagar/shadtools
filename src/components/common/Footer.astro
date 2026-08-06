@@ -1,0 +1,55 @@
+---
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="mt-20 border-t border-slate-800 bg-[#090d16] py-10 text-xs text-slate-400">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8">
+    
+    <div class="space-y-2">
+      <a href="/" class="font-bold text-base text-white tracking-tight">
+        <span class="text-blue-500 font-extrabold">Shad</span><span class="text-slate-200">Tools</span>
+      </a>
+      <p class="text-slate-400 text-xs leading-relaxed">
+        Free, privacy-first online utility web tools. Convert files, format code, and calculate formulas 100% inside your browser memory.
+      </p>
+    </div>
+
+    <div>
+      <h3 class="text-xs font-semibold text-slate-200 uppercase tracking-wider mb-3">Categories</h3>
+      <ul class="space-y-1.5 text-slate-400">
+        <li><a href="/developer-tools" class="hover:text-white transition-colors">Developer Tools</a></li>
+        <li><a href="/document-tools" class="hover:text-white transition-colors">Document & PDF Tools</a></li>
+        <li><a href="/image-tools" class="hover:text-white transition-colors">Image & Media Tools</a></li>
+        <li><a href="/finance-tools" class="hover:text-white transition-colors">Finance & Calculators</a></li>
+        <li><a href="/time-and-unit-tools" class="hover:text-white transition-colors">Time & Unit Converters</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <h3 class="text-xs font-semibold text-slate-200 uppercase tracking-wider mb-3">Popular Namespaces</h3>
+      <ul class="space-y-1.5 text-slate-400">
+        <li><a href="/json" class="hover:text-white transition-colors">JSON Tools (/json)</a></li>
+        <li><a href="/base64" class="hover:text-white transition-colors">Base64 Codec (/base64)</a></li>
+        <li><a href="/images" class="hover:text-white transition-colors">Image Tools (/images)</a></li>
+        <li><a href="/currency" class="hover:text-white transition-colors">Currency Converter (/currency)</a></li>
+        <li><a href="/percentage" class="hover:text-white transition-colors">Percentage Calc (/percentage)</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <h3 class="text-xs font-semibold text-slate-200 uppercase tracking-wider mb-3">Legal & Privacy</h3>
+      <ul class="space-y-1.5 text-slate-400">
+        <li><a href="/privacy" class="hover:text-white transition-colors">Privacy Policy</a></li>
+        <li><a href="/terms" class="hover:text-white transition-colors">Terms of Service</a></li>
+        <li><a href="/disclaimer" class="hover:text-white transition-colors">Disclaimer</a></li>
+        <li><a href="/contact" class="hover:text-white transition-colors">Contact Us</a></li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 pt-4 border-t border-slate-800/60 flex flex-col sm:flex-row justify-between items-center text-[11px] text-slate-500">
+    <p>© {currentYear} ShadTools. Built for Cloudflare Edge.</p>
+    <p class="mt-2 sm:mt-0">🔒 Processed 100% locally in browser memory</p>
+  </div>
+</footer>

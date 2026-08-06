@@ -1,0 +1,83 @@
+export interface CurrencyRateData {
+  base: string;
+  rates: Record<string, number>;
+  timestamp: number;
+  provider: string;
+  isFallback: boolean;
+}
+
+// Fallback rates if external exchange API is unavailable
+const FALLBACK_RATES: Record<string, number> = {
+  USD: 1.0,
+  EUR: 0.92,
+  GBP: 0.78,
+  INR: 83.95,
+  CAD: 1.37,
+  AUD: 1.52,
+  JPY: 147.5,
+  CNY: 7.16,
+  BRL: 5.55
+};
+
+export async function fetchExchangeRates(): Promise<CurrencyRateData> {
+  const cacheKey = 'shadtools_currency_rates_v1';
+  
+  // Check localStorage cache (cache valid for 1 hour)
+  if (typeof window !== 'undefined') {
+    try {
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        const parsed: CurrencyRateData = JSON.parse(cached);
+        const age = Date.now() - parsed.timestamp;
+        if (age < 3600000) { // 1 hour
+          return parsed;
+        }
+      }
+    } catch (e) {
+      // Ignore cache errors
+    }
+  }
+
+  // Attempt fetch from free public exchange rate provider
+  try {
+    const res = await fetch('https://open.er-api.com/v6/latest/USD');
+    if (res.ok) {
+      const data = await res.json();
+      const result: CurrencyRateData = {
+        base: 'USD',
+        rates: data.rates,
+        timestamp: Date.now(),
+        provider: 'Open Exchange Rates (ER-API)',
+        isFallback: false
+      };
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(cacheKey, JSON.stringify(result));
+      }
+      return result;
+    }
+  } catch (err) {
+    console.warn('Exchange rate API unavailable, utilizing fallback rates:', err);
+  }
+
+  // Return fallback rates if network request fails
+  return {
+    base: 'USD',
+    rates: FALLBACK_RATES,
+    timestamp: Date.now(),
+    provider: 'Offline Static Rates (Fallback)',
+    isFallback: true
+  };
+}
+
+export function convertCurrency(
+  amount: number,
+  fromCode: string,
+  toCode: string,
+  ratesData: Record<string, number>
+): number {
+  if (isNaN(amount) || amount <= 0) return 0;
+  const fromRate = ratesData[fromCode] || 1;
+  const toRate = ratesData[toCode] || 1;
+  const inUSD = amount / fromRate;
+  return inUSD * toRate;
+}

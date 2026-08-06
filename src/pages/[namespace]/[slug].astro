@@ -1,0 +1,46 @@
+---
+import { getCollection } from 'astro:content';
+import ToolLayout from '../../layouts/ToolLayout.astro';
+
+import { JsonFormatterTool } from '../../tools/json/formatter/JsonFormatterTool';
+import { Base64EncodeTool } from '../../tools/base64/encode/Base64EncodeTool';
+import { ImageCompressorTool } from '../../tools/images/compress/ImageCompressorTool';
+import { PercentageCalcTool } from '../../tools/percentage/calculator/PercentageCalcTool';
+import { LengthConverterTool } from '../../tools/units/length/LengthConverterTool';
+import { CurrencyConverterTool } from '../../tools/currency/converter/CurrencyConverterTool';
+
+export async function getStaticPaths() {
+  const allTools = await getCollection('tools');
+  const publishedTools = allTools.filter((t) => t.data.status === 'published');
+
+  return publishedTools.map((entry) => {
+    const slugParts = entry.slug.split('/');
+    const toolSlug = slugParts.length > 1 ? slugParts[1] : entry.slug;
+
+    return {
+      params: {
+        namespace: entry.data.namespace,
+        slug: toolSlug
+      },
+      props: {
+        tool: { ...entry.data, slug: toolSlug },
+        allTools: publishedTools.map((p) => {
+          const parts = p.slug.split('/');
+          return { ...p.data, slug: parts.length > 1 ? parts[1] : p.slug };
+        })
+      }
+    };
+  });
+}
+
+const { tool, allTools } = Astro.props;
+---
+
+<ToolLayout tool={tool as any} allTools={allTools as any}>
+  {tool.renderer === 'json/formatter' && <JsonFormatterTool client:idle />}
+  {tool.renderer === 'base64/encode' && <Base64EncodeTool client:idle />}
+  {tool.renderer === 'images/compress' && <ImageCompressorTool client:idle />}
+  {tool.renderer === 'percentage/calculator' && <PercentageCalcTool client:idle />}
+  {tool.renderer === 'units/length' && <LengthConverterTool client:idle />}
+  {tool.renderer === 'currency/converter' && <CurrencyConverterTool client:idle />}
+</ToolLayout>

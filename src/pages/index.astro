@@ -1,0 +1,93 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const categories = await getCollection('categories');
+const namespaces = await getCollection('namespaces');
+const allTools = await getCollection('tools');
+const publishedTools = allTools
+  .filter((e) => e.data.status === 'published')
+  .map((e) => {
+    const parts = e.slug.split('/');
+    return { ...e.data, slug: parts.length > 1 ? parts[1] : e.slug };
+  });
+---
+
+<BaseLayout
+  title="ShadTools - Useful tools. No unnecessary steps."
+  description="Fast, free, privacy-first online utility web tools. Convert files, format code, and calculate formulas 100% inside your browser memory."
+  canonicalUrl="https://shadtools.com"
+>
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
+    
+    <!-- Hero / Intro -->
+    <div class="space-y-3">
+      <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-[11px] font-mono font-medium bg-emerald-950/60 text-emerald-400 border border-emerald-800/60">
+        <span>🔒 100% In-Browser Local Memory Processing</span>
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+        Useful tools. No unnecessary steps.
+      </h1>
+      <p class="text-xs sm:text-sm text-slate-400 max-w-2xl leading-relaxed">
+        Convert files, format JSON, compress images, and calculate finances directly in your browser. No file uploads, no server logging, zero latency.
+      </p>
+    </div>
+
+    <!-- Featured Tool Namespaces -->
+    <section class="space-y-4">
+      <h2 class="text-lg font-bold text-white">Tool Namespaces</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {namespaces.map((ns) => (
+          <a
+            href={`/${ns.slug}`}
+            class="p-5 rounded-lg bg-slate-900 border border-slate-800 hover:border-slate-700 transition-colors block space-y-2 group"
+          >
+            <h3 class="font-bold text-slate-100 text-sm group-hover:text-blue-400 transition-colors">
+              {ns.data.name} <span class="text-xs font-mono text-slate-500 font-normal">(/{ns.slug})</span>
+            </h3>
+            <p class="text-xs text-slate-400 line-clamp-2">{ns.data.description}</p>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <!-- Published Tools Grid -->
+    <section class="space-y-4">
+      <h2 class="text-lg font-bold text-white">All Published Tools</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {publishedTools.map((tool) => (
+          <a
+            href={`/${tool.namespace}/${tool.slug}`}
+            class="p-5 rounded-lg bg-slate-900 border border-slate-800 hover:border-slate-700 transition-colors block space-y-2 group"
+          >
+            <div class="flex justify-between items-start">
+              <h3 class="font-semibold text-white text-sm group-hover:text-blue-400 transition-colors">
+                {tool.name}
+              </h3>
+              <span class="text-[10px] text-slate-500 font-mono">/{tool.namespace}/{tool.slug}</span>
+            </div>
+            <p class="text-xs text-slate-400 line-clamp-2 leading-relaxed">
+              {tool.shortDescription}
+            </p>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <!-- Categories Footer Grid -->
+    <section class="space-y-4 pt-4 border-t border-slate-800">
+      <h2 class="text-sm font-bold text-slate-300 uppercase tracking-wider">Browse by Category</h2>
+      <div class="flex flex-wrap gap-2">
+        {categories.map((cat) => (
+          <a
+            href={`/${cat.slug}`}
+            class="px-3 py-1.5 rounded bg-slate-900 border border-slate-800 hover:border-slate-700 text-xs font-medium text-slate-300 hover:text-white transition-colors"
+          >
+            {cat.data.name}
+          </a>
+        ))}
+      </div>
+    </section>
+
+  </div>
+</BaseLayout>

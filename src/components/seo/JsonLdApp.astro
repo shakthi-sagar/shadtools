@@ -1,0 +1,33 @@
+---
+export interface Props {
+  name: string;
+  description: string;
+  url: string;
+  category: string;
+}
+
+const { name, description, url, category } = Astro.props;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  'name': name,
+  'description': description,
+  'url': url,
+  'applicationCategory': category,
+  'operatingSystem': 'All',
+  'browserRequirements': 'Requires JavaScript. Requires HTML5.',
+  'offers': {
+    '@type': 'Offer',
+    'price': '0',
+    'priceCurrency': 'USD'
+  },
+  'author': {
+    '@type': 'Organization',
+    'name': 'ShadTools',
+    'url': 'https://shadtools.com'
+  }
+};
+---
+
+<script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
