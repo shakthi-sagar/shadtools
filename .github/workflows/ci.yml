@@ -2,31 +2,28 @@ name: CI Pipeline
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
-    branches: [main]
+    branches: [ main ]
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
 
-      - name: Install Dependencies
+      - name: Install dependencies
         run: npm ci
 
-      - name: Validate Tool Metadata & SEO
-        run: npm run validate-tools
+      - name: Validate content & registry
+        run: npm run validate
 
-      - name: Run Vitest Unit Tests
+      - name: Run unit & contract tests
         run: npm run test
 
-      - name: Astro Typecheck & Build
+      - name: Build static site & search index
         run: npm run build

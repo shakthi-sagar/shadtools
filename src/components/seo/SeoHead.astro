@@ -1,0 +1,15 @@
+---
+import MetaHead from './MetaHead.astro';
+
+export interface Props {
+  title: string;
+  description: string;
+  canonicalUrl?: string;
+  keywords?: string[];
+  noindex?: boolean;
+}
+
+const props = Astro.props;
+---
+
+<MetaHead {...props} />

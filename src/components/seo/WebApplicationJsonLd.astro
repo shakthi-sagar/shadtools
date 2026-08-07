@@ -1,0 +1,26 @@
+---
+export interface Props {
+  name: string;
+  description: string;
+  url: string;
+}
+
+const { name, description, url } = Astro.props;
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name,
+  description,
+  url,
+  applicationCategory: 'UtilityApplication',
+  operatingSystem: 'Any',
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'USD',
+  },
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(schema)} />

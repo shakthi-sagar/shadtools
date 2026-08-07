@@ -1,0 +1,77 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/site/Breadcrumbs.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const namespaces = await getCollection('namespaces');
+  const allTools = await getCollection('tools');
+  const publishedTools = allTools.filter((t) => t.data.status === 'published');
+
+  return namespaces.map((ns) => {
+    const nsSlug = ns.slug;
+    const nsTools = publishedTools.filter((t) => t.data.namespace === nsSlug);
+    return {
+      params: { namespace: nsSlug },
+      props: {
+        meta: { name: ns.data.name, summary: ns.data.summary, slug: nsSlug },
+        tools: nsTools.map((t) => ({ ...t.data, slug: t.slug })),
+      },
+    };
+  });
+}
+
+const { meta, tools } = Astro.props;
+
+const breadcrumbItems = [{ name: meta.name, url: `/${meta.slug}` }];
+---
+
+<BaseLayout
+  title={`${meta.name} – Free Online Tools`}
+  description={meta.summary}
+  canonicalUrl={`https://shadtools.com/${meta.slug}`}
+>
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+    <Breadcrumbs items={breadcrumbItems} />
+
+    <!-- Hub Header -->
+    <div class="space-y-3">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-md text-xs font-semibold bg-slate-900 border border-slate-800 text-indigo-300">
+        <span>{tools.length} Tools Available</span>
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">{meta.name}</h1>
+      <p class="text-slate-300 max-w-3xl leading-relaxed text-base">
+        {meta.summary}
+      </p>
+    </div>
+
+    <!-- Tools Grid -->
+    <section class="space-y-4 pt-2">
+      <h2 class="text-xl font-bold text-white">Available Tools</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {tools.map((tool) => {
+          const [ns, toolSlug] = tool.slug.includes('/') ? tool.slug.split('/') : [tool.namespace, tool.slug];
+          return (
+            <a
+              href={`/${ns}/${toolSlug}`}
+              class="p-5 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 transition-colors block space-y-2 group shadow-sm"
+            >
+              <div class="flex justify-between items-start">
+                <h3 class="font-semibold text-white text-base group-hover:text-indigo-400 transition-colors">
+                  {tool.name}
+                </h3>
+              </div>
+              <p class="text-sm text-slate-400 line-clamp-2 leading-relaxed">
+                {tool.summary}
+              </p>
+              <div class="pt-2 text-sm font-semibold text-indigo-400 flex items-center gap-1">
+                <span>Open Tool</span>
+                <span class="group-hover:translate-x-1 transition-transform">→</span>
+              </div>
+            </a>
+          );
+        })}
+      </div>
+    </section>
+  </div>
+</BaseLayout>
