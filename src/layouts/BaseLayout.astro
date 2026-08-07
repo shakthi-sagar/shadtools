@@ -2,9 +2,6 @@
 import MetaHead from '../components/seo/MetaHead.astro';
 import Header from '../components/site/Header.astro';
 import Footer from '../components/site/Footer.astro';
-import { SearchCommand } from '../components/site/SearchCommand';
-import { getCollection } from 'astro:content';
-import { getNamespaceSlug, getToolSlug, getToolUrl } from '../lib/routing';
 import '../styles/global.css';
 
 export interface Props {
@@ -24,22 +21,6 @@ const {
   keywords,
   noindex,
 } = Astro.props;
-
-const allToolsCollection = await getCollection('tools');
-const commandTools = allToolsCollection
-  .filter((e) => e.data.status === 'published')
-  .map((e) => {
-    const ns = getNamespaceSlug(e);
-    const sl = getToolSlug(e);
-    return {
-      id: e.data.id || `${ns}/${sl}`,
-      name: e.data.name,
-      namespace: ns,
-      summary: e.data.summary,
-      url: getToolUrl(ns, sl),
-      searchWeight: e.data.searchWeight || 1,
-    };
-  });
 ---
 
 <!DOCTYPE html>
@@ -70,7 +51,5 @@ const commandTools = allToolsCollection
       <slot />
     </main>
     <Footer />
-    <!-- Global Command Search Island (Ctrl+K / ⌘K) -->
-    <SearchCommand client:load tools={commandTools} />
   </body>
 </html>
