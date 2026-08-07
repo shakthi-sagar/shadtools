@@ -84,7 +84,7 @@ const appSchema = {
   canonicalUrl={canonicalUrl}
   noindex={noindex}
 >
-  <script type="application/ld+json" is:inline set:html={JSON.stringify([breadcrumbSchema, appSchema])} />
+  <script type="application/ld+json" is:inline set:html={JSON.stringify(breadcrumbSchema)} />
 
   <div class="max-w-[1120px] mx-auto px-4 sm:px-6 py-6 space-y-6" data-pagefind-ignore>
     <!-- Breadcrumbs -->
@@ -182,19 +182,25 @@ const appSchema = {
     ) : (
       <!-- Fallback Default Layout for Tools without getSections -->
       <>
-        <section class="max-w-[720px] space-y-3 border-t border-border pt-6">
-          <h2 class="text-lg font-semibold text-foreground">How to Convert</h2>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div class="p-3.5 rounded-md bg-surface border border-border space-y-1">
-              <span class="text-[11px] font-semibold text-foreground-muted uppercase tracking-wider font-sans">Formula</span>
-              <p class="text-xs text-foreground font-mono">{result.formula}</p>
+        {(result.formula || result.steps) && (
+          <section class="max-w-[720px] space-y-3 border-t border-border pt-6">
+            <h2 class="text-lg font-semibold text-foreground">How to Convert</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {result.formula && (
+                <div class="p-3.5 rounded-md bg-surface border border-border space-y-1">
+                  <span class="text-[11px] font-semibold text-foreground-muted uppercase tracking-wider font-sans">Formula</span>
+                  <p class="text-xs text-foreground font-mono">{result.formula}</p>
+                </div>
+              )}
+              {result.steps && (
+                <div class="p-3.5 rounded-md bg-surface border border-border space-y-1">
+                  <span class="text-[11px] font-semibold text-foreground-muted uppercase tracking-wider font-sans">Calculation</span>
+                  <p class="text-xs text-accent font-mono font-bold">{result.steps}</p>
+                </div>
+              )}
             </div>
-            <div class="p-3.5 rounded-md bg-surface border border-border space-y-1">
-              <span class="text-[11px] font-semibold text-foreground-muted uppercase tracking-wider font-sans">Calculation</span>
-              <p class="text-xs text-accent font-mono font-bold">{result.steps}</p>
-            </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         {nearbyVariants.length > 0 && (
           <section class="max-w-[720px] space-y-3 border-t border-border pt-6">

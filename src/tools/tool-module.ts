@@ -19,8 +19,8 @@ export interface SeoVariantMetadata {
 
 export interface SeoVariantResult {
   answer: string;
-  formula: string;
-  steps: string;
+  formula?: string;
+  steps?: string;
 }
 
 export interface SeoSection {

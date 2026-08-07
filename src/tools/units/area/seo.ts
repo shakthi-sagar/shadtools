@@ -191,7 +191,7 @@ export const areaSeoProvider: SeoPageProvider<AreaVariant> = {
     });
 
     if (isPairPage) {
-      const sampleValues = [1, 2, 5, 10, 15, 20, 25, 50, 75, 100];
+      const sampleValues = [1, 2, 5, 10, 15, 20, 25, 30, 40, 50, 100];
       const rows = sampleValues.map((v) => ({
         from: `${v} ${f.symbol}`,
         to: `${formatNumber(convertArea(v, data.fromId, data.toId))} ${t.symbol}`,

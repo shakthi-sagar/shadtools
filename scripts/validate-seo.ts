@@ -159,8 +159,11 @@ for (const { key, module } of seoTools) {
     }
   }
 
-  // Check nearby variants links
+  // Check nearby variants, breadcrumb parents, and compositional section links
   for (const variantData of staticPages) {
+    const currentSlug = module.seoPages.getSlug(variantData);
+
+    // 1. Check nearby variants links
     const nearby = module.seoPages.getNearbyVariants
       ? module.seoPages.getNearbyVariants(variantData)
       : [];
@@ -172,8 +175,59 @@ for (const { key, module } of seoTools) {
         issues.push({
           type: 'error',
           message: `Nearby link points to nonexistent generated route: '${nvPath}'`,
-          context: `From ${key}:${module.seoPages.getSlug(variantData)}`,
+          context: `From ${key}:${currentSlug}`,
         });
+      }
+    }
+
+    // 2. Check breadcrumb parent link
+    if (module.seoPages.getBreadcrumbParent) {
+      const bp = module.seoPages.getBreadcrumbParent(variantData);
+      if (bp) {
+        const bpPath = getVariantUrl(namespace, toolSlug, bp.slug);
+        if (!generatedRoutes.has(bpPath)) {
+          issues.push({
+            type: 'error',
+            message: `Breadcrumb parent link points to nonexistent generated route: '${bpPath}'`,
+            context: `From ${key}:${currentSlug}`,
+          });
+        }
+      }
+    }
+
+    // 3. Check compositional section links (table rows & link pills)
+    if (module.seoPages.getSections) {
+      const sections = module.seoPages.getSections(variantData);
+      if (sections) {
+        for (const sec of sections) {
+          if (sec.type === 'table' && sec.table) {
+            for (const row of sec.table.rows) {
+              if (row.slug) {
+                const rowPath = getVariantUrl(namespace, toolSlug, row.slug);
+                if (!generatedRoutes.has(rowPath)) {
+                  issues.push({
+                    type: 'error',
+                    message: `Section table row link points to nonexistent generated route: '${rowPath}'`,
+                    context: `From ${key}:${currentSlug}`,
+                  });
+                }
+              }
+            }
+          } else if (sec.type === 'links' && sec.links) {
+            for (const link of sec.links) {
+              if (link.slug) {
+                const linkPath = getVariantUrl(namespace, toolSlug, link.slug);
+                if (!generatedRoutes.has(linkPath)) {
+                  issues.push({
+                    type: 'error',
+                    message: `Section link pill points to nonexistent generated route: '${linkPath}'`,
+                    context: `From ${key}:${currentSlug}`,
+                  });
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
