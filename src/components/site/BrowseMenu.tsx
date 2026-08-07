@@ -20,8 +20,19 @@ export const BrowseMenu: React.FC<BrowseMenuProps> = ({ namespaces }) => {
         setIsOpen(false);
       }
     };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsOpen(false);
+      }
+    };
+
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
   return (
@@ -30,6 +41,8 @@ export const BrowseMenu: React.FC<BrowseMenuProps> = ({ namespaces }) => {
         onClick={() => setIsOpen(!isOpen)}
         className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-sm font-medium text-foreground-secondary hover:text-foreground hover:bg-surface-subtle transition-colors focus-visible:outline-2 focus-visible:outline-focus"
         aria-expanded={isOpen}
+        aria-haspopup="true"
+        aria-controls="browse-dropdown-menu"
       >
         <Layers className="w-4 h-4 text-foreground-muted" />
         <span>Browse</span>
@@ -37,14 +50,20 @@ export const BrowseMenu: React.FC<BrowseMenuProps> = ({ namespaces }) => {
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-1 w-56 rounded-lg bg-surface border border-border shadow-popover p-1.5 z-50 animate-in fade-in duration-100">
-          <div className="text-[11px] font-semibold text-foreground-muted uppercase tracking-wider px-2 py-1">
+        <div
+          id="browse-dropdown-menu"
+          role="menu"
+          aria-label="Tool Collections"
+          className="absolute top-full left-0 mt-1 w-56 rounded-lg bg-surface border border-border shadow-popover p-1.5 z-50 animate-in fade-in duration-100"
+        >
+          <div className="text-[11px] font-semibold text-foreground-muted uppercase tracking-wider px-2 py-1 select-none">
             Tool Collections
           </div>
           {namespaces.map((ns) => (
             <a
               key={ns.slug}
               href={`/${ns.slug}`}
+              role="menuitem"
               onClick={() => setIsOpen(false)}
               className="block px-2.5 py-1.5 rounded-md text-sm text-foreground-secondary hover:text-foreground hover:bg-surface-subtle transition-colors"
             >

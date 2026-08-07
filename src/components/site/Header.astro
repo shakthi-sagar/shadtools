@@ -13,28 +13,32 @@ const namespaceItems = namespaces.map((ns) => ({
 
 <header class="sticky top-0 z-50 bg-surface/90 backdrop-blur-md border-b border-border h-[54px] flex items-center">
   <div class="max-w-[1240px] w-full mx-auto px-4 sm:px-6 flex items-center justify-between">
-    <!-- Brand Wordmark -->
-    <div class="flex items-center gap-6">
-      <a href="/" class="flex items-center gap-2 font-bold text-base text-foreground tracking-tight group">
+    <!-- Brand Wordmark & Browse Menu -->
+    <div class="flex items-center gap-4 sm:gap-6">
+      <a href="/" class="flex items-center gap-2 font-bold text-base text-foreground tracking-tight shrink-0 group">
         <div class="w-6 h-6 rounded-sm bg-primary flex items-center justify-center text-white font-extrabold text-xs">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
         </div>
         <span>Shad<span class="text-primary">Tools</span></span>
       </a>
 
-      <!-- Browse Menu Dropdown -->
-      <BrowseMenu client:load namespaces={namespaceItems} />
+      <!-- Browse Menu (Desktop Only) -->
+      <div class="hidden md:block">
+        <BrowseMenu client:load namespaces={namespaceItems} />
+      </div>
     </div>
 
     <!-- Search & Theme Controls -->
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-2 sm:gap-3">
+      <!-- Search Trigger: Icon-only on mobile, expanded input bar on sm+ -->
       <a
         href="/search"
-        class="flex items-center gap-2 px-3 py-1.5 rounded-md bg-surface-subtle border border-border text-xs text-foreground-secondary hover:text-foreground hover:border-border-strong transition-colors min-w-[200px] sm:min-w-[260px] justify-between shadow-none"
+        aria-label="Search tools"
+        class="flex items-center gap-2 p-2 sm:px-3 sm:py-1.5 rounded-md bg-surface-subtle border border-border text-xs text-foreground-secondary hover:text-foreground hover:border-border-strong transition-colors sm:min-w-[200px] md:min-w-[240px] justify-center sm:justify-between"
       >
         <span class="flex items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-foreground-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-          <span>Search tools...</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 sm:w-3.5 sm:h-3.5 text-foreground-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <span class="hidden sm:inline">Search tools...</span>
         </span>
         <kbd class="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono bg-surface border border-border rounded text-foreground-muted">⌘K</kbd>
       </a>

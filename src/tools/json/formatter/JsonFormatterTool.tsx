@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Copy, Check, Download, RotateCcw, Sliders } from 'lucide-react';
+import { Copy, Check, Download, RotateCcw, Sliders, AlertCircle } from 'lucide-react';
 import { formatJson, minifyJson } from './format-json';
 import { ToolFrame } from '../../../components/tool-ui/ToolFrame';
 import { ToolToolbar } from '../../../components/tool-ui/ToolToolbar';
@@ -10,10 +10,10 @@ export const JsonFormatterTool: React.FC = () => {
   const [output, setOutput] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
-  const [indent, setIndent] = useState<number>(2);
+  const [indent, setIndent] = useState<string>('2');
 
   const handleFormat = () => {
-    const res = formatJson(input, indent);
+    const res = formatJson(input, indent === 'tab' ? 'tab' : parseInt(indent, 10));
     if (res.success) {
       setOutput(res.output);
       setError(null);
@@ -72,13 +72,14 @@ export const JsonFormatterTool: React.FC = () => {
               <Sliders className="w-3.5 h-3.5" />
               <span>Indent:</span>
               <select
+                aria-label="Indentation spacing"
                 value={indent}
-                onChange={(e) => setIndent(Number(e.target.value))}
+                onChange={(e) => setIndent(e.target.value)}
                 className="bg-surface border border-border rounded px-1.5 py-0.5 text-xs font-sans text-foreground cursor-pointer focus:outline-none focus:border-border-strong"
               >
-                <option value={2}>2 spaces</option>
-                <option value={4}>4 spaces</option>
-                <option value={1}>1 tab</option>
+                <option value="2">2 spaces</option>
+                <option value="4">4 spaces</option>
+                <option value="tab">1 tab</option>
               </select>
             </div>
           </div>
@@ -120,8 +121,9 @@ export const JsonFormatterTool: React.FC = () => {
               <span className="text-[11px] font-medium text-foreground-muted uppercase tracking-wider font-sans">OUTPUT</span>
             </div>
             {error ? (
-              <div className="p-4 text-xs font-mono text-danger bg-danger/5 flex-1">
-                ⚠️ Error parsing JSON: {error}
+              <div className="p-4 text-xs font-mono text-danger bg-danger/5 flex-1 flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-danger" />
+                <span>Error parsing JSON: {error}</span>
               </div>
             ) : (
               <textarea

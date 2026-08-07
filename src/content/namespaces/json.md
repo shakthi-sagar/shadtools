@@ -1,6 +1,8 @@
 ---
 name: "JSON Tools"
 summary: "Format, validate, minify, inspect, and convert JSON data online."
+group: "developer"
+groupLabel: "Developer"
 aliases: ["json", "json utilities"]
 featuredTools: ["json/formatter"]
 order: 10

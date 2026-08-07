@@ -16,9 +16,18 @@ const publishedTools = allTools
 
 const featuredTools = publishedTools.filter((t) => t.featured);
 
-const developerNamespaces = namespaces.filter((n) => ['json', 'base64'].includes(getNamespaceSlug(n)));
-const fileNamespaces = namespaces.filter((n) => ['images'].includes(getNamespaceSlug(n)));
-const calculateNamespaces = namespaces.filter((n) => ['currency', 'percentage', 'units'].includes(getNamespaceSlug(n)));
+const sortedNamespaces = namespaces.sort((a, b) => (a.data.order || 100) - (b.data.order || 100));
+
+// Dynamically group namespaces from data
+const groups = Array.from(new Set(sortedNamespaces.map((n) => n.data.group))).map((groupKey) => {
+  const groupItems = sortedNamespaces.filter((n) => n.data.group === groupKey);
+  const groupLabel = groupItems[0]?.data.groupLabel || groupKey.charAt(0).toUpperCase() + groupKey.slice(1);
+  return {
+    key: groupKey,
+    label: groupLabel,
+    namespaces: groupItems,
+  };
+});
 ---
 
 <BaseLayout
@@ -80,84 +89,37 @@ const calculateNamespaces = namespaces.filter((n) => ['currency', 'percentage', 
       </div>
     </section>
 
-    <!-- Browse All Tools by Category Groups -->
+    <!-- Browse All Tools by Data-Driven Category Groups -->
     <section class="space-y-6">
       <h2 class="text-sm font-semibold text-foreground uppercase tracking-wider font-sans">
         Browse Tool Collections
       </h2>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <!-- Developer Tools Group -->
-        <div class="space-y-3">
-          <h3 class="text-xs font-semibold text-foreground-muted uppercase tracking-wider font-sans border-b border-border pb-2">
-            Developer
-          </h3>
-          <div class="space-y-2">
-            {developerNamespaces.map((ns) => {
-              const nsSlug = getNamespaceSlug(ns);
-              return (
-                <a
-                  href={getNamespaceUrl(nsSlug)}
-                  class="block p-3 rounded-md bg-surface border border-border hover:border-border-strong hover:bg-surface-subtle transition-colors group"
-                >
-                  <div class="flex items-center justify-between">
-                    <span class="font-medium text-sm text-foreground group-hover:text-primary transition-colors">{ns.data.name}</span>
-                    <span class="text-xs text-foreground-muted">→</span>
-                  </div>
-                  <p class="text-xs text-foreground-secondary mt-1 line-clamp-1">{ns.data.summary}</p>
-                </a>
-              );
-            })}
+        {groups.map((grp) => (
+          <div class="space-y-3">
+            <h3 class="text-xs font-semibold text-foreground-muted uppercase tracking-wider font-sans border-b border-border pb-2">
+              {grp.label}
+            </h3>
+            <div class="space-y-2">
+              {grp.namespaces.map((ns) => {
+                const nsSlug = getNamespaceSlug(ns);
+                return (
+                  <a
+                    href={getNamespaceUrl(nsSlug)}
+                    class="block p-3 rounded-md bg-surface border border-border hover:border-border-strong hover:bg-surface-subtle transition-colors group"
+                  >
+                    <div class="flex items-center justify-between">
+                      <span class="font-medium text-sm text-foreground group-hover:text-primary transition-colors">{ns.data.name}</span>
+                      <span class="text-xs text-foreground-muted">→</span>
+                    </div>
+                    <p class="text-xs text-foreground-secondary mt-1 line-clamp-1">{ns.data.summary}</p>
+                  </a>
+                );
+              })}
+            </div>
           </div>
-        </div>
-
-        <!-- Files Group -->
-        <div class="space-y-3">
-          <h3 class="text-xs font-semibold text-foreground-muted uppercase tracking-wider font-sans border-b border-border pb-2">
-            Files
-          </h3>
-          <div class="space-y-2">
-            {fileNamespaces.map((ns) => {
-              const nsSlug = getNamespaceSlug(ns);
-              return (
-                <a
-                  href={getNamespaceUrl(nsSlug)}
-                  class="block p-3 rounded-md bg-surface border border-border hover:border-border-strong hover:bg-surface-subtle transition-colors group"
-                >
-                  <div class="flex items-center justify-between">
-                    <span class="font-medium text-sm text-foreground group-hover:text-primary transition-colors">{ns.data.name}</span>
-                    <span class="text-xs text-foreground-muted">→</span>
-                  </div>
-                  <p class="text-xs text-foreground-secondary mt-1 line-clamp-1">{ns.data.summary}</p>
-                </a>
-              );
-            })}
-          </div>
-        </div>
-
-        <!-- Calculate Group -->
-        <div class="space-y-3">
-          <h3 class="text-xs font-semibold text-foreground-muted uppercase tracking-wider font-sans border-b border-border pb-2">
-            Calculate & Convert
-          </h3>
-          <div class="space-y-2">
-            {calculateNamespaces.map((ns) => {
-              const nsSlug = getNamespaceSlug(ns);
-              return (
-                <a
-                  href={getNamespaceUrl(nsSlug)}
-                  class="block p-3 rounded-md bg-surface border border-border hover:border-border-strong hover:bg-surface-subtle transition-colors group"
-                >
-                  <div class="flex items-center justify-between">
-                    <span class="font-medium text-sm text-foreground group-hover:text-primary transition-colors">{ns.data.name}</span>
-                    <span class="text-xs text-foreground-muted">→</span>
-                  </div>
-                  <p class="text-xs text-foreground-secondary mt-1 line-clamp-1">{ns.data.summary}</p>
-                </a>
-              );
-            })}
-          </div>
-        </div>
+        ))}
       </div>
     </section>
 

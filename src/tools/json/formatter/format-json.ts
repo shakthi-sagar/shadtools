@@ -5,13 +5,14 @@ export interface JsonFormatResult {
   itemCount?: number;
 }
 
-export function formatJson(input: string, indent: number = 2): JsonFormatResult {
+export function formatJson(input: string, indent: number | string = 2): JsonFormatResult {
   if (!input.trim()) {
     return { success: true, output: '', itemCount: 0 };
   }
   try {
     const parsed = JSON.parse(input);
-    const formatted = JSON.stringify(parsed, null, indent);
+    const indentSpace = indent === 'tab' ? '\t' : typeof indent === 'string' ? (parseInt(indent, 10) || 2) : indent;
+    const formatted = JSON.stringify(parsed, null, indentSpace);
     const count = Array.isArray(parsed) ? parsed.length : typeof parsed === 'object' && parsed !== null ? Object.keys(parsed).length : 1;
     return { success: true, output: formatted, itemCount: count };
   } catch (err: unknown) {

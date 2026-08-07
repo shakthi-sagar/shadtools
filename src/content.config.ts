@@ -70,6 +70,8 @@ const namespaces = defineCollection({
   schema: z.object({
     name: z.string(),
     summary: z.string(),
+    group: z.enum(['developer', 'files', 'calculate']).default('developer'),
+    groupLabel: z.string().optional(),
     aliases: z.array(z.string()).default([]),
     featuredTools: z.array(z.string()).default([]),
     order: z.number().int().default(100),
