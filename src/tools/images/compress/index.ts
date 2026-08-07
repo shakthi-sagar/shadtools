@@ -1,9 +1,9 @@
-import { ImageCompressorTool } from './ImageCompressorTool';
+import type { ToolModule } from '../../tool-module';
+import { imageCompressConfigSchema } from './config';
 
-export const rendererKey = 'images/compress';
-export const Component = ImageCompressorTool;
-
-export default {
-  key: rendererKey,
-  Component
-};
+export const toolModule = {
+  key: 'images/compress',
+  pattern: 'file',
+  privacyMode: 'local',
+  configSchema: imageCompressConfigSchema,
+} satisfies ToolModule;

@@ -1,9 +1,9 @@
 ---
-name: "Currency Converters"
-slug: "currency"
-category: "finance-tools"
-description: "Live foreign exchange converters for USD, EUR, GBP, INR, and 50+ currencies."
-icon: "DollarSign"
+name: "Currency Tools"
+summary: "Convert foreign exchange rates with live market data."
+aliases: ["currency", "forex"]
+featuredTools: ["currency/converter"]
+order: 40
 ---
 
-Convert foreign currencies with daily exchange rate updates and offline fallback rates.
+Forex currency conversion tools with live API rates and offline static fallback data.

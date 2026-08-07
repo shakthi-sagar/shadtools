@@ -1,7 +1,7 @@
 export interface UnitOption {
   id: string;
   name: string;
-  factor: number; // Factor relative to base unit (e.g. meter for length)
+  factor: number; // Factor relative to base unit (meters)
 }
 
 export const LENGTH_UNITS: UnitOption[] = [
@@ -15,12 +15,11 @@ export const LENGTH_UNITS: UnitOption[] = [
   { id: 'in', name: 'Inches (in)', factor: 0.0254 }
 ];
 
-export function convertUnit(value: number, fromUnitId: string, toUnitId: string, units: UnitOption[]): number {
+export function convertUnit(value: number, fromUnitId: string, toUnitId: string, units: UnitOption[] = LENGTH_UNITS): number {
   if (isNaN(value)) return 0;
   const from = units.find((u) => u.id === fromUnitId);
   const to = units.find((u) => u.id === toUnitId);
   if (!from || !to) return value;
-  // Convert to base unit then to target unit
   const baseValue = value * from.factor;
   return baseValue / to.factor;
 }

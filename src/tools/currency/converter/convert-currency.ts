@@ -6,7 +6,6 @@ export interface CurrencyRateData {
   isFallback: boolean;
 }
 
-// Fallback rates if external exchange API is unavailable
 const FALLBACK_RATES: Record<string, number> = {
   USD: 1.0,
   EUR: 0.92,
@@ -22,14 +21,13 @@ const FALLBACK_RATES: Record<string, number> = {
 export async function fetchExchangeRates(): Promise<CurrencyRateData> {
   const cacheKey = 'shadtools_currency_rates_v1';
   
-  // Check localStorage cache (cache valid for 1 hour)
   if (typeof window !== 'undefined') {
     try {
       const cached = localStorage.getItem(cacheKey);
       if (cached) {
         const parsed: CurrencyRateData = JSON.parse(cached);
         const age = Date.now() - parsed.timestamp;
-        if (age < 3600000) { // 1 hour
+        if (age < 3600000) {
           return parsed;
         }
       }
@@ -38,7 +36,6 @@ export async function fetchExchangeRates(): Promise<CurrencyRateData> {
     }
   }
 
-  // Attempt fetch from free public exchange rate provider
   try {
     const res = await fetch('https://open.er-api.com/v6/latest/USD');
     if (res.ok) {
@@ -59,7 +56,6 @@ export async function fetchExchangeRates(): Promise<CurrencyRateData> {
     console.warn('Exchange rate API unavailable, utilizing fallback rates:', err);
   }
 
-  // Return fallback rates if network request fails
   return {
     base: 'USD',
     rates: FALLBACK_RATES,
@@ -73,7 +69,7 @@ export function convertCurrency(
   amount: number,
   fromCode: string,
   toCode: string,
-  ratesData: Record<string, number>
+  ratesData: Record<string, number> = FALLBACK_RATES
 ): number {
   if (isNaN(amount) || amount <= 0) return 0;
   const fromRate = ratesData[fromCode] || 1;

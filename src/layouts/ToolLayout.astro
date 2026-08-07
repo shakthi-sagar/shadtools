@@ -1,135 +1,97 @@
 ---
 import BaseLayout from './BaseLayout.astro';
-import Breadcrumb from '../components/common/Breadcrumb.astro';
-import PrivacyNotice from '../components/common/PrivacyNotice.astro';
-import AdPlaceholder from '../components/common/AdPlaceholder.astro';
-import JsonLdApp from '../components/seo/JsonLdApp.astro';
-import JsonLdBreadcrumb from '../components/seo/JsonLdBreadcrumb.astro';
-import JsonLdFaq from '../components/seo/JsonLdFaq.astro';
+import Breadcrumbs from '../components/site/Breadcrumbs.astro';
 
 export interface Props {
   tool: {
     id: string;
     name: string;
-    slug: string;
     namespace: string;
-    category: string;
-    shortDescription: string;
-    longDescription?: string;
-    keywords: string[];
-    primaryKeyword: string;
-    examples?: Array<{ input: string; output: string; description?: string }>;
+    summary: string;
+    seo: {
+      title: string;
+      description: string;
+      primaryKeyword: string;
+      keywords?: string[];
+      noindex?: boolean;
+    };
+    privacy: {
+      processing: 'local' | 'remote-data' | 'server-processing';
+      message: string;
+    };
+    examples?: Array<{ title?: string; input: string; output: string }>;
     faq?: Array<{ question: string; answer: string }>;
     relatedTools?: string[];
   };
-  allTools?: any[];
+  namespace: string;
+  slug: string;
 }
 
-const { tool, allTools = [] } = Astro.props;
+const { tool, namespace, slug } = Astro.props;
 
-const currentUrl = `https://shadtools.com/${tool.namespace}/${tool.slug}`;
+const currentUrl = `https://shadtools.com/${namespace}/${slug}`;
 
 const breadcrumbItems = [
-  { name: tool.namespace.toUpperCase(), url: `/${tool.namespace}` },
-  { name: tool.name, url: `/${tool.namespace}/${tool.slug}` }
+  { name: namespace.charAt(0).toUpperCase() + namespace.slice(1), url: `/${namespace}` },
+  { name: tool.name, url: `/${namespace}/${slug}` },
 ];
-
-const relatedToolsList = allTools.filter((t) => 
-  t.id !== tool.id && 
-  (tool.relatedTools?.includes(t.id) || t.namespace === tool.namespace)
-).slice(0, 6);
 ---
 
 <BaseLayout
-  title={`${tool.name} - Free Online Tool`}
-  description={tool.shortDescription}
+  title={tool.seo.title}
+  description={tool.seo.description}
   canonicalUrl={currentUrl}
-  keywords={tool.keywords}
+  keywords={tool.seo.keywords}
 >
-  <!-- JSON-LD Structured Data Injection -->
-  <JsonLdApp
-    name={tool.name}
-    description={tool.shortDescription}
-    url={currentUrl}
-    category={tool.category}
-  />
-  <JsonLdBreadcrumb items={breadcrumbItems} />
-  {tool.faq && <JsonLdFaq faq={tool.faq} />}
-
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-    
-    <!-- Top Banner Ad (Reserved CLS slot) -->
-    <AdPlaceholder slot="top-banner" />
-
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
     <!-- Breadcrumb Navigation -->
-    <Breadcrumb items={breadcrumbItems} />
+    <Breadcrumbs items={breadcrumbItems} />
 
     <!-- Tool Header & Description -->
-    <div class="space-y-2">
-      <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded text-[11px] font-mono font-semibold bg-slate-900 border border-slate-800 text-slate-300">
-        <span>{tool.namespace.toUpperCase()} TOOL</span>
+    <div class="space-y-3">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-md text-xs font-semibold bg-slate-900 border border-slate-800 text-indigo-300">
+        <span>Online Utility</span>
       </div>
-      <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
         {tool.name}
       </h1>
-      <p class="text-xs sm:text-sm text-slate-400 max-w-3xl leading-relaxed">
-        {tool.shortDescription}
+      <p class="text-base text-slate-300 max-w-3xl leading-relaxed">
+        {tool.summary}
       </p>
+      <div class="flex items-center gap-2 pt-1 text-xs text-emerald-400 font-medium">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
+        <span>{tool.privacy.message}</span>
+      </div>
     </div>
 
-    <!-- Working Interactive Tool Component (Above the Fold) -->
-    <div class="p-5 sm:p-6 rounded-xl bg-slate-900 border border-slate-800 shadow-xl">
-      <slot />
+    <!-- Working Interactive Tool Component Slot (Above the Fold) -->
+    <div class="p-4 sm:p-6 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-2xl">
+      <slot name="tool" />
     </div>
-
-    <!-- Privacy Notice -->
-    <PrivacyNotice toolName={tool.name} />
 
     <!-- Below Tool Ad Position -->
-    <AdPlaceholder slot="below-tool" />
+    <div class="p-4 rounded-xl bg-slate-900/30 border border-slate-800/60 text-center text-xs text-slate-500">
+      <span>Advertisement</span>
+    </div>
 
-    <!-- Instructions & How it Works -->
-    {tool.longDescription && (
-      <section class="p-5 rounded-xl bg-slate-900 border border-slate-800 space-y-3">
-        <h2 class="text-base font-bold text-white">How {tool.name} Works</h2>
-        <p class="text-slate-300 text-xs leading-relaxed whitespace-pre-line">
-          {tool.longDescription}
-        </p>
-      </section>
-    )}
-
-    <!-- Step-by-Step Instructions -->
-    <section class="p-5 rounded-xl bg-slate-900 border border-slate-800 space-y-3">
-      <h2 class="text-base font-bold text-white">Step-by-Step Instructions</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-        <div class="p-3.5 rounded-lg bg-slate-950 border border-slate-800/80 space-y-1">
-          <span class="font-bold text-blue-400">1. Input Data</span>
-          <p class="text-slate-400 text-[11px]">Enter your text, number, or file into the input area above.</p>
-        </div>
-        <div class="p-3.5 rounded-lg bg-slate-950 border border-slate-800/80 space-y-1">
-          <span class="font-bold text-blue-400">2. In-Browser Process</span>
-          <p class="text-slate-400 text-[11px]">Processing executes 100% locally in your browser memory.</p>
-        </div>
-        <div class="p-3.5 rounded-lg bg-slate-950 border border-slate-800/80 space-y-1">
-          <span class="font-bold text-blue-400">3. Copy or Download</span>
-          <p class="text-slate-400 text-[11px]">Copy output text to clipboard or download your processed file.</p>
-        </div>
-      </div>
+    <!-- Rendered Markdown Content Slot -->
+    <section class="prose prose-invert max-w-none prose-p:text-slate-300 prose-p:text-base prose-headings:text-white pt-4">
+      <slot name="content" />
     </section>
 
     <!-- Examples Section -->
     {tool.examples && tool.examples.length > 0 && (
-      <section class="p-5 rounded-xl bg-slate-900 border border-slate-800 space-y-3">
-        <h2 class="text-base font-bold text-white">Examples</h2>
+      <section class="space-y-4 pt-4 border-t border-slate-800">
+        <h2 class="text-xl font-bold text-white">Examples</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           {tool.examples.map((ex) => (
-            <div class="p-3.5 rounded-lg bg-slate-950 border border-slate-800 text-xs space-y-2">
-              {ex.description && <p class="font-semibold text-slate-300">{ex.description}</p>}
-              <div class="font-mono bg-slate-900 p-2 rounded text-emerald-400 overflow-x-auto text-[11px]">
-                <span class="text-slate-500">In:</span> {ex.input}
+            <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 text-sm space-y-2">
+              {ex.title && <p class="font-semibold text-slate-200">{ex.title}</p>}
+              <div class="font-mono bg-slate-950 p-3 rounded-lg text-emerald-400 overflow-x-auto text-xs">
+                <span class="text-slate-500 select-none">In: </span>{ex.input}
               </div>
-              <div class="font-mono bg-slate-900 p-2 rounded text-blue-400 overflow-x-auto text-[11px]">
-                <span class="text-slate-500">Out:</span> {ex.output}
+              <div class="font-mono bg-slate-950 p-3 rounded-lg text-indigo-300 overflow-x-auto text-xs">
+                <span class="text-slate-500 select-none">Out: </span>{ex.output}
               </div>
             </div>
           ))}
@@ -139,13 +101,13 @@ const relatedToolsList = allTools.filter((t) =>
 
     <!-- FAQs Section -->
     {tool.faq && tool.faq.length > 0 && (
-      <section class="p-5 rounded-xl bg-slate-900 border border-slate-800 space-y-4">
-        <h2 class="text-base font-bold text-white">Frequently Asked Questions</h2>
+      <section class="space-y-4 pt-4 border-t border-slate-800">
+        <h2 class="text-xl font-bold text-white">Frequently Asked Questions</h2>
         <div class="space-y-3">
           {tool.faq.map((item) => (
-            <div class="p-3.5 rounded-lg bg-slate-950 border border-slate-800 space-y-1">
-              <h3 class="font-semibold text-slate-200 text-xs">{item.question}</h3>
-              <p class="text-[11px] text-slate-400 leading-relaxed">{item.answer}</p>
+            <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-1.5">
+              <h3 class="font-semibold text-slate-100 text-base">{item.question}</h3>
+              <p class="text-sm text-slate-300 leading-relaxed">{item.answer}</p>
             </div>
           ))}
         </div>
@@ -153,24 +115,29 @@ const relatedToolsList = allTools.filter((t) =>
     )}
 
     <!-- Related Tools Cross-Linking -->
-    {relatedToolsList.length > 0 && (
-      <section class="space-y-3 pt-2">
-        <h2 class="text-base font-bold text-white">Related Tools</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-          {relatedToolsList.map((rel) => (
-            <a
-              href={`/${rel.namespace}/${rel.slug}`}
-              class="p-4 rounded-lg bg-slate-900 border border-slate-800 hover:border-slate-700 transition-colors block space-y-1 group"
-            >
-              <h3 class="font-semibold text-slate-200 text-xs group-hover:text-blue-400 transition-colors">
-                {rel.name}
-              </h3>
-              <p class="text-[11px] text-slate-400 line-clamp-2">{rel.shortDescription}</p>
-            </a>
-          ))}
+    {tool.relatedTools && tool.relatedTools.length > 0 && (
+      <section class="space-y-4 pt-4 border-t border-slate-800">
+        <h2 class="text-xl font-bold text-white">Related Tools</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {tool.relatedTools.map((rel) => {
+            const [relNs, relSlug] = rel.split('/');
+            return (
+              <a
+                href={`/${relNs}/${relSlug}`}
+                class="p-4 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 transition-colors block space-y-1 group"
+              >
+                <h3 class="font-semibold text-slate-200 text-base group-hover:text-indigo-400 transition-colors">
+                  {rel}
+                </h3>
+                <span class="text-xs text-indigo-400 font-medium flex items-center gap-1">
+                  <span>Open tool</span>
+                  <span class="group-hover:translate-x-1 transition-transform">→</span>
+                </span>
+              </a>
+            );
+          })}
         </div>
       </section>
     )}
-
   </div>
 </BaseLayout>

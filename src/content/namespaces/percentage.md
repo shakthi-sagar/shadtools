@@ -1,9 +1,9 @@
 ---
-name: "Percentage Calculators"
-slug: "percentage"
-category: "finance-tools"
-description: "Calculate percentage of numbers, percentage change, and discounts."
-icon: "Percent"
+name: "Percentage Tools"
+summary: "Calculate percentage values, percent change, and growth rates."
+aliases: ["percentage", "percent"]
+featuredTools: ["percentage/calculator"]
+order: 50
 ---
 
-Calculators for finding percentages, percent growth, discounts, and statistical changes.
+Financial and mathematical percentage calculators.

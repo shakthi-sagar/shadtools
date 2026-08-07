@@ -1,8 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { formatJson, minifyJson } from '../../src/lib/jsonEngine';
-import { encodeBase64, decodeBase64 } from '../../src/lib/base64Engine';
-import { intToRoman, romanToInt } from '../../src/lib/romanEngine';
-import { convertUnit, LENGTH_UNITS } from '../../src/lib/unitEngine';
+import { formatJson, minifyJson } from '../../src/tools/json/formatter/format-json';
+import { encodeBase64, decodeBase64 } from '../../src/tools/base64/encode/encode-base64';
+import { convertUnit, LENGTH_UNITS } from '../../src/tools/units/length/convert-length';
 
 describe('JSON Engine', () => {
   it('formats valid JSON correctly', () => {
@@ -37,19 +36,6 @@ describe('Base64 Engine', () => {
     const res = decodeBase64('U2hhZFRvb2xz');
     expect(res.success).toBe(true);
     expect(res.output).toBe('ShadTools');
-  });
-});
-
-describe('Roman Numeral Engine', () => {
-  it('converts integers to Roman numerals', () => {
-    expect(intToRoman(2026)).toBe('MMXXVI');
-    expect(intToRoman(1)).toBe('I');
-    expect(intToRoman(3999)).toBe('MMMCMXCIX');
-  });
-
-  it('converts Roman numerals to integers', () => {
-    expect(romanToInt('MMXXVI')).toBe(2026);
-    expect(romanToInt('I')).toBe(1);
   });
 });
 

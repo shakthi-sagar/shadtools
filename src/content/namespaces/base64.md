@@ -1,9 +1,9 @@
 ---
 name: "Base64 Tools"
-slug: "base64"
-category: "developer-tools"
-description: "Encode text and files to Base64 or decode Base64 strings to UTF-8."
-icon: "Lock"
+summary: "Encode and decode Base64 text and binary data."
+aliases: ["base64", "base64 encoding"]
+featuredTools: ["base64/encode"]
+order: 20
 ---
 
-Encode and decode Base64 strings, files, and images safely with UTF-8 character support.
+Fast Base64 encoding and decoding utilities supporting UTF-8 text and binary data.

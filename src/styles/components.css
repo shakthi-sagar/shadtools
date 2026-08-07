@@ -1,0 +1,17 @@
+/* Utility Surface Classes */
+.surface-card {
+  background-color: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.surface-control {
+  background-color: var(--surface-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+}
+
+.surface-control:focus-within {
+  border-color: var(--border-focus);
+}

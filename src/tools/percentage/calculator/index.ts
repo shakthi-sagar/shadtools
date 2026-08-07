@@ -1,9 +1,9 @@
-import { PercentageCalcTool } from './PercentageCalcTool';
+import type { ToolModule } from '../../tool-module';
+import { percentageCalcConfigSchema } from './config';
 
-export const rendererKey = 'percentage/calculator';
-export const Component = PercentageCalcTool;
-
-export default {
-  key: rendererKey,
-  Component
-};
+export const toolModule = {
+  key: 'percentage/calculator',
+  pattern: 'calculator',
+  privacyMode: 'local',
+  configSchema: percentageCalcConfigSchema,
+} satisfies ToolModule;

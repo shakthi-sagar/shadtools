@@ -1,9 +1,9 @@
-import { LengthConverterTool } from './LengthConverterTool';
+import type { ToolModule } from '../../tool-module';
+import { lengthConverterConfigSchema } from './config';
 
-export const rendererKey = 'units/length';
-export const Component = LengthConverterTool;
-
-export default {
-  key: rendererKey,
-  Component
-};
+export const toolModule = {
+  key: 'units/length',
+  pattern: 'converter',
+  privacyMode: 'local',
+  configSchema: lengthConverterConfigSchema,
+} satisfies ToolModule;

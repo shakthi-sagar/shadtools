@@ -2,16 +2,17 @@
 
 ## 1. Taxonomy & URL Hierarchy
 
-ShadTools organizes tools in a 3-tier hierarchy:
+ShadTools organizes tools in a clean 2-tier hierarchy:
 
 ```text
-Category → Namespace → Tool
+Namespace → Tool
 ```
 
 ### URL Mapping
-- `/developer-tools` → Category Hub (lists all namespaces under Developer Tools: JSON, XML, CSV, Base64, etc.)
-- `/json` → Namespace Hub (lists all JSON tools, quick JSON formatter widget, documentation, related tools)
+- `/json` → Namespace Hub (lists all JSON tools, documentation, related tools)
 - `/json/formatter` → Tool Page (interactive JSON Formatter tool)
+- `/base64/encode` → Tool Page (interactive Base64 Encoder tool)
+- `/images/compress` → Tool Page (interactive Image Compressor tool)
 
 ---
 
@@ -25,48 +26,36 @@ shadtools/
 │   └── _headers
 ├── scripts/
 │   ├── create-tool.ts
-│   ├── validate-tools.ts
-│   ├── generate-search-index.ts
-│   └── validate-links.ts
+│   └── validate-tools.ts
 ├── src/
+│   ├── content.config.ts                # Typed Content Collections (Tools, Namespaces)
 │   ├── content/
-│   │   ├── config.ts
-│   │   ├── categories/
-│   │   │   ├── developer-tools.md
-│   │   │   ├── document-tools.md
-│   │   │   ├── image-tools.md
-│   │   │   ├── finance-tools.md
-│   │   │   └── time-and-unit-tools.md
+│   │   ├── config.ts                    # Re-export for Astro compatibility
 │   │   ├── namespaces/
 │   │   │   ├── json.md
-│   │   │   ├── xml.md
-│   │   │   ├── csv.md
-│   │   │   ├── yaml.md
 │   │   │   ├── base64.md
-│   │   │   ├── pdf.md
 │   │   │   ├── images.md
 │   │   │   ├── currency.md
+│   │   │   ├── percentage.md
 │   │   │   └── units.md
 │   │   └── tools/
 │   │       ├── json/
-│   │       │   ├── formatter.md
-│   │       │   ├── validator.md
-│   │       │   ├── minifier.md
-│   │       │   ├── viewer.md
-│   │       │   ├── to-xml.md
-│   │       │   └── to-csv.md
+│   │       │   └── formatter.md
 │   │       ├── base64/
-│   │       │   ├── encode.md
-│   │       │   └── decode.md
+│   │       │   └── encode.md
 │   │       ├── images/
 │   │       │   └── compress.md
-│   │       └── percentage/
-│   │           └── calculator.md
+│   │       ├── currency/
+│   │       │   └── converter.md
+│   │       ├── percentage/
+│   │       │   └── calculator.md
+│   │       └── units/
+│   │           └── length.md
 │   ├── pages/
 │   │   ├── index.astro
 │   │   ├── search.astro
 │   │   ├── 404.astro
-│   │   ├── [section].astro              # Category Hubs AND Namespace Hubs
+│   │   ├── [section].astro              # Namespace Hubs (/json)
 │   │   ├── [namespace]/
 │   │   │   └── [slug].astro             # Tool Pages (/json/formatter)
 │   │   ├── privacy.astro
@@ -74,40 +63,37 @@ shadtools/
 │   │   ├── disclaimer.astro
 │   │   └── contact.astro
 │   ├── tools/
-│   │   ├── registry.ts                  # Import.meta.glob tool component discovery
-│   │   ├── tool.types.ts
-│   │   ├── _shared/
+│   │   ├── registry.ts                  # Import.meta.glob tool renderer & module discovery
+│   │   ├── tool-module.ts               # ToolModule contract interface
 │   │   ├── json/
-│   │   │   ├── _shared/
-│   │   │   ├── formatter/
-│   │   │   │   ├── index.ts
-│   │   │   │   ├── JsonFormatterTool.tsx
-│   │   │   │   ├── format-json.ts
-│   │   │   │   ├── format-json.test.ts
-│   │   │   │   └── config.ts
-│   │   │   └── validator/
+│   │   │   └── formatter/
+│   │   │       ├── index.ts
+│   │   │       ├── Renderer.astro
+│   │   │       ├── JsonFormatterTool.tsx
+│   │   │       ├── format-json.ts
+│   │   │       ├── format-json.test.ts
+│   │   │       └── config.ts
 │   │   ├── base64/
-│   │   │   ├── encode/
-│   │   │   └── decode/
+│   │   │   └── encode/
 │   │   ├── images/
 │   │   │   └── compress/
-│   │   └── percentage/
-│   │       └── calculator/
+│   │   ├── currency/
+│   │   │   └── converter/
+│   │   ├── percentage/
+│   │   │   └── calculator/
+│   │   └── units/
+│   │       └── length/
 │   ├── components/
 │   │   ├── ui/
-│   │   ├── tool/
+│   │   ├── tool-ui/                      # Reusable tool UI shells (ToolShell, CodeEditorShell, FileDropzone, etc.)
 │   │   ├── site/
-│   │   ├── seo/
-│   │   └── ads/
+│   │   └── seo/
 │   ├── layouts/
 │   │   ├── BaseLayout.astro
-│   │   ├── CategoryLayout.astro
-│   │   ├── NamespaceLayout.astro
 │   │   └── ToolLayout.astro
 │   └── styles/
 │       ├── tokens.css
-│       ├── global.css
-│       └── tool.css
+│       └── base.css
 ```
 
 ---
@@ -115,5 +101,5 @@ shadtools/
 ## 3. Data & Implementation Separation
 
 - **Content Markdown (`src/content/tools/<namespace>/<slug>.md`)**: Contains metadata, SEO titles, descriptions, instructions, examples, FAQs, and `renderer: "json/formatter"`. Contains zero UI logic.
-- **Tool Implementation (`src/tools/<namespace>/<tool>/`)**: Contains React interface, transformation logic, unit tests, and `index.ts` export.
-- **Registry (`src/tools/registry.ts`)**: Auto-discovers tool modules via `import.meta.glob` matching `renderer` key to React component.
+- **Tool Implementation (`src/tools/<namespace>/<tool>/`)**: Co-located tool module containing React interface, pure engine functions, unit tests, Zod config schema, `Renderer.astro` wrapper, and `index.ts` definition.
+- **Registry (`src/tools/registry.ts`)**: Auto-discovers tool modules and `Renderer.astro` wrappers via `import.meta.glob`.

@@ -1,0 +1,33 @@
+.prose {
+  color: var(--text-secondary);
+  font-size: var(--font-base);
+  line-height: 1.7;
+}
+
+.prose h1, .prose h2, .prose h3, .prose h4 {
+  color: var(--text-primary);
+  font-weight: 700;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.prose h2 {
+  font-size: var(--font-2xl);
+}
+
+.prose h3 {
+  font-size: var(--font-xl);
+}
+
+.prose p {
+  margin-bottom: 1.25em;
+}
+
+.prose code {
+  font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+  font-size: var(--font-xs);
+  background-color: var(--surface-input);
+  padding: 0.2em 0.4em;
+  border-radius: var(--radius-sm);
+  color: var(--text-accent);
+}

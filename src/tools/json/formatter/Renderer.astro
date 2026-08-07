@@ -1,0 +1,11 @@
+---
+import { JsonFormatterTool } from './JsonFormatterTool';
+
+interface Props {
+  config?: any;
+}
+
+const { config } = Astro.props;
+---
+
+<JsonFormatterTool client:load config={config} />

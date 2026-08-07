@@ -1,95 +1,47 @@
-# AI Tool Contribution Specification & Prompt Template
+# AI Tool Contribution Specification & Workflow Guide
 
-This specification defines the rules for generating new tool definitions for **ShadTools** (`shadtools.com`).
+This specification defines the rules for creating new tool definitions and implementations for **ShadTools** (`shadtools.com`).
 
 ---
 
-## 📋 Strict Rules for AI Tool Generation
+## 📋 Strict Rules for Tool Generation
 
-Every AI-generated tool definition must strictly adhere to the following rules:
+Every tool in ShadTools follows a **namespace-first 2-tier architecture** (`/namespace/slug`):
 
-1. **Use Approved Categories Only**:
-   - `pdf-tools`
-   - `developer-tools`
-   - `finance-tools`
-   - `image-tools`
-   - `time-tools`
-   - `unit-converters`
+1. **Namespace Taxonomy**:
+   - Every tool belongs to a public namespace (e.g. `json`, `base64`, `images`, `currency`, `percentage`, `units`).
+   - Standard URL format: `/{namespace}/{slug}` (e.g., `/json/formatter`).
 
-2. **Use Approved Shared Components Only**:
-   - `CodeEditorTool`
-   - `NumberInputResult`
-   - `TwoWayUnitConverter`
-   - `MultiFieldFinanceCalc`
-   - `ImageUploadPreview`
-   - `QrCodeTool`
+2. **Co-located Tool Module Structure**:
+   Each tool implementation lives in `src/tools/<namespace>/<slug>/` and consists of 6 core files:
+   - `index.ts` (module definition satisfying `ToolModule`)
+   - `Renderer.astro` (Astro component directly importing the React tool with dynamic hydration)
+   - `[ToolName]Tool.tsx` (Interactive React component)
+   - `[slug].ts` (Pure business logic engine)
+   - `[slug].test.ts` (Engine unit test)
+   - `config.ts` (Zod configuration schema)
 
-3. **Unique & Accurate Content**:
-   - Do NOT create thin, duplicate, or doorway SEO pages.
-   - Include genuine, accurate `longDescription`, step-by-step instructions, realistic conversion examples, and compliant FAQs.
+3. **Content Collection Markdown**:
+   The metadata, SEO, and prose content live in `src/content/tools/<namespace>/<slug>.md`:
+   - Must specify `renderer: "<namespace>/<slug>"`
+   - Must specify `pattern: "code-editor" | "file" | "calculator" | "converter" | "generator"`
+   - Must specify `privacy` processing mode (`local`, `remote-data`, or `server-processing`)
 
 4. **Zero Server Claims**:
-   - Must explicitly emphasize 100% in-browser local privacy processing.
+   - Tools processing data locally must explicitly specify `privacy: { processing: "local", message: "..." }`.
 
-5. **Pass All Validation Checks**:
-   - Must pass `npm run validate-tools` and TypeScript strict mode typechecking.
+5. **Automatic Verification**:
+   - Scaffold a new tool using: `npm run create-tool <namespace> <slug> [name]`
+   - Pass all validation checks using: `npm run validate` and `npm run test`.
 
 ---
 
-## 🤖 Reusable AI Generation Prompt Template
+## 🤖 Tool Creation CLI Command
 
-Copy and paste the prompt below to generate a new tool definition file:
+To generate a new tool template automatically:
 
-```markdown
-Act as a Senior Technical SEO Engineer and Frontend Developer for ShadTools.
-
-Generate a new TypeScript tool definition file for ShadTools following the exact schema below.
-
-### Target Tool Details:
-- Tool Name: [INSERT TOOL NAME, e.g., JSON to CSV Converter]
-- Slug: [INSERT SLUG, e.g., json-to-csv-converter]
-- Category: [CHOOSE ONE: pdf-tools | developer-tools | finance-tools | image-tools | time-tools | unit-converters]
-- Component: [CHOOSE ONE: CodeEditorTool | NumberInputResult | TwoWayUnitConverter | MultiFieldFinanceCalc | ImageUploadPreview | QrCodeTool]
-- Primary Keyword: [INSERT KEYWORD]
-
-### Output Format Required:
-Return ONLY the TypeScript code for `src/content/tools/[slug].ts` using this exact structure:
-
-```ts
-import type { ToolDefinition } from '../../types/tool';
-
-const toolDefinition: ToolDefinition = {
-  id: '[slug]',
-  name: '[Tool Name]',
-  slug: '[slug]',
-  category: '[category]',
-  shortDescription: '[Detailed 150-250 character description]',
-  longDescription: `
-    [Multi-paragraph explanation of how the tool works and its benefits]
-  `,
-  keywords: ['[primary keyword]', '[keyword2]', '[keyword3]'],
-  primaryKeyword: '[primary keyword]',
-  relatedKeywords: ['[related1]', '[related2]'],
-  component: '[Component]',
-  config: {},
-  examples: [
-    {
-      input: '[Example input]',
-      output: '[Example output]',
-      description: '[Example description]'
-    }
-  ],
-  faq: [
-    {
-      question: 'Is my data uploaded to any server?',
-      answer: 'No. All processing happens 100% locally inside your browser.'
-    }
-  ],
-  relatedTools: [],
-  status: 'published',
-  lastModified: '[CURRENT DATE YYYY-MM-DD]'
-};
-
-export default toolDefinition;
+```bash
+npm run create-tool json validator "JSON Validator"
 ```
-```
+
+This creates all implementation files in `src/tools/json/validator/` and the content markdown in `src/content/tools/json/validator.md`.

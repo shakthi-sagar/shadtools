@@ -1,9 +1,9 @@
-import { Base64EncodeTool } from './Base64EncodeTool';
+import type { ToolModule } from '../../tool-module';
+import { base64EncodeConfigSchema } from './config';
 
-export const rendererKey = 'base64/encode';
-export const Component = Base64EncodeTool;
-
-export default {
-  key: rendererKey,
-  Component
-};
+export const toolModule = {
+  key: 'base64/encode',
+  pattern: 'code-editor',
+  privacyMode: 'local',
+  configSchema: base64EncodeConfigSchema,
+} satisfies ToolModule;

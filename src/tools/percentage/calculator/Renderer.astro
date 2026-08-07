@@ -1,0 +1,11 @@
+---
+import { PercentageCalcTool } from './PercentageCalcTool';
+
+interface Props {
+  config?: any;
+}
+
+const { config } = Astro.props;
+---
+
+<PercentageCalcTool client:load config={config} />

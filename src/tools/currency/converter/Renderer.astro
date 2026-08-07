@@ -1,0 +1,11 @@
+---
+import { CurrencyConverterTool } from './CurrencyConverterTool';
+
+interface Props {
+  config?: any;
+}
+
+const { config } = Astro.props;
+---
+
+<CurrencyConverterTool client:load config={config} />

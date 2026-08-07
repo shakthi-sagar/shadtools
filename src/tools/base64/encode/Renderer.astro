@@ -1,0 +1,11 @@
+---
+import { Base64EncodeTool } from './Base64EncodeTool';
+
+interface Props {
+  config?: any;
+}
+
+const { config } = Astro.props;
+---
+
+<Base64EncodeTool client:load config={config} />

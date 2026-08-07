@@ -1,9 +1,9 @@
-import { CurrencyConverterTool } from './CurrencyConverterTool';
+import type { ToolModule } from '../../tool-module';
+import { currencyConverterConfigSchema } from './config';
 
-export const rendererKey = 'currency/converter';
-export const Component = CurrencyConverterTool;
-
-export default {
-  key: rendererKey,
-  Component
-};
+export const toolModule = {
+  key: 'currency/converter',
+  pattern: 'converter',
+  privacyMode: 'remote-data',
+  configSchema: currencyConverterConfigSchema,
+} satisfies ToolModule;

@@ -1,0 +1,11 @@
+---
+import { ImageCompressorTool } from './ImageCompressorTool';
+
+interface Props {
+  config?: any;
+}
+
+const { config } = Astro.props;
+---
+
+<ImageCompressorTool client:load config={config} />

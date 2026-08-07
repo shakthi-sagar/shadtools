@@ -1,9 +1,9 @@
 ---
 name: "Image Tools"
-slug: "images"
-category: "image-tools"
-description: "Compress, resize, and convert PNG, JPG, WebP images locally."
-icon: "Image"
+summary: "Compress, convert, and optimize images locally."
+aliases: ["images", "image utilities"]
+featuredTools: ["images/compress"]
+order: 30
 ---
 
-Browser-side image compression and format conversion powered by HTML5 Canvas.
+In-browser image optimization tools for web performance and design.

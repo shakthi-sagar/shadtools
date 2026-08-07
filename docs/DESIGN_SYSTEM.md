@@ -29,13 +29,6 @@ ShadTools is a professional, high-speed utility web platform.
 - **Success**: `#10b981` (Emerald 500)
 - **Error**: `#ef4444` (Red 500)
 
-### Category Micro-Accents (Used ONLY for small icons & thin category indicators)
-- **Developer Tools / JSON / XML**: `#8b5cf6` (Violet)
-- **Document / PDF Tools**: `#ef4444` (Red)
-- **Image Tools**: `#f97316` (Orange)
-- **Finance Tools**: `#10b981` (Green)
-- **Time & Unit Tools**: `#14b8a6` (Teal) / `#6366f1` (Indigo)
-
 ---
 
 ## 3. Typography & Spacing
@@ -46,7 +39,7 @@ ShadTools is a professional, high-speed utility web platform.
   - H1 Tool Title: `28px` - `36px` (`font-bold`, `tracking-tight`)
   - H2 Section Title: `20px` - `24px` (`font-semibold`)
   - H3 Card Title: `14px` - `16px` (`font-semibold`)
-- **Body Scale**: `14px` - `16px` (`text-slate-300`, `leading-relaxed`)
+- **Body Scale**: `16px` base floor (`text-slate-300`, `leading-relaxed`)
 - **Border Radius**:
   - Buttons / Inputs: `6px` - `8px`
   - Tool Containers: `10px` - `12px`
@@ -56,8 +49,8 @@ ShadTools is a professional, high-speed utility web platform.
 
 ## 4. Page & Layout Structure
 
-1. **Header** (56px height, logo wordmark, search trigger `Ctrl+K`, category navigation)
-2. **Breadcrumb Bar** (`Home / Category / Namespace / Tool`)
+1. **Header** (56px height, logo wordmark, search trigger `Ctrl+K`, namespace navigation)
+2. **Breadcrumb Bar** (`Home / Namespace / Tool`)
 3. **Tool Title & Description** (Compact 1-sentence description)
 4. **Tool Working Surface** (Split pane input/output or single interactive panel)
 5. **Privacy Notice** ("🔒 Processed 100% locally in browser memory")

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { encodeBase64, decodeBase64 } from '../../../lib/base64Engine';
+import { Lock, Unlock, Copy, Check } from 'lucide-react';
+import { encodeBase64, decodeBase64 } from './encode-base64';
 
 export const Base64EncodeTool: React.FC = () => {
   const [input, setInput] = useState<string>('');
@@ -27,47 +28,65 @@ export const Base64EncodeTool: React.FC = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2 p-3 rounded-lg bg-slate-900 border border-slate-800">
+      <div className="flex items-center gap-2 p-3 rounded-xl bg-slate-900 border border-slate-800">
         <button
           onClick={() => handleProcess('encode')}
-          className={`px-3.5 py-1.5 rounded-md text-xs font-semibold transition-colors ${
-            mode === 'encode' ? 'bg-purple-600 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+          className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold transition-colors ${
+            mode === 'encode' ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
           }`}
         >
-          Encode Base64
+          <Lock className="w-3.5 h-3.5" />
+          <span>Encode Base64</span>
         </button>
         <button
           onClick={() => handleProcess('decode')}
-          className={`px-3.5 py-1.5 rounded-md text-xs font-semibold transition-colors ${
-            mode === 'decode' ? 'bg-purple-600 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+          className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold transition-colors ${
+            mode === 'decode' ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
           }`}
         >
-          Decode Base64
+          <Unlock className="w-3.5 h-3.5" />
+          <span>Decode Base64</span>
         </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-1.5">
-          <label className="text-xs font-medium text-slate-400">Input Text</label>
+        <div className="space-y-2">
+          <label htmlFor="base64-input" className="text-xs font-semibold text-slate-300 px-1 block">Input Text</label>
           <textarea
+            id="base64-input"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Enter text or Base64 string..."
-            className="w-full h-80 p-3.5 rounded-lg bg-slate-950 border border-slate-800 text-slate-100 font-mono text-xs focus:outline-none focus:border-purple-500 resize-none leading-relaxed"
+            placeholder="Enter plain text or Base64 string..."
+            className="w-full h-80 p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 font-mono text-sm focus:outline-none focus:border-indigo-500 resize-none leading-relaxed"
           />
         </div>
-        <div className="space-y-1.5">
-          <div className="flex justify-between text-xs font-medium text-slate-400">
+        <div className="space-y-2">
+          <div className="flex justify-between items-center text-xs font-semibold text-slate-300 px-1">
             <span>Result</span>
-            <button onClick={handleCopy} disabled={!output} className="text-purple-400 hover:text-purple-300 text-xs">
-              {copied ? 'Copied ✓' : 'Copy 📋'}
+            <button
+              onClick={handleCopy}
+              disabled={!output}
+              className="flex items-center gap-1 text-xs font-medium text-indigo-400 hover:text-indigo-300 disabled:opacity-40 transition-colors"
+            >
+              {copied ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-emerald-400" />
+                  <span className="text-emerald-400">Copied</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3.5 h-3.5" />
+                  <span>Copy</span>
+                </>
+              )}
             </button>
           </div>
           <textarea
             value={output}
             readOnly
+            aria-label="Result"
             placeholder="Base64 result will appear here..."
-            className="w-full h-80 p-3.5 rounded-lg bg-slate-950/60 border border-slate-800 text-purple-300 font-mono text-xs focus:outline-none resize-none leading-relaxed"
+            className="w-full h-80 p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 text-indigo-300 font-mono text-sm focus:outline-none resize-none leading-relaxed"
           />
         </div>
       </div>

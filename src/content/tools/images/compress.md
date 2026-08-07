@@ -1,24 +1,58 @@
 ---
-id: "images-compress"
-name: "In-Browser Image Compressor"
-slug: "compress"
-namespace: "images"
-category: "image-tools"
-shortDescription: "Free in-browser image compressor. Reduce PNG, JPG, and WebP file sizes up to 80% with zero quality loss."
-keywords: ["image compressor", "compress png", "compress jpg", "reduce photo size"]
-primaryKeyword: "image compressor"
-relatedKeywords: ["image optimizer", "shrink image"]
-renderer: "images/compress"
-status: "published"
-lastModified: "2026-08-07"
+id: images/compress
+name: In-Browser Image Compressor
+namespace: images
+status: published
+renderer: images/compress
+pattern: file
+
+summary: Reduce PNG, JPG, and WebP file sizes up to 80% with configurable compression quality entirely in browser.
+
+aliases:
+  - image optimizer
+  - compress png
+  - compress jpg
+
+seo:
+  title: Image Compressor – Free Online Image Optimization
+  description: Compress PNG, JPG, and WebP images directly in your browser tab without server uploads.
+  primaryKeyword: image compressor
+  keywords:
+    - compress png
+    - compress jpg
+    - image optimizer
+  noindex: false
+
+privacy:
+  processing: local
+  message: Your images are compressed 100% locally in your browser memory and are never uploaded.
+
+config:
+  defaultQuality: 0.8
+  maxFileSizeMb: 20
+
+features:
+  - compress
+  - preview
+  - download
+
 examples:
-  - input: "2.5 MB PNG File"
-    output: "450 KB Compressed Image (82% saved)"
-    description: "Compress high-resolution image"
+  - title: Compress high-resolution image
+    input: "2.5 MB PNG photo"
+    output: "450 KB optimized WebP image"
+
 faq:
-  - question: "Are my photos uploaded to a server?"
-    answer: "No! All image compression happens 100% locally in your browser memory using HTML5 Canvas."
-relatedTools: ["json/formatter", "base64/encode"]
+  - question: Are my photos uploaded to a server?
+    answer: No. All compression runs locally using HTML5 Canvas inside your browser.
+
+relatedTools:
+  - json/formatter
+  - base64/encode
+
+featured: true
+updatedAt: 2026-08-07
 ---
 
-Compress images directly inside your browser. Adjust quality sliders, preview output file dimensions, and download optimized files.
+## How local image compression works
+
+ShadTools renders your uploaded image onto an offscreen HTML5 canvas element and re-exports it at your selected quality setting.

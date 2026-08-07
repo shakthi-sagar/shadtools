@@ -1,0 +1,11 @@
+---
+import { LengthConverterTool } from './LengthConverterTool';
+
+interface Props {
+  config?: any;
+}
+
+const { config } = Astro.props;
+---
+
+<LengthConverterTool client:load config={config} />

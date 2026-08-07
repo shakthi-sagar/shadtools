@@ -1,116 +1,99 @@
 import fs from 'fs';
 import path from 'path';
 
-const VALID_CATEGORIES = [
-  'pdf-tools',
-  'developer-tools',
-  'finance-tools',
-  'image-tools',
-  'time-tools',
-  'unit-converters'
-];
-
-const VALID_COMPONENTS = [
-  'CodeEditorTool',
-  'NumberInputResult',
-  'TwoWayUnitConverter',
-  'MultiFieldFinanceCalc',
-  'ImageUploadPreview',
-  'QrCodeTool'
-];
-
 async function validate() {
-  console.log('🔍 Running ShadTools Metadata & SEO Build Validator...\n');
+  console.log('🔍 Running ShadTools Content & Registry Validator...\n');
 
   const toolsDir = path.join(process.cwd(), 'src', 'content', 'tools');
+  const namespacesDir = path.join(process.cwd(), 'src', 'content', 'namespaces');
+  const srcToolsDir = path.join(process.cwd(), 'src', 'tools');
+
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
   if (!fs.existsSync(toolsDir)) {
     console.error(`❌ Tools directory missing at ${toolsDir}`);
     process.exit(1);
   }
 
-  const files = fs.readdirSync(toolsDir).filter(f => f.endsWith('.json'));
-  console.log(`Found ${files.length} tool definition files.\n`);
-
-  const errors: string[] = [];
-  const warnings: string[] = [];
-
-  const seenSlugs = new Set<string>();
-  const seenTitles = new Set<string>();
-
-  for (const file of files) {
-    const filePath = path.join(toolsDir, file);
-    try {
-      const content = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-
-      const { slug, name, category, component, status, shortDescription } = content;
-
-      if (!slug) {
-        errors.push(`[${file}] Missing 'slug' field.`);
-      } else {
-        if (seenSlugs.has(slug)) {
-          errors.push(`[${file}] Duplicate slug found: '${slug}'`);
-        }
-        seenSlugs.add(slug);
+  function getMarkdownFiles(dir: string): string[] {
+    const results: string[] = [];
+    if (!fs.existsSync(dir)) return results;
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    for (const entry of entries) {
+      const fullPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        results.push(...getMarkdownFiles(fullPath));
+      } else if (entry.isFile() && entry.name.endsWith('.md')) {
+        results.push(fullPath);
       }
+    }
+    return results;
+  }
 
-      if (name) {
-        if (seenTitles.has(name.toLowerCase())) {
-          warnings.push(`[${file}] Duplicate title found: '${name}'`);
-        }
-        seenTitles.add(name.toLowerCase());
-      } else {
-        errors.push(`[${file}] Missing 'name' field.`);
-      }
+  const namespaceFiles = getMarkdownFiles(namespacesDir);
+  const toolFiles = getMarkdownFiles(toolsDir);
 
-      if (category) {
-        if (!VALID_CATEGORIES.includes(category)) {
-          errors.push(`[${file}] Invalid category '${category}'. Must be one of: ${VALID_CATEGORIES.join(', ')}`);
-        }
-      } else {
-        errors.push(`[${file}] Missing 'category' field.`);
-      }
+  const namespaceIds = new Set(namespaceFiles.map((f) => path.basename(f, '.md')));
 
-      if (component) {
-        if (!VALID_COMPONENTS.includes(component)) {
-          errors.push(`[${file}] Invalid component '${component}'. Must be one of: ${VALID_COMPONENTS.join(', ')}`);
-        }
-      } else {
-        errors.push(`[${file}] Missing 'component' field.`);
-      }
+  const seenToolKeys = new Set<string>();
 
-      if (shortDescription) {
-        if (shortDescription.length < 20) {
-          errors.push(`[${file}] Short description too short (${shortDescription.length} chars). Minimum is 20 chars.`);
-        }
-      } else {
-        errors.push(`[${file}] Missing 'shortDescription' field.`);
-      }
+  for (const file of toolFiles) {
+    const relPath = path.relative(toolsDir, file).replace(/\\/g, '/');
+    const toolKey = relPath.replace(/\.md$/, ''); // e.g. "json/formatter"
 
-      if (status === 'draft') {
-        warnings.push(`[${file}] Tool is marked as 'draft' and will be excluded from production build.`);
+    if (seenToolKeys.has(toolKey)) {
+      errors.push(`Duplicate tool key found: '${toolKey}'`);
+    }
+    seenToolKeys.add(toolKey);
+
+    const parts = toolKey.split('/');
+    if (parts.length !== 2) {
+      errors.push(`[${relPath}] Tool file path must be in format 'namespace/slug.md'`);
+      continue;
+    }
+
+    const [ns, slug] = parts;
+
+    if (!namespaceIds.has(ns)) {
+      errors.push(`[${relPath}] Namespace '${ns}' is not defined in src/content/namespaces/`);
+    }
+
+    // Verify corresponding renderer directory exists in src/tools/
+    const rendererDir = path.join(srcToolsDir, ns, slug);
+    const rendererAstro = path.join(rendererDir, 'Renderer.astro');
+    const indexTs = path.join(rendererDir, 'index.ts');
+
+    if (!fs.existsSync(rendererDir)) {
+      errors.push(`[${relPath}] Missing tool module implementation directory: ${rendererDir}`);
+    } else {
+      if (!fs.existsSync(rendererAstro)) {
+        errors.push(`[${relPath}] Missing 'Renderer.astro' wrapper in ${rendererDir}`);
       }
-    } catch (err) {
-      errors.push(`[${file}] Invalid JSON formatting.`);
+      if (!fs.existsSync(indexTs)) {
+        errors.push(`[${relPath}] Missing 'index.ts' module definition in ${rendererDir}`);
+      }
     }
   }
 
+  console.log(`Verified ${namespaceIds.size} namespaces and ${seenToolKeys.size} tool modules.`);
+
   if (warnings.length > 0) {
-    console.log('⚠️  WARNINGS:');
-    warnings.forEach(w => console.log(`   - ${w}`));
-    console.log('');
+    console.log('\n⚠️  WARNINGS:');
+    warnings.forEach((w) => console.log(`   - ${w}`));
   }
 
   if (errors.length > 0) {
-    console.error('❌ CRITICAL VALIDATION ERRORS:');
-    errors.forEach(e => console.error(`   - ${e}`));
-    console.error('\nBuild failed due to metadata validation errors.');
+    console.error('\n❌ CRITICAL VALIDATION ERRORS:');
+    errors.forEach((e) => console.error(`   - ${e}`));
+    console.error('\nBuild failed due to validation errors.');
     process.exit(1);
   }
 
-  console.log(`✅ All ${files.length} tool definitions passed metadata, SEO, and slug validation!`);
+  console.log('\n✅ All content entries, tool modules, renderers, and route keys passed validation!\n');
 }
 
-validate().catch(err => {
+validate().catch((err) => {
   console.error(err);
   process.exit(1);
 });

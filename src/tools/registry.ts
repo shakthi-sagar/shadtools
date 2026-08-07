@@ -1,24 +1,75 @@
-import type { ComponentType } from 'react';
-import { JsonFormatterTool } from './json/formatter/JsonFormatterTool';
-import { Base64EncodeTool } from './base64/encode/Base64EncodeTool';
-import { ImageCompressorTool } from './images/compress/ImageCompressorTool';
-import { PercentageCalcTool } from './percentage/calculator/PercentageCalcTool';
-import { LengthConverterTool } from './units/length/LengthConverterTool';
-import { CurrencyConverterTool } from './currency/converter/CurrencyConverterTool';
+import type { AstroComponentFactory } from 'astro/runtime/server/index.js';
+import type { ToolModule } from './tool-module';
 
-export const toolRegistry: Record<string, ComponentType<any>> = {
-  'json/formatter': JsonFormatterTool,
-  'base64/encode': Base64EncodeTool,
-  'images/compress': ImageCompressorTool,
-  'percentage/calculator': PercentageCalcTool,
-  'units/length': LengthConverterTool,
-  'currency/converter': CurrencyConverterTool
+type RendererModule = {
+  default: AstroComponentFactory;
 };
 
-export function getToolComponent(rendererKey: string): ComponentType<any> | null {
-  return toolRegistry[rendererKey] || null;
+type DefinitionModule = {
+  toolModule: ToolModule;
+};
+
+const rendererLoaders = import.meta.glob<RendererModule>('./*/**/Renderer.astro');
+
+const definitions = import.meta.glob<DefinitionModule>('./*/**/index.ts', {
+  eager: true,
+});
+
+function rendererPathToKey(path: string): string {
+  const match = path.match(/^\.\/(.+)\/Renderer\.astro$/);
+
+  if (!match?.[1]) {
+    throw new Error(`Invalid tool renderer path: ${path}`);
+  }
+
+  return match[1];
+}
+
+const rendererByKey = new Map(
+  Object.entries(rendererLoaders).map(([path, loader]) => [
+    rendererPathToKey(path),
+    loader,
+  ])
+);
+
+const moduleByKey = new Map<string, ToolModule>();
+
+for (const definition of Object.values(definitions)) {
+  if (!definition?.toolModule) continue;
+  const module = definition.toolModule;
+
+  if (moduleByKey.has(module.key)) {
+    throw new Error(`Duplicate tool module key: ${module.key}`);
+  }
+
+  moduleByKey.set(module.key, module);
+}
+
+export async function getToolRenderer(
+  key: string
+): Promise<AstroComponentFactory> {
+  const loader = rendererByKey.get(key);
+
+  if (!loader) {
+    throw new Error(`No Renderer.astro registered for "${key}"`);
+  }
+
+  return (await loader()).default;
+}
+
+export function parseToolConfig(
+  key: string,
+  config: Record<string, unknown> = {}
+): unknown {
+  const module = moduleByKey.get(key);
+
+  if (!module) {
+    throw new Error(`No tool module registered for "${key}"`);
+  }
+
+  return module.configSchema.parse(config);
 }
 
 export function getRegisteredToolKeys(): string[] {
-  return Object.keys(toolRegistry);
+  return [...moduleByKey.keys()].sort();
 }

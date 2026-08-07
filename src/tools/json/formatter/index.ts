@@ -1,9 +1,9 @@
-import { JsonFormatterTool } from './JsonFormatterTool';
+import type { ToolModule } from '../../tool-module';
+import { jsonFormatterConfigSchema } from './config';
 
-export const rendererKey = 'json/formatter';
-export const Component = JsonFormatterTool;
-
-export default {
-  key: rendererKey,
-  Component
-};
+export const toolModule = {
+  key: 'json/formatter',
+  pattern: 'code-editor',
+  privacyMode: 'local',
+  configSchema: jsonFormatterConfigSchema,
+} satisfies ToolModule;
