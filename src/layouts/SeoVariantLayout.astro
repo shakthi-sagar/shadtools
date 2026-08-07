@@ -63,19 +63,6 @@ const breadcrumbSchema = {
     item: `https://shadtools.com${item.url}`,
   })),
 };
-
-const appSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'SoftwareApplication',
-  name: meta.h1,
-  applicationCategory: 'UtilityApplication',
-  operatingSystem: 'Any',
-  offers: {
-    '@type': 'Offer',
-    price: '0',
-    priceCurrency: 'USD',
-  },
-};
 ---
 
 <BaseLayout

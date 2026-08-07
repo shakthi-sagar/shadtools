@@ -6,6 +6,7 @@ import PrivacyNotice from '@/components/tool-page/PrivacyNotice.astro';
 import Faq from '@/components/tool-page/Faq.astro';
 import RelatedTools from '@/components/tool-page/RelatedTools.astro';
 import AdSlot from '@/components/tool-page/AdSlot.astro';
+import WebApplicationJsonLd from '@/components/seo/WebApplicationJsonLd.astro';
 import { getToolUrl, getNamespaceUrl } from '@/lib/routing';
 
 export interface Props {
@@ -52,6 +53,8 @@ const breadcrumbItems = [
   keywords={tool.seo.keywords}
   noindex={tool.seo.noindex}
 >
+  <WebApplicationJsonLd name={tool.name} description={tool.seo.description} url={currentUrl} />
+
   <div class="max-w-[1120px] mx-auto px-4 sm:px-6 py-6" data-pagefind-body>
     <!-- Header Section with Hierarchical 8px Spacing -->
     <div class="space-y-2">
