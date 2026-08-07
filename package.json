@@ -16,7 +16,7 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "test:watch": "vitest",
-    "validate": "tsx scripts/validate-tools.ts && tsx scripts/validate-styles.ts"
+    "validate": "tsx scripts/validate-tools.ts && tsx scripts/validate-styles.ts && tsx scripts/validate-seo.ts"
   },
   "dependencies": {
     "@astrojs/react": "^3.6.2",

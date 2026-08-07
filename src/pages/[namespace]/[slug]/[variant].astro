@@ -41,6 +41,14 @@ export const getStaticPaths: GetStaticPaths = async () => {
           }))
         : [];
 
+      const breadcrumbParent = module.seoPages.getBreadcrumbParent
+        ? module.seoPages.getBreadcrumbParent(variantData)
+        : null;
+
+      const sections = module.seoPages.getSections
+        ? module.seoPages.getSections(variantData)
+        : undefined;
+
       paths.push({
         params: {
           namespace,
@@ -57,6 +65,8 @@ export const getStaticPaths: GetStaticPaths = async () => {
           meta,
           result,
           noindex: !isIndexable,
+          breadcrumbParent,
+          sections,
           nearbyVariants,
           privacyMessage: contentEntry.data.privacy?.message,
         },
@@ -78,6 +88,8 @@ const {
   meta,
   result,
   noindex,
+  breadcrumbParent,
+  sections,
   nearbyVariants,
   privacyMessage,
 } = props;
@@ -93,6 +105,8 @@ const Renderer = await getToolRenderer(rendererKey);
   meta={meta}
   result={result}
   noindex={noindex}
+  breadcrumbParent={breadcrumbParent}
+  sections={sections}
   nearbyVariants={nearbyVariants}
   privacyMessage={privacyMessage}
 >

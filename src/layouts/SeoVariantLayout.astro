@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Breadcrumbs from '@/components/site/Breadcrumbs.astro';
-import type { SeoVariantMetadata, SeoVariantResult } from '@/tools/tool-module';
+import type { SeoVariantMetadata, SeoVariantResult, SeoSection, BreadcrumbParent } from '@/tools/tool-module';
 import { getVariantUrl, getToolUrl, getNamespaceUrl } from '@/lib/routing';
 
 export interface Props {
@@ -12,6 +12,8 @@ export interface Props {
   meta: SeoVariantMetadata;
   result: SeoVariantResult;
   noindex: boolean;
+  breadcrumbParent?: BreadcrumbParent | null;
+  sections?: SeoSection[];
   nearbyVariants?: Array<{ slug: string; label: string }>;
   privacyMessage?: string;
 }
@@ -24,6 +26,8 @@ const {
   meta,
   result,
   noindex,
+  breadcrumbParent,
+  sections,
   nearbyVariants = [],
   privacyMessage = 'Processed 100% locally in your browser.',
 } = Astro.props;
@@ -34,8 +38,31 @@ const nsLabel = namespace.charAt(0).toUpperCase() + namespace.slice(1);
 const breadcrumbItems = [
   { name: nsLabel, url: getNamespaceUrl(namespace) },
   { name: toolName, url: getToolUrl(namespace, toolSlug) },
-  { name: meta.h1, url: getVariantUrl(namespace, toolSlug, variant) },
 ];
+
+if (breadcrumbParent) {
+  breadcrumbItems.push({
+    name: breadcrumbParent.name,
+    url: getVariantUrl(namespace, toolSlug, breadcrumbParent.slug),
+  });
+}
+
+breadcrumbItems.push({
+  name: meta.h1,
+  url: getVariantUrl(namespace, toolSlug, variant),
+});
+
+// JSON-LD Breadcrumb Schema
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: breadcrumbItems.map((item, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    name: item.name,
+    item: `https://shadtools.com${item.url}`,
+  })),
+};
 ---
 
 <BaseLayout
@@ -44,6 +71,8 @@ const breadcrumbItems = [
   canonicalUrl={canonicalUrl}
   noindex={noindex}
 >
+  <script type="application/ld+json" is:inline set:html={JSON.stringify(breadcrumbSchema)} />
+
   <div class="max-w-[1120px] mx-auto px-4 sm:px-6 py-6 space-y-6" data-pagefind-ignore>
     <!-- Breadcrumbs -->
     <Breadcrumbs items={breadcrumbItems} />
@@ -71,36 +100,111 @@ const breadcrumbItems = [
       <slot name="tool" />
     </div>
 
-    <!-- Formula & Calculation Steps -->
-    <section class="max-w-[720px] space-y-3 border-t border-border pt-6">
-      <h2 class="text-lg font-semibold text-foreground">How to Convert</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div class="p-3.5 rounded-md bg-surface border border-border space-y-1">
-          <span class="text-[11px] font-semibold text-foreground-muted uppercase tracking-wider font-sans">Formula</span>
-          <p class="text-xs text-foreground font-mono">{result.formula}</p>
-        </div>
-        <div class="p-3.5 rounded-md bg-surface border border-border space-y-1">
-          <span class="text-[11px] font-semibold text-foreground-muted uppercase tracking-wider font-sans">Calculation</span>
-          <p class="text-xs text-accent font-mono font-bold">{result.steps}</p>
-        </div>
-      </div>
-    </section>
+    <!-- Render Custom Compositional Sections if available -->
+    {sections && sections.length > 0 ? (
+      sections.map((section) => (
+        <section class="max-w-[720px] space-y-3 border-t border-border pt-6">
+          <h2 class="text-lg font-semibold text-foreground">{section.title}</h2>
 
-    <!-- Nearby Conversions -->
-    {nearbyVariants.length > 0 && (
-      <section class="max-w-[720px] space-y-3 border-t border-border pt-6">
-        <h2 class="text-lg font-semibold text-foreground">Similar Conversions</h2>
-        <div class="flex flex-wrap gap-2">
-          {nearbyVariants.map((nv) => (
-            <a
-              href={getVariantUrl(namespace, toolSlug, nv.slug)}
-              class="px-2.5 py-1.5 rounded-md bg-surface border border-border hover:border-border-strong text-xs text-foreground-secondary hover:text-foreground transition-colors"
-            >
-              {nv.label}
-            </a>
-          ))}
-        </div>
-      </section>
+          {section.type === 'cards' && section.cards && (
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {section.cards.map((c) => (
+                <div class="p-3.5 rounded-md bg-surface border border-border space-y-1">
+                  <span class="text-[11px] font-semibold text-foreground-muted uppercase tracking-wider font-sans">{c.label}</span>
+                  <p class="text-xs text-foreground font-mono">{c.value}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {section.type === 'table' && section.table && (
+            <div class="overflow-x-auto border border-border rounded-lg">
+              <table class="w-full text-xs text-left">
+                <thead class="bg-surface-subtle border-b border-border text-foreground-muted uppercase tracking-wider">
+                  <tr>
+                    <th class="px-4 py-2.5 font-medium">{section.table.headers[0]}</th>
+                    <th class="px-4 py-2.5 font-medium">{section.table.headers[1]}</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-border bg-surface font-mono">
+                  {section.table.rows.map((row) => (
+                    <tr class={row.isCurrent ? 'bg-accent/10 font-bold text-accent' : 'hover:bg-surface-hover'}>
+                      <td class="px-4 py-2">
+                        {row.slug ? (
+                          <a href={getVariantUrl(namespace, toolSlug, row.slug)} class="hover:underline text-foreground">
+                            {row.from}
+                          </a>
+                        ) : (
+                          <span>{row.from}</span>
+                        )}
+                      </td>
+                      <td class="px-4 py-2 text-foreground-secondary">{row.to}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {section.type === 'text' && section.text && (
+            <div class="p-4 rounded-md bg-surface border border-border text-xs text-foreground-secondary leading-relaxed">
+              {section.text}
+            </div>
+          )}
+
+          {section.type === 'links' && section.links && (
+            <div class="flex flex-wrap gap-2">
+              {section.links.map((link) => (
+                <a
+                  href={getVariantUrl(namespace, toolSlug, link.slug)}
+                  class="px-2.5 py-1.5 rounded-md bg-surface border border-border hover:border-border-strong text-xs text-foreground-secondary hover:text-foreground transition-colors"
+                >
+                  {link.label}
+                </a>
+              ))}
+            </div>
+          )}
+        </section>
+      ))
+    ) : (
+      <!-- Fallback Default Layout for Tools without getSections -->
+      <>
+        {(result.formula || result.steps) && (
+          <section class="max-w-[720px] space-y-3 border-t border-border pt-6">
+            <h2 class="text-lg font-semibold text-foreground">How to Convert</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {result.formula && (
+                <div class="p-3.5 rounded-md bg-surface border border-border space-y-1">
+                  <span class="text-[11px] font-semibold text-foreground-muted uppercase tracking-wider font-sans">Formula</span>
+                  <p class="text-xs text-foreground font-mono">{result.formula}</p>
+                </div>
+              )}
+              {result.steps && (
+                <div class="p-3.5 rounded-md bg-surface border border-border space-y-1">
+                  <span class="text-[11px] font-semibold text-foreground-muted uppercase tracking-wider font-sans">Calculation</span>
+                  <p class="text-xs text-accent font-mono font-bold">{result.steps}</p>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
+
+        {nearbyVariants.length > 0 && (
+          <section class="max-w-[720px] space-y-3 border-t border-border pt-6">
+            <h2 class="text-lg font-semibold text-foreground">Similar Conversions</h2>
+            <div class="flex flex-wrap gap-2">
+              {nearbyVariants.map((nv) => (
+                <a
+                  href={getVariantUrl(namespace, toolSlug, nv.slug)}
+                  class="px-2.5 py-1.5 rounded-md bg-surface border border-border hover:border-border-strong text-xs text-foreground-secondary hover:text-foreground transition-colors"
+                >
+                  {nv.label}
+                </a>
+              ))}
+            </div>
+          </section>
+        )}
+      </>
     )}
 
     <!-- Ad slot -->

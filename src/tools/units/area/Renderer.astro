@@ -1,0 +1,19 @@
+---
+import { AreaTool } from './AreaTool';
+
+interface Props {
+  config?: any;
+  initialValue?: number;
+  initialFrom?: string;
+  initialTo?: string;
+}
+
+const { initialValue, initialFrom, initialTo } = Astro.props;
+---
+
+<AreaTool
+  client:load
+  initialValue={initialValue}
+  initialFrom={initialFrom}
+  initialTo={initialTo}
+/>

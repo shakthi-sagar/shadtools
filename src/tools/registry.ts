@@ -16,7 +16,7 @@ const definitions = import.meta.glob<DefinitionModule>('./*/**/index.ts', {
 });
 
 function rendererPathToKey(path: string): string {
-  const match = path.match(/^\.\/(.+)\/Renderer\.astro$/);
+  const match = path.match(/(?:^|\/)([^/]+\/[^/]+)\/Renderer\.astro$/);
 
   if (!match?.[1]) {
     throw new Error(`Invalid tool renderer path: ${path}`);
@@ -77,6 +77,11 @@ export function getRegisteredToolKeys(): string[] {
 /** Get a tool module by its key. */
 export function getToolModule(key: string): ToolModule | undefined {
   return moduleByKey.get(key);
+}
+
+/** Return all registered tool modules. */
+export function getAllTools(): Array<{ key: string; module: ToolModule }> {
+  return [...moduleByKey.entries()].map(([key, module]) => ({ key, module }));
 }
 
 /** Return all tool modules that have a seoPages provider. */
