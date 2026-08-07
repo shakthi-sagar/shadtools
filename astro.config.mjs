@@ -15,6 +15,12 @@ export default defineConfig({
       applyBaseStyles: false
     }),
     react(),
-    sitemap()
+    sitemap({
+      filter: (page) => {
+        // Exclude 404
+        if (page.includes('/404')) return false;
+        return true;
+      },
+    })
   ]
 });

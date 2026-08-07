@@ -1,0 +1,125 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Breadcrumbs from '../components/site/Breadcrumbs.astro';
+import type { SeoVariantMetadata, SeoVariantResult, SeoPageProvider } from '../tools/tool-module';
+import { getVariantUrl, getToolUrl, getNamespaceUrl } from '../lib/routing';
+
+export interface Props {
+  namespace: string;
+  toolSlug: string;
+  toolName: string;
+  variant: string;
+  meta: SeoVariantMetadata;
+  result: SeoVariantResult;
+  noindex: boolean;
+  nearbyVariants?: Array<{ slug: string; label: string }>;
+  privacyMessage?: string;
+}
+
+const {
+  namespace,
+  toolSlug,
+  toolName,
+  variant,
+  meta,
+  result,
+  noindex,
+  nearbyVariants = [],
+  privacyMessage = 'Processed 100% locally in your browser.',
+} = Astro.props;
+
+const canonicalUrl = `https://shadtools.com${getVariantUrl(namespace, toolSlug, variant)}`;
+const nsLabel = namespace.charAt(0).toUpperCase() + namespace.slice(1);
+
+const breadcrumbItems = [
+  { name: nsLabel, url: getNamespaceUrl(namespace) },
+  { name: toolName, url: getToolUrl(namespace, toolSlug) },
+  { name: meta.h1, url: getVariantUrl(namespace, toolSlug, variant) },
+];
+---
+
+<BaseLayout
+  title={meta.title}
+  description={meta.description}
+  canonicalUrl={canonicalUrl}
+  noindex={noindex}
+>
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8" data-pagefind-ignore>
+    <!-- Breadcrumbs -->
+    <Breadcrumbs items={breadcrumbItems} />
+
+    <!-- H1 & Direct Answer -->
+    <header class="space-y-4">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-md text-xs font-semibold bg-slate-900 border border-slate-800 text-indigo-300">
+        <span>Online Utility</span>
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+        {meta.h1}
+      </h1>
+
+      <!-- Direct Answer Card -->
+      <div class="p-5 rounded-2xl bg-gradient-to-br from-indigo-950/50 to-slate-900 border border-indigo-800/40 shadow-lg">
+        <p class="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+          {result.answer}
+        </p>
+        <div class="flex items-center gap-2 mt-2 text-xs text-emerald-400 font-medium">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
+          <span>{privacyMessage}</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Interactive Tool (pre-filled) -->
+    <section class="p-4 sm:p-6 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-2xl">
+      <slot name="tool" />
+    </section>
+
+    <!-- Formula & Calculation Steps -->
+    <section class="space-y-4 border-t border-slate-800 pt-6">
+      <h2 class="text-xl font-bold text-white">How to Convert</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-1.5">
+          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Formula</span>
+          <p class="text-sm text-slate-200 font-mono">{result.formula}</p>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-1.5">
+          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Calculation</span>
+          <p class="text-sm text-indigo-300 font-mono font-bold">{result.steps}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Nearby Conversions (internal links) -->
+    {nearbyVariants.length > 0 && (
+      <section class="space-y-4 border-t border-slate-800 pt-6">
+        <h2 class="text-xl font-bold text-white">Similar Conversions</h2>
+        <div class="flex flex-wrap gap-2">
+          {nearbyVariants.map((nv) => (
+            <a
+              href={getVariantUrl(namespace, toolSlug, nv.slug)}
+              class="px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 hover:border-slate-700 text-sm text-slate-300 hover:text-indigo-400 transition-colors"
+            >
+              {nv.label}
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- Ad slot -->
+    <div class="p-4 rounded-xl bg-slate-900/30 border border-slate-800/60 text-center text-xs text-slate-500">
+      <span>Advertisement</span>
+    </div>
+
+    <!-- Back link -->
+    <div class="pt-2">
+      <a
+        href={getToolUrl(namespace, toolSlug)}
+        class="inline-flex items-center gap-1.5 text-sm font-medium text-indigo-400 hover:text-indigo-300 transition-colors"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+        <span>Back to {toolName}</span>
+      </a>
+    </div>
+  </div>
+</BaseLayout>

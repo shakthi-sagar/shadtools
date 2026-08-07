@@ -73,3 +73,15 @@ export function parseToolConfig(
 export function getRegisteredToolKeys(): string[] {
   return [...moduleByKey.keys()].sort();
 }
+
+/** Get a tool module by its key. */
+export function getToolModule(key: string): ToolModule | undefined {
+  return moduleByKey.get(key);
+}
+
+/** Return all tool modules that have a seoPages provider. */
+export function getAllSeoEnabledTools(): Array<{ key: string; module: ToolModule }> {
+  return [...moduleByKey.entries()]
+    .filter(([, m]) => m.seoPages != null)
+    .map(([key, module]) => ({ key, module }));
+}

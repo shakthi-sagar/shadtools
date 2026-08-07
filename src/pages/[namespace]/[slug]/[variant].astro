@@ -1,0 +1,106 @@
+---
+import { getCollection } from 'astro:content';
+import type { GetStaticPaths } from 'astro';
+import SeoVariantLayout from '../../../layouts/SeoVariantLayout.astro';
+import { getAllSeoEnabledTools, getToolRenderer } from '../../../tools/registry';
+import { getNamespaceSlug, getToolSlug } from '../../../lib/routing';
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const seoTools = getAllSeoEnabledTools();
+  const allContent = await getCollection('tools', ({ data }) => data.status === 'published');
+
+  const paths: Array<{
+    params: { namespace: string; slug: string; variant: string };
+    props: Record<string, unknown>;
+  }> = [];
+
+  for (const { key, module } of seoTools) {
+    if (!module.seoPages) continue;
+
+    const [namespace, toolSlug] = key.split('/');
+    const contentEntry = allContent.find((e) => {
+      const ns = getNamespaceSlug(e);
+      const sl = getToolSlug(e);
+      return ns === namespace && sl === toolSlug;
+    });
+
+    if (!contentEntry) continue;
+
+    const staticPages = module.seoPages.getStaticPages();
+
+    for (const variantData of staticPages) {
+      const variantSlug = module.seoPages.getSlug(variantData);
+      const meta = module.seoPages.getMetadata(variantData);
+      const result = module.seoPages.compute(variantData);
+      const isIndexable = module.seoPages.isIndexable(variantData);
+
+      // Nearby variants for internal linking
+      const nearbyVariants = module.seoPages.getNearbyVariants
+        ? module.seoPages.getNearbyVariants(variantData).map((nv) => ({
+            slug: module.seoPages!.getSlug(nv),
+            label: module.seoPages!.getMetadata(nv).h1,
+          }))
+        : [];
+
+      paths.push({
+        params: {
+          namespace,
+          slug: toolSlug,
+          variant: variantSlug,
+        },
+        props: {
+          namespace,
+          toolSlug,
+          toolName: contentEntry.data.name,
+          rendererKey: contentEntry.data.renderer,
+          variantSlug,
+          variantData,
+          meta,
+          result,
+          noindex: !isIndexable,
+          nearbyVariants,
+          privacyMessage: contentEntry.data.privacy?.message,
+        },
+      });
+    }
+  }
+
+  return paths;
+};
+
+const {
+  namespace,
+  toolSlug,
+  toolName,
+  rendererKey,
+  variantSlug,
+  variantData,
+  meta,
+  result,
+  noindex,
+  nearbyVariants,
+  privacyMessage,
+} = Astro.props;
+
+const Renderer = await getToolRenderer(rendererKey);
+---
+
+<SeoVariantLayout
+  namespace={namespace}
+  toolSlug={toolSlug}
+  toolName={toolName}
+  variant={variantSlug}
+  meta={meta}
+  result={result}
+  noindex={noindex}
+  nearbyVariants={nearbyVariants}
+  privacyMessage={privacyMessage}
+>
+  <Renderer
+    slot="tool"
+    config={{}}
+    initialValue={variantData.value}
+    initialFrom={variantData.fromId}
+    initialTo={variantData.toId}
+  />
+</SeoVariantLayout>

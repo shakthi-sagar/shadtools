@@ -3,9 +3,18 @@ import { LengthConverterTool } from './LengthConverterTool';
 
 interface Props {
   config?: any;
+  initialValue?: number;
+  initialFrom?: string;
+  initialTo?: string;
 }
 
-const { config } = Astro.props;
+const { config, initialValue, initialFrom, initialTo } = Astro.props;
 ---
 
-<LengthConverterTool client:load config={config} />
+<LengthConverterTool
+  client:load
+  config={config}
+  initialValue={initialValue}
+  initialFrom={initialFrom}
+  initialTo={initialTo}
+/>

@@ -2,10 +2,23 @@ import React, { useState } from 'react';
 import { ArrowLeftRight } from 'lucide-react';
 import { LENGTH_UNITS, convertUnit } from './convert-length';
 
-export const LengthConverterTool: React.FC = () => {
-  const [val, setVal] = useState<string>('1');
-  const [fromUnit, setFromUnit] = useState<string>('m');
-  const [toUnit, setToUnit] = useState<string>('ft');
+interface LengthConverterProps {
+  config?: any;
+  initialValue?: number;
+  initialFrom?: string;
+  initialTo?: string;
+}
+
+export const LengthConverterTool: React.FC<LengthConverterProps> = ({
+  initialValue,
+  initialFrom,
+  initialTo,
+}) => {
+  const [val, setVal] = useState<string>(
+    initialValue != null ? String(initialValue) : '1'
+  );
+  const [fromUnit, setFromUnit] = useState<string>(initialFrom || 'm');
+  const [toUnit, setToUnit] = useState<string>(initialTo || 'ft');
 
   const numVal = parseFloat(val) || 0;
   const result = convertUnit(numVal, fromUnit, toUnit, LENGTH_UNITS);

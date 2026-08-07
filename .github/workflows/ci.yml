@@ -1,4 +1,4 @@
-name: CI Pipeline
+name: CI & Cloudflare Deployment Pipeline
 
 on:
   push:
@@ -7,10 +7,11 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -27,3 +28,13 @@ jobs:
 
       - name: Build static site & search index
         run: npm run build
+
+      - name: Deploy to Cloudflare Pages
+        if: github.ref == 'refs/heads/main'
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: 'shadtools'
+          directory: 'dist'
+          gitToCommitIfFallback: 'true'
