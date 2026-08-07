@@ -3,7 +3,6 @@ import BaseLayout from './BaseLayout.astro';
 import Breadcrumbs from '../components/site/Breadcrumbs.astro';
 import ToolHeader from '../components/tool-page/ToolHeader.astro';
 import PrivacyNotice from '../components/tool-page/PrivacyNotice.astro';
-import Examples from '../components/tool-page/Examples.astro';
 import Faq from '../components/tool-page/Faq.astro';
 import RelatedTools from '../components/tool-page/RelatedTools.astro';
 import AdSlot from '../components/tool-page/AdSlot.astro';
@@ -77,11 +76,6 @@ const breadcrumbItems = [
       <section class="prose">
         <slot name="content" />
       </section>
-
-      <!-- Examples Section -->
-      {tool.examples && tool.examples.length > 0 && (
-        <Examples examples={tool.examples} />
-      )}
 
       <!-- FAQ Section -->
       {tool.faq && tool.faq.length > 0 && (
