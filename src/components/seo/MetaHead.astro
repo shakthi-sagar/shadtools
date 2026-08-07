@@ -19,6 +19,20 @@ const {
 
 const siteName = 'ShadTools';
 const fullTitle = title.includes(siteName) ? title : `${title} | ${siteName}`;
+const cfAnalyticsToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN || '';
+
+const websiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: siteName,
+  url: 'https://shadtools.com',
+  description: 'Fast, free, privacy-first browser utilities.',
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: 'https://shadtools.com/search?q={search_term_string}',
+    'query-input': 'required name=search_term_string',
+  },
+};
 ---
 
 <!-- Global Metadata -->
@@ -52,10 +66,10 @@ const fullTitle = title.includes(siteName) ? title : `${title} | ${siteName}`;
 <meta property="twitter:description" content={description} />
 <meta property="twitter:image" content={ogImage} />
 
-<!-- Font Preconnect -->
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+<!-- Central JSON-LD WebSite Structured Data -->
+<script type="application/ld+json" is:inline set:html={JSON.stringify(websiteSchema)} />
 
-<!-- Cloudflare Web Analytics -->
-<script is:inline defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "shadtools-analytics"}'></script>
+<!-- Cloudflare Web Analytics (only when token configured) -->
+{cfAnalyticsToken && (
+  <script is:inline defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon={JSON.stringify({ token: cfAnalyticsToken })}></script>
+)}

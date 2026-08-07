@@ -1,15 +1,15 @@
 import type { ToolModule } from '@/tools/tool-module';
-import { weightConfigSchema } from '@/tools/units/weight/config';
-import { weightSeoProvider } from '@/tools/units/weight/seo';
+import { areaConfigSchema } from './config';
+import { areaSeoProvider } from './seo';
 
 export const toolModule = {
-  key: 'units/weight',
+  key: 'units/area',
   pattern: 'converter',
   privacyMode: 'local',
   analytics: {
     category: 'units',
     actionType: 'convert',
   },
-  configSchema: weightConfigSchema,
-  seoPages: weightSeoProvider,
+  configSchema: areaConfigSchema,
+  seoPages: areaSeoProvider,
 } satisfies ToolModule;

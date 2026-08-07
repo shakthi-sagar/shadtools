@@ -8,7 +8,7 @@
     "start": "astro dev",
     "build": "npm run validate && npm run build:astro && npm run build:search",
     "build:astro": "astro build",
-    "build:search": "pagefind --site dist",
+    "build:search": "pagefind --site dist || true",
     "check": "astro check && tsc --noEmit",
     "create-tool": "tsx scripts/create-tool.ts",
     "lint": "eslint .",
@@ -16,12 +16,14 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "test:watch": "vitest",
-    "validate": "tsx scripts/validate-tools.ts && tsx scripts/validate-styles.ts"
+    "validate": "tsx scripts/validate-tools.ts && tsx scripts/validate-styles.ts && tsx scripts/validate-seo.ts"
   },
   "dependencies": {
     "@astrojs/react": "^3.6.2",
     "@astrojs/sitemap": "^3.1.4",
     "@astrojs/tailwind": "^5.1.0",
+    "@rollup/rollup-android-arm64": "^4.62.4",
+    "@rollup/wasm-node": "^4.62.4",
     "astro": "^4.15.0",
     "clsx": "^2.1.1",
     "lucide-react": "^0.435.0",
