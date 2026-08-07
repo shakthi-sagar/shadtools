@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Pin, PinOff, RotateCcw, ArrowUp, ArrowDown, Clock, Star } from 'lucide-react';
+import { Pin, PinOff, RotateCcw, ArrowUp, ArrowDown, Clock, Star, Plus, Settings2, Check } from 'lucide-react';
 import { Button } from '../ui/Button';
+import { getDashboardState, saveDashboardState } from '../../lib/dashboard-store';
+import { ToolPickerModal } from './ToolPickerModal';
 
 export interface ToolItem {
   id: string;
@@ -9,6 +11,7 @@ export interface ToolItem {
   slug: string;
   summary: string;
   featured?: boolean;
+  dashboardOrder?: number;
   icon?: string;
   url: string;
 }
@@ -17,60 +20,40 @@ export interface DashboardIslandProps {
   allTools: ToolItem[];
 }
 
-interface DashboardPreferencesV1 {
-  version: 1;
-  pinnedToolIds: string[];
-  recentToolIds: string[];
-}
-
-const DASHBOARD_STORAGE_KEY = 'shadtools.dashboard.v1';
-
 export const DashboardIsland: React.FC<DashboardIslandProps> = ({ allTools = [] }) => {
   const [pinnedIds, setPinnedIds] = useState<string[]>([]);
   const [recentIds, setRecentIds] = useState<string[]>([]);
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
+  const [isCustomizeMode, setIsCustomizeMode] = useState<boolean>(false);
+  const [isPickerOpen, setIsPickerOpen] = useState<boolean>(false);
 
-  // Default featured tool IDs for fallback
-  const featuredTools = allTools.filter((t) => t.featured);
-  const defaultPinnedIds = (featuredTools.length > 0 ? featuredTools : allTools.slice(0, 4)).map((t) => t.id);
+  // Compute default fallback tools (sorted by dashboardOrder || 100)
+  const sortedDefaultTools = [...allTools]
+    .filter((t) => t.featured || (t.dashboardOrder && t.dashboardOrder < 100))
+    .sort((a, b) => (a.dashboardOrder || 100) - (b.dashboardOrder || 100));
+
+  const defaultPinnedIds = (
+    sortedDefaultTools.length > 0 ? sortedDefaultTools : allTools.slice(0, 4)
+  ).map((t) => t.id);
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(DASHBOARD_STORAGE_KEY);
-      if (stored) {
-        const parsed: DashboardPreferencesV1 = JSON.parse(stored);
-        if (parsed && parsed.version === 1 && Array.isArray(parsed.pinnedToolIds)) {
-          const validPinned = parsed.pinnedToolIds.filter((id) => allTools.some((t) => t.id === id));
-          const validRecent = Array.isArray(parsed.recentToolIds)
-            ? parsed.recentToolIds.filter((id) => allTools.some((t) => t.id === id))
-            : [];
-          setPinnedIds(validPinned.length > 0 ? validPinned : defaultPinnedIds);
-          setRecentIds(validRecent);
-          setIsLoaded(true);
-          return;
-        }
-      }
-    } catch {
-      // Corrupt data or SSR environment
+    const storedState = getDashboardState();
+    if (storedState) {
+      const validPinned = storedState.pinnedToolIds.filter((id) => allTools.some((t) => t.id === id));
+      const validRecent = storedState.recentToolIds.filter((id) => allTools.some((t) => t.id === id));
+      setPinnedIds(validPinned.length > 0 ? validPinned : defaultPinnedIds);
+      setRecentIds(validRecent);
+    } else {
+      setPinnedIds(defaultPinnedIds);
+      setRecentIds([]);
     }
-    setPinnedIds(defaultPinnedIds);
-    setRecentIds([]);
     setIsLoaded(true);
   }, [allTools]);
 
-  const savePreferences = (pins: string[], recents: string[]) => {
+  const updateState = (pins: string[], recents: string[]) => {
     setPinnedIds(pins);
     setRecentIds(recents);
-    try {
-      const prefs: DashboardPreferencesV1 = {
-        version: 1,
-        pinnedToolIds: pins,
-        recentToolIds: recents,
-      };
-      localStorage.setItem(DASHBOARD_STORAGE_KEY, JSON.stringify(prefs));
-    } catch {
-      // localStorage quota or disabled
-    }
+    saveDashboardState(pins, recents);
   };
 
   const togglePin = (toolId: string) => {
@@ -78,7 +61,7 @@ export const DashboardIsland: React.FC<DashboardIslandProps> = ({ allTools = [] 
     const newPins = isPinned
       ? pinnedIds.filter((id) => id !== toolId)
       : [...pinnedIds, toolId];
-    savePreferences(newPins, recentIds);
+    updateState(newPins, recentIds);
   };
 
   const movePinned = (index: number, direction: 'up' | 'down') => {
@@ -88,11 +71,12 @@ export const DashboardIsland: React.FC<DashboardIslandProps> = ({ allTools = [] 
     const temp = newPins[index];
     newPins[index] = newPins[targetIndex];
     newPins[targetIndex] = temp;
-    savePreferences(newPins, recentIds);
+    updateState(newPins, recentIds);
   };
 
   const resetDefaults = () => {
-    savePreferences(defaultPinnedIds, []);
+    updateState(defaultPinnedIds, []);
+    setIsCustomizeMode(false);
   };
 
   const pinnedToolItems = pinnedIds
@@ -101,10 +85,7 @@ export const DashboardIsland: React.FC<DashboardIslandProps> = ({ allTools = [] 
 
   const recentToolItems = recentIds
     .map((id) => allTools.find((t) => t.id === id))
-    .filter((t): t is ToolItem => {
-      if (!t) return false;
-      return !pinnedIds.includes(t.id);
-    });
+    .filter((t): t is ToolItem => Boolean(t) && !pinnedIds.includes(t!.id));
 
   if (!isLoaded) {
     return (
@@ -121,106 +102,132 @@ export const DashboardIsland: React.FC<DashboardIslandProps> = ({ allTools = [] 
 
   return (
     <div className="space-y-6">
-      {/* Dashboard Section Header */}
-      <div className="flex items-center justify-between">
+      {/* Section Header Controls */}
+      <div className="flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-2">
           <Star className="w-4 h-4 text-accent" />
           <h2 className="text-lg font-bold text-foreground tracking-tight">Your Toolbox</h2>
-          <span className="text-xs text-foreground-muted bg-surface-subtle px-2 py-0.5 rounded border border-border">
+          <span className="text-[11px] text-foreground-muted bg-surface-subtle px-2 py-0.5 rounded border border-border">
             Local-First
           </span>
         </div>
 
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={resetDefaults}
-          title="Reset to default pinned tools"
-          leftIcon={<RotateCcw className="w-3.5 h-3.5" />}
-        >
-          Reset Defaults
-        </Button>
-      </div>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => setIsPickerOpen(true)}
+            leftIcon={<Plus className="w-3.5 h-3.5" />}
+          >
+            Add Tools
+          </Button>
 
-      {/* Pinned Tools Grid */}
-      <div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {pinnedToolItems.map((tool, idx) => (
-            <div
-              key={tool.id}
-              className="group relative p-4 rounded-lg bg-surface border border-border hover:border-border-strong transition-all flex flex-col justify-between"
+          <Button
+            variant={isCustomizeMode ? 'primary' : 'ghost'}
+            size="sm"
+            onClick={() => setIsCustomizeMode(!isCustomizeMode)}
+            leftIcon={isCustomizeMode ? <Check className="w-3.5 h-3.5" /> : <Settings2 className="w-3.5 h-3.5" />}
+          >
+            {isCustomizeMode ? 'Done' : 'Customize'}
+          </Button>
+
+          {isCustomizeMode && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={resetDefaults}
+              title="Reset to default pinned tools"
+              leftIcon={<RotateCcw className="w-3.5 h-3.5" />}
             >
-              <div>
-                <div className="flex items-start justify-between gap-2 mb-2">
-                  <span className="text-xs font-semibold text-accent uppercase tracking-wider">
-                    {tool.namespace}
-                  </span>
-                  <div className="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
-                    {/* Keyboard Reorder Up */}
-                    {idx > 0 && (
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          movePinned(idx, 'up');
-                        }}
-                        aria-label={`Move ${tool.name} left`}
-                        title="Move left"
-                        className="p-1 rounded hover:bg-surface-subtle text-foreground-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-focus"
-                      >
-                        <ArrowUp className="w-3 h-3 rotate-270" />
-                      </button>
-                    )}
-                    {/* Keyboard Reorder Down */}
-                    {idx < pinnedToolItems.length - 1 && (
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          movePinned(idx, 'down');
-                        }}
-                        aria-label={`Move ${tool.name} right`}
-                        title="Move right"
-                        className="p-1 rounded hover:bg-surface-subtle text-foreground-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-focus"
-                      >
-                        <ArrowDown className="w-3 h-3 rotate-270" />
-                      </button>
-                    )}
-                    {/* Pin / Unpin Button */}
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        togglePin(tool.id);
-                      }}
-                      aria-label={`Unpin ${tool.name}`}
-                      title="Unpin tool"
-                      className="p-1 rounded hover:bg-surface-subtle text-accent hover:text-accent-hover focus-visible:outline-2 focus-visible:outline-focus"
-                    >
-                      <PinOff className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-
-                <a href={tool.url} className="block group-hover:text-accent font-semibold text-foreground text-sm transition-colors">
-                  {tool.name}
-                </a>
-                <p className="text-xs text-foreground-secondary line-clamp-2 mt-1 leading-relaxed">
-                  {tool.summary}
-                </p>
-              </div>
-
-              <a
-                href={tool.url}
-                className="mt-3 inline-flex items-center gap-1 text-xs text-accent font-medium hover:underline"
-              >
-                Launch tool →
-              </a>
-            </div>
-          ))}
+              Reset
+            </Button>
+          )}
         </div>
       </div>
 
-      {/* Recently Used Tools (if any) */}
+      {/* Pinned Tools Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        {pinnedToolItems.map((tool, idx) => {
+          if (isCustomizeMode) {
+            // CUSTOMIZE MODE TILE
+            return (
+              <div
+                key={tool.id}
+                className="p-3.5 rounded-lg bg-surface border border-accent/40 shadow-xs flex items-center justify-between gap-2"
+              >
+                <div className="min-w-0 flex-1">
+                  <span className="text-[10px] font-semibold text-accent uppercase tracking-wider block">
+                    {tool.namespace}
+                  </span>
+                  <p className="text-xs font-semibold text-foreground truncate">{tool.name}</p>
+                </div>
+
+                <div className="flex items-center gap-1 shrink-0">
+                  {/* Keyboard Reorder Up/Left */}
+                  {idx > 0 && (
+                    <button
+                      onClick={() => movePinned(idx, 'up')}
+                      aria-label={`Move ${tool.name} left`}
+                      title="Move left"
+                      className="p-1.5 rounded bg-surface-subtle hover:bg-surface border border-border text-foreground-secondary hover:text-foreground focus-visible:outline-2 focus-visible:outline-focus"
+                    >
+                      <ArrowUp className="w-3.5 h-3.5 rotate-270" />
+                    </button>
+                  )}
+                  {/* Keyboard Reorder Down/Right */}
+                  {idx < pinnedToolItems.length - 1 && (
+                    <button
+                      onClick={() => movePinned(idx, 'down')}
+                      aria-label={`Move ${tool.name} right`}
+                      title="Move right"
+                      className="p-1.5 rounded bg-surface-subtle hover:bg-surface border border-border text-foreground-secondary hover:text-foreground focus-visible:outline-2 focus-visible:outline-focus"
+                    >
+                      <ArrowDown className="w-3.5 h-3.5 rotate-270" />
+                    </button>
+                  )}
+                  {/* Unpin Action */}
+                  <button
+                    onClick={() => togglePin(tool.id)}
+                    aria-label={`Unpin ${tool.name}`}
+                    title="Unpin tool"
+                    className="p-1.5 rounded bg-danger/10 text-danger hover:bg-danger/20 focus-visible:outline-2 focus-visible:outline-focus"
+                  >
+                    <PinOff className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            );
+          }
+
+          // NORMAL MODE TILE: Single Clean Launch Block Target
+          return (
+            <a
+              key={tool.id}
+              href={tool.url}
+              className="group p-4 rounded-lg bg-surface border border-border hover:border-border-strong hover:bg-surface-subtle transition-all flex flex-col justify-between block space-y-2"
+            >
+              <div className="space-y-1">
+                <span className="text-[10px] font-semibold text-accent uppercase tracking-wider font-mono">
+                  {tool.namespace}
+                </span>
+                <h3 className="font-semibold text-foreground text-sm group-hover:text-accent transition-colors flex items-center justify-between">
+                  <span>{tool.name}</span>
+                  <span className="text-xs text-foreground-muted group-hover:text-accent transition-colors group-hover:translate-x-0.5 transition-transform">
+                    →
+                  </span>
+                </h3>
+                <p className="text-xs text-foreground-secondary line-clamp-2 leading-relaxed">
+                  {tool.summary}
+                </p>
+              </div>
+            </a>
+          );
+        })}
+      </div>
+
+      {/* Recently Used Tools Row (if any) */}
       {recentToolItems.length > 0 && (
-        <div className="space-y-3 pt-2">
+        <div className="space-y-3 pt-2 border-t border-border">
           <div className="flex items-center gap-2 text-xs font-semibold text-foreground-muted uppercase tracking-wider">
             <Clock className="w-3.5 h-3.5" />
             <span>Recently Used</span>
@@ -232,17 +239,17 @@ export const DashboardIsland: React.FC<DashboardIslandProps> = ({ allTools = [] 
                 key={tool.id}
                 className="p-3 rounded-lg bg-surface border border-border flex items-center justify-between"
               >
-                <div>
-                  <a href={tool.url} className="text-xs font-semibold text-foreground hover:text-accent transition-colors block">
+                <div className="min-w-0 pr-2">
+                  <a href={tool.url} className="text-xs font-semibold text-foreground hover:text-accent transition-colors block truncate">
                     {tool.name}
                   </a>
-                  <span className="text-[11px] text-foreground-muted">{tool.namespace}</span>
+                  <span className="text-[10px] text-foreground-muted uppercase font-mono">{tool.namespace}</span>
                 </div>
                 <button
                   onClick={() => togglePin(tool.id)}
                   aria-label={`Pin ${tool.name}`}
                   title="Pin to dashboard"
-                  className="p-1.5 rounded hover:bg-surface-subtle text-foreground-muted hover:text-accent focus-visible:outline-2 focus-visible:outline-focus"
+                  className="p-1.5 rounded hover:bg-surface-subtle text-foreground-muted hover:text-accent focus-visible:outline-2 focus-visible:outline-focus shrink-0"
                 >
                   <Pin className="w-3.5 h-3.5" />
                 </button>
@@ -251,6 +258,15 @@ export const DashboardIsland: React.FC<DashboardIslandProps> = ({ allTools = [] 
           </div>
         </div>
       )}
+
+      {/* Tool Picker Modal */}
+      <ToolPickerModal
+        isOpen={isPickerOpen}
+        onClose={() => setIsPickerOpen(false)}
+        allTools={allTools}
+        pinnedIds={pinnedIds}
+        onTogglePin={togglePin}
+      />
     </div>
   );
 };

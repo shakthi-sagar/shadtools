@@ -34,7 +34,7 @@ export const Button: React.FC<ButtonProps> = ({
     primary: 'bg-action text-action-foreground hover:bg-action-hover active:bg-action-hover',
     secondary: 'bg-surface border border-border text-foreground hover:bg-surface-subtle hover:border-border-strong',
     ghost: 'text-foreground-secondary hover:bg-surface-subtle hover:text-foreground',
-    danger: 'bg-danger text-white hover:opacity-90',
+    danger: 'bg-action-danger text-action-danger-foreground hover:bg-action-danger-hover active:bg-action-danger-hover',
   };
 
   const widthStyle = fullWidth ? 'w-full' : '';

@@ -29,9 +29,10 @@
   /* Primitive State Colors */
   --green-700: #047857;
   --green-400: #34d399;
-  --amber-600: #d97706;
+  --amber-700: #b45309;
   --amber-400: #fbbf24;
   --red-600:   #dc2626;
+  --red-700:   #b91c1c;
   --red-400:   #f87171;
 
   /* Border Radiuses */
@@ -76,6 +77,10 @@
   --action-primary-hover: #1d4ed8;
   --action-primary-foreground: #ffffff;
 
+  --action-danger: #dc2626;
+  --action-danger-hover: #b91c1c;
+  --action-danger-foreground: #ffffff;
+
   /* Compatibility primary alias */
   --primary: #2563eb;
   --primary-hover: #1d4ed8;
@@ -83,8 +88,9 @@
 
   --focus: #2563eb;
 
+  /* Status Copy Tokens (Guaranteed WCAG AA > 4.5:1 on #fafafa) */
   --success: #047857;
-  --warning: #d97706;
+  --warning: #b45309;
   --danger: #dc2626;
 }
 
@@ -114,6 +120,10 @@
   --action-primary: #2563eb;
   --action-primary-hover: #1d4ed8;
   --action-primary-foreground: #ffffff;
+
+  --action-danger: #dc2626;
+  --action-danger-hover: #b91c1c;
+  --action-danger-foreground: #ffffff;
 
   /* Compatibility primary alias */
   --primary: #60a5fa;

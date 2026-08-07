@@ -23,19 +23,72 @@ export const Dialog: React.FC<DialogProps> = ({
   useEffect(() => {
     if (!isOpen) return;
 
+    // Save previous active element for focus restoration
     previousFocus.current = document.activeElement as HTMLElement;
-    dialogRef.current?.focus();
+
+    // Prevent body scrolling
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    // Focus the dialog container or first interactive element
+    const focusableSelector =
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+
+    const getFocusableElements = (): HTMLElement[] => {
+      if (!dialogRef.current) return [];
+      return Array.from(dialogRef.current.querySelectorAll<HTMLElement>(focusableSelector)).filter(
+        (el) => !el.hasAttribute('disabled') && el.offsetParent !== null
+      );
+    };
+
+    const focusables = getFocusableElements();
+    if (focusables.length > 0) {
+      focusables[0].focus();
+    } else {
+      dialogRef.current?.focus();
+    }
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
+        e.preventDefault();
         onClose();
+        return;
+      }
+
+      if (e.key === 'Tab') {
+        const elements = getFocusableElements();
+        if (elements.length === 0) {
+          e.preventDefault();
+          return;
+        }
+
+        const firstElement = elements[0];
+        const lastElement = elements[elements.length - 1];
+
+        if (e.shiftKey) {
+          // Shift + Tab: if on first element, wrap to last
+          if (document.activeElement === firstElement || document.activeElement === dialogRef.current) {
+            e.preventDefault();
+            lastElement.focus();
+          }
+        } else {
+          // Tab: if on last element, wrap to first
+          if (document.activeElement === lastElement) {
+            e.preventDefault();
+            firstElement.focus();
+          }
+        }
       }
     };
+
     window.addEventListener('keydown', handleKeyDown);
 
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
-      previousFocus.current?.focus();
+      document.body.style.overflow = originalOverflow;
+      if (previousFocus.current) {
+        previousFocus.current.focus();
+      }
     };
   }, [isOpen, onClose]);
 

@@ -2,41 +2,12 @@
 export interface Props {
   name: string;
   summary: string;
-  categoryTag?: string;
-  privacyMode?: 'local' | 'remote-data' | 'server-processing';
-  privacyMessage?: string;
 }
 
-const {
-  name,
-  summary,
-  categoryTag = 'Online Utility',
-  privacyMode = 'local',
-  privacyMessage,
-} = Astro.props;
-
-const modeLabels = {
-  local: 'Processed locally in this browser',
-  'remote-data': 'Remote API & local processing',
-  'server-processing': 'Server processing required',
-};
-
-const displayPrivacy = privacyMessage || modeLabels[privacyMode] || modeLabels.local;
+const { name, summary } = Astro.props;
 ---
 
-<div class="space-y-2.5">
-  {categoryTag && (
-    <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-semibold bg-surface-subtle border border-border text-foreground-secondary">
-      <span>{categoryTag}</span>
-    </div>
-  )}
-  <h1 class="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">{name}</h1>
+<div class="space-y-1.5">
+  <h1 class="text-2xl sm:text-3xl font-semibold text-foreground tracking-tight">{name}</h1>
   <p class="text-sm sm:text-base text-foreground-secondary max-w-3xl leading-relaxed">{summary}</p>
-  <div class="flex items-center gap-2 pt-0.5 text-xs text-success font-medium">
-    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path>
-      <path d="m9 12 2 2 4-4"></path>
-    </svg>
-    <span>{displayPrivacy}</span>
-  </div>
 </div>

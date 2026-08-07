@@ -30,6 +30,9 @@ export default {
           DEFAULT: 'var(--action-primary)',
           hover: 'var(--action-primary-hover)',
           foreground: 'var(--action-primary-foreground)',
+          danger: 'var(--action-danger)',
+          'danger-hover': 'var(--action-danger-hover)',
+          'danger-foreground': 'var(--action-danger-foreground)',
         },
         primary: {
           DEFAULT: 'var(--primary)',
