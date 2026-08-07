@@ -22,12 +22,12 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const baseStyle =
-    'inline-flex items-center justify-center font-medium rounded-md transition-colors select-none focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2 disabled:opacity-50 disabled:cursor-not-allowed gap-2';
+    'inline-flex items-center justify-center font-medium rounded-md transition-colors select-none focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2 disabled:opacity-50 disabled:cursor-not-allowed gap-1.5 whitespace-nowrap';
 
   const sizeStyles = {
-    sm: 'px-3 py-1 text-xs min-h-[32px]',
-    md: 'px-3.5 py-2 text-sm min-h-[40px]',
-    lg: 'px-4 py-2.5 text-sm font-semibold min-h-[44px]',
+    sm: 'px-2.5 py-1 text-xs h-7 min-h-[28px]',
+    md: 'px-3.5 py-1.5 text-sm h-9 min-h-[36px]',
+    lg: 'px-4 py-2 text-sm font-semibold h-11 min-h-[44px]',
   };
 
   const variantStyles = {
@@ -48,7 +48,7 @@ export const Button: React.FC<ButtonProps> = ({
     >
       {loading ? (
         <svg
-          className="animate-spin h-4 w-4 text-current"
+          className="animate-spin h-3.5 w-3.5 text-current shrink-0"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -62,10 +62,10 @@ export const Button: React.FC<ButtonProps> = ({
           />
         </svg>
       ) : (
-        leftIcon
+        leftIcon && <span className="shrink-0 flex items-center">{leftIcon}</span>
       )}
-      <span>{children}</span>
-      {!loading && rightIcon}
+      {children && <span>{children}</span>}
+      {!loading && rightIcon && <span className="shrink-0 flex items-center">{rightIcon}</span>}
     </button>
   );
 };

@@ -16,9 +16,9 @@ export const IconButton: React.FC<IconButtonProps> = ({
   ...props
 }) => {
   const sizeStyles = {
-    sm: 'w-8 h-8 p-1.5 text-xs',
-    md: 'w-10 h-10 p-2 text-sm',
-    lg: 'w-11 h-11 p-2.5 text-base',
+    sm: 'w-7 h-7 p-1 text-xs',
+    md: 'w-9 h-9 p-2 text-sm',
+    lg: 'w-10 h-10 p-2.5 text-base',
   };
 
   const variantStyles = {
@@ -32,10 +32,10 @@ export const IconButton: React.FC<IconButtonProps> = ({
     <button
       aria-label={label}
       title={label}
-      className={`rounded-md transition-colors inline-flex items-center justify-center focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${sizeStyles[size]} ${variantStyles[variant]} ${className}`}
+      className={`rounded-md transition-colors inline-flex items-center justify-center shrink-0 focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${sizeStyles[size]} ${variantStyles[variant]} ${className}`}
       {...props}
     >
-      {icon}
+      <span className="shrink-0 flex items-center justify-center">{icon}</span>
     </button>
   );
 };
