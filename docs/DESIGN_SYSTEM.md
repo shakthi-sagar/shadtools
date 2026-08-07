@@ -95,3 +95,11 @@ ShadTools design direction is **quiet, high-contrast, local-first, and immediate
 
 - **CSS `@import` Order**: In `@/styles/global.css`, all `@import` directives (`tokens.css`, `base.css`, `prose.css`) MUST sit at the absolute top of the file BEFORE `@tailwind` directives.
 - **Prose Headings**: Section `h2` elements in prose markdown have a subtle bottom border (`border-bottom: 1px solid var(--border)`), 22px bold headings, and `list-style-type: disc !important` bullet points.
+
+---
+
+## 5. Trust & Privacy Copy Guidelines (Building Trust Without Overselling)
+
+- **Tone & Placement**: User trust is built through quiet, professional editorial clarity—not through aggressive, repeated checkmark badges.
+- **Page Level Disclosures**: Privacy disclosures belong at the page level inside the standard `<PrivacyNotice />` component (e.g. *"Data processed 100% locally in your browser memory"*).
+- **No Cluttered Tool Card Badges**: Do NOT add repetitive badges or checkmarks like `✓ Instant local calculation` or `✓ Instant math` inside interactive tool workspace cards, result panels, or calculation footers. Tool workspaces must remain clean, uncluttered, and focused purely on user task performance.

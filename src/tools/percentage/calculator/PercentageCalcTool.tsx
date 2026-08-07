@@ -121,9 +121,8 @@ export const PercentageCalcTool: React.FC<{ config?: any }> = () => {
         </div>
       </div>
 
-      <div className="pt-3 border-t border-border flex items-center justify-between text-xs text-foreground-muted font-mono">
+      <div className="pt-3 border-t border-border text-xs text-foreground-muted font-mono">
         <span>Formula: {formulaText}</span>
-        <span className="text-success font-medium flex items-center gap-1">✓ Instant math</span>
       </div>
     </ToolFrame>
   );

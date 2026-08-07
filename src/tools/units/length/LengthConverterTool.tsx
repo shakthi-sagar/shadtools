@@ -139,9 +139,8 @@ export const LengthConverterTool: React.FC<LengthConverterProps> = ({
             {formattedResult} <span className="text-base text-foreground font-sans font-normal">{toUnitObj?.id}</span>
           </div>
 
-          <div className="text-xs font-mono text-foreground-muted border-t border-border/50 pt-2 mt-2 flex items-center justify-between">
-            <span>Formula: 1 {fromUnitObj?.id} = {convertUnit(1, fromUnit, toUnit, LENGTH_UNITS).toFixed(4)} {toUnitObj?.id}</span>
-            <span className="text-success font-semibold">✓ Instant local calculation</span>
+          <div className="text-xs font-mono text-foreground-muted border-t border-border/50 pt-2 mt-2">
+            Formula: 1 {fromUnitObj?.id} = {convertUnit(1, fromUnit, toUnit, LENGTH_UNITS).toFixed(4)} {toUnitObj?.id}
           </div>
         </div>
       </div>

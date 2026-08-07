@@ -27,7 +27,12 @@ This document provides strict instructions, architectural constraints, and engin
 - Converter inputs (`Amount`, `From`, `To`) MUST sit in a 3-column `grid grid-cols-1 sm:grid-cols-3 gap-4 items-start` layout with equal `h-10` controls and top-aligned labels.
 - The `Copy Result` button MUST sit inside the top header of the `CONVERTED RESULT` card alongside the formula disclosure line.
 
-### 5. Quality & Verification Rules
+### 5. Trust Copy vs Overselling Guardrails
+- **DO NOT** clutter tool interactive cards, footers, or calculation headers with noisy checkmark badges like `✓ Instant local calculation`, `✓ Instant math`, or repetitive slogans.
+- Privacy and processing disclosures belong in the page-level `<PrivacyNotice />` component or standard documentation markdown text.
+- Tool working cards must remain quiet, clean, distraction-free, and professional.
+
+### 6. Quality & Verification Rules
 Before declaring any task complete, run the following verification commands:
 ```bash
 # 1. Registry & stale style validation

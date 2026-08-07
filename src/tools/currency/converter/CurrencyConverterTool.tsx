@@ -134,9 +134,8 @@ export const CurrencyConverterTool: React.FC<CurrencyConverterToolProps> = ({
             {formattedResult} <span className="text-base text-foreground font-sans font-normal">{toCode}</span>
           </div>
 
-          <div className="text-xs font-mono text-foreground-muted border-t border-border/50 pt-2 mt-2 flex items-center justify-between">
-            <span>Exchange rate: 1 {fromCode} = {singleUnitRate.toFixed(4)} {toCode}</span>
-            <span className="text-success font-semibold">✓ Daily exchange data cached</span>
+          <div className="text-xs font-mono text-foreground-muted border-t border-border/50 pt-2 mt-2">
+            Exchange rate: 1 {fromCode} = {singleUnitRate.toFixed(4)} {toCode}
           </div>
         </div>
       </div>
