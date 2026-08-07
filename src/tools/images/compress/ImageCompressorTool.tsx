@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Download, Sliders, RefreshCw, FileImage } from 'lucide-react';
-import { compressImage } from './compress-image';
-import { ToolFrame } from '../../../components/tool-ui/ToolFrame';
-import { FileDropzone } from '../../../components/tool-ui/FileDropzone';
-import { Button } from '../../../components/ui/Button';
+import { compressImage } from '@/tools/images/compress/compress-image';
+import { ToolFrame } from '@/components/tool-ui/ToolFrame';
+import { FileDropzone } from '@/components/tool-ui/FileDropzone';
+import { Button } from '@/components/ui/Button';
 
 export interface ImageCompressorToolProps {
   config?: any;

@@ -1,5 +1,5 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
-import { getNamespaceSlug, getToolSlug } from '../routing';
+import { getNamespaceSlug, getToolSlug } from '@/lib/routing';
 
 export async function getAllPublishedTools() {
   const tools = await getCollection('tools', ({ data }: CollectionEntry<'tools'>) => data.status === 'published');

@@ -31,7 +31,7 @@ export const CodeEditorShell: React.FC<CodeEditorShellProps> = ({
         readOnly={readOnly}
         placeholder={placeholder}
         aria-label={label}
-        className={`w-full ${heightClass} p-3.5 rounded-md bg-surface-input border border-border text-foreground placeholder:text-foreground-muted font-mono text-sm focus:outline-none focus:border-border-strong focus:ring-2 focus:ring-focus resize-none leading-relaxed`}
+        className={`w-full ${heightClass} p-3.5 rounded-md bg-surface-input border border-border text-foreground placeholder:text-foreground-muted font-mono text-sm outline-none ring-0 focus:outline-none focus:ring-0 focus:border-border-strong resize-none leading-relaxed shadow-none`}
       />
     </div>
   );

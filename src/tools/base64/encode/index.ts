@@ -1,5 +1,5 @@
-import type { ToolModule } from '../../tool-module';
-import { base64EncodeConfigSchema } from './config';
+import type { ToolModule } from '@/tools/tool-module';
+import { base64EncodeConfigSchema } from '@/tools/base64/encode/config';
 
 export const toolModule = {
   key: 'base64/encode',

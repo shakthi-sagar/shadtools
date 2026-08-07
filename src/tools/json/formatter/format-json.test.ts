@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { formatJson, minifyJson } from './format-json';
+import { formatJson, minifyJson } from '@/tools/json/formatter/format-json';
 
 describe('formatJson', () => {
   it('formats raw valid JSON into indented string', () => {

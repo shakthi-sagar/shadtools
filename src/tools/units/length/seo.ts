@@ -1,5 +1,5 @@
-import type { SeoPageProvider } from '../../tool-module';
-import { LENGTH_UNITS, convertUnit } from './convert-length';
+import type { SeoPageProvider } from '@/tools/tool-module';
+import { LENGTH_UNITS, convertUnit } from '@/tools/units/length/convert-length';
 
 // ---------------------------------------------------------------------------
 // Variant data shape

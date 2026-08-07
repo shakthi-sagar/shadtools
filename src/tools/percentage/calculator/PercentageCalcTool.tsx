@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Copy, Check } from 'lucide-react';
-import { calcPercentageOf, calcWhatPercentOf, calcPercentageChange } from './calculate-percentage';
-import { ToolFrame } from '../../../components/tool-ui/ToolFrame';
-import { Button } from '../../../components/ui/Button';
+import { calcPercentageOf, calcWhatPercentOf, calcPercentageChange } from '@/tools/percentage/calculator/calculate-percentage';
+import { ToolFrame } from '@/components/tool-ui/ToolFrame';
+import { Button } from '@/components/ui/Button';
 
 export const PercentageCalcTool: React.FC<{ config?: any }> = () => {
   const [mode, setMode] = useState<'of' | 'is' | 'change'>('of');
@@ -121,9 +121,8 @@ export const PercentageCalcTool: React.FC<{ config?: any }> = () => {
         </div>
       </div>
 
-      <div className="pt-3 border-t border-border flex items-center justify-between text-xs text-foreground-muted font-mono">
+      <div className="pt-3 border-t border-border text-xs text-foreground-muted font-mono">
         <span>Formula: {formulaText}</span>
-        <span className="text-success font-medium flex items-center gap-1">✓ Instant math</span>
       </div>
     </ToolFrame>
   );

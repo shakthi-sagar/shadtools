@@ -1,0 +1,11 @@
+---
+import { DiffTool } from '@/tools/text/diff/DiffTool';
+
+interface Props {
+  config?: any;
+}
+
+const { config } = Astro.props;
+---
+
+<DiffTool client:load config={config} />

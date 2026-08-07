@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { encodeBase64, decodeBase64 } from './encode-base64';
+import { encodeBase64, decodeBase64 } from '@/tools/base64/encode/encode-base64';
 
 describe('Base64 Engine', () => {
   it('encodes string to base64', () => {

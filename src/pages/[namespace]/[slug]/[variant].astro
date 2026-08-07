@@ -1,9 +1,9 @@
 ---
 import { getCollection } from 'astro:content';
 import type { GetStaticPaths } from 'astro';
-import SeoVariantLayout from '../../../layouts/SeoVariantLayout.astro';
-import { getAllSeoEnabledTools, getToolRenderer } from '../../../tools/registry';
-import { getNamespaceSlug, getToolSlug } from '../../../lib/routing';
+import SeoVariantLayout from '@/layouts/SeoVariantLayout.astro';
+import { getAllSeoEnabledTools, getToolRenderer } from '@/tools/registry';
+import { getNamespaceSlug, getToolSlug } from '@/lib/routing';
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const seoTools = getAllSeoEnabledTools();

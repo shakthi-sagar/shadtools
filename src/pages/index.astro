@@ -1,8 +1,8 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
-import { getNamespaceSlug, getToolSlug, getNamespaceUrl, getToolUrl } from '../lib/routing';
-import { DashboardIsland } from '../components/site/DashboardIsland';
+import { getNamespaceSlug, getToolSlug, getNamespaceUrl, getToolUrl } from '@/lib/routing';
+import { DashboardIsland } from '@/components/site/DashboardIsland';
 
 const namespaces = await getCollection('namespaces');
 const allToolsCollection = await getCollection('tools');

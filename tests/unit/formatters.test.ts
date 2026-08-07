@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { formatJson, minifyJson } from '../../src/tools/json/formatter/format-json';
-import { encodeBase64, decodeBase64 } from '../../src/tools/base64/encode/encode-base64';
-import { convertUnit, LENGTH_UNITS } from '../../src/tools/units/length/convert-length';
+import { formatJson, minifyJson } from '@/tools/json/formatter/format-json';
+import { encodeBase64, decodeBase64 } from '@/tools/base64/encode/encode-base64';
+import { convertUnit, LENGTH_UNITS } from '@/tools/units/length/convert-length';
 
 describe('JSON Engine', () => {
   it('formats valid JSON correctly', () => {

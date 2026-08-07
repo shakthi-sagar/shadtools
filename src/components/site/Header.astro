@@ -1,9 +1,9 @@
 ---
 import { getCollection } from 'astro:content';
-import { getNamespaceSlug, getToolUrl } from '../../lib/routing';
-import { BrowseMenu } from './BrowseMenu';
-import { ThemeToggle } from './ThemeToggle';
-import { HeaderSearch } from './HeaderSearch';
+import { getNamespaceSlug, getToolUrl } from '@/lib/routing';
+import { BrowseMenu } from '@/components/site/BrowseMenu';
+import { ThemeToggle } from '@/components/site/ThemeToggle';
+import { HeaderSearch } from '@/components/site/HeaderSearch';
 
 const namespaces = await getCollection('namespaces');
 const namespaceItems = namespaces.map((ns) => ({

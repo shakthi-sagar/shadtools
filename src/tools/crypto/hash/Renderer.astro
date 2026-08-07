@@ -1,0 +1,11 @@
+---
+import { HashTool } from '@/tools/crypto/hash/HashTool';
+
+interface Props {
+  config?: any;
+}
+
+const { config } = Astro.props;
+---
+
+<HashTool client:load config={config} />

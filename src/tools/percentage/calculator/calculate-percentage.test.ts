@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { calcPercentageOf, calcPercentageChange, calcWhatPercentOf } from './calculate-percentage';
+import { calcPercentageOf, calcPercentageChange, calcWhatPercentOf } from '@/tools/percentage/calculator/calculate-percentage';
 
 describe('Percentage Engine', () => {
   it('calculates percentage of a number', () => {

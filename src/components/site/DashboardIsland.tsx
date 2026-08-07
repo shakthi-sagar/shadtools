@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Pin, PinOff, RotateCcw, ArrowUp, ArrowDown, Clock, Star, Plus, Settings2, Check } from 'lucide-react';
-import { Button } from '../ui/Button';
-import { getDashboardState, saveDashboardState } from '../../lib/dashboard-store';
-import { ToolPickerModal } from './ToolPickerModal';
+import { Button } from '@/components/ui/Button';
+import { getDashboardState, saveDashboardState } from '@/lib/dashboard-store';
+import { ToolPickerModal } from '@/components/site/ToolPickerModal';
 
 export interface ToolItem {
   id: string;

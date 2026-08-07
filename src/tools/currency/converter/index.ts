@@ -1,5 +1,5 @@
-import type { ToolModule } from '../../tool-module';
-import { currencyConverterConfigSchema } from './config';
+import type { ToolModule } from '@/tools/tool-module';
+import { currencyConverterConfigSchema } from '@/tools/currency/converter/config';
 
 export const toolModule = {
   key: 'currency/converter',
