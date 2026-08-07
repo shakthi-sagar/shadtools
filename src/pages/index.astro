@@ -7,8 +7,11 @@ const allTools = await getCollection('tools');
 const publishedTools = allTools
   .filter((e) => e.data.status === 'published')
   .map((e) => {
-    const [ns, toolSlug] = e.id.split('/');
-    return { ...e.data, namespace: ns, slug: toolSlug, fullId: e.id };
+    const cleanId = (e.slug || e.id).replace(/\.md$/, '');
+    const parts = cleanId.split('/');
+    const ns = parts[0];
+    const toolSlug = parts.length > 1 ? parts[1] : parts[0];
+    return { ...e.data, namespace: ns, slug: toolSlug, fullId: cleanId };
   });
 
 const featuredTools = publishedTools.filter((t) => t.featured);
@@ -76,17 +79,20 @@ const featuredTools = publishedTools.filter((t) => t.featured);
     <section class="space-y-4">
       <h2 class="text-xl font-bold text-white">Browse Tool Collections</h2>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {namespaces.map((ns) => (
-          <a
-            href={`/${ns.slug}`}
-            class="p-5 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 transition-colors block space-y-2 group"
-          >
-            <h3 class="font-bold text-slate-100 text-base group-hover:text-indigo-400 transition-colors">
-              {ns.data.name}
-            </h3>
-            <p class="text-sm text-slate-400 line-clamp-2">{ns.data.summary}</p>
-          </a>
-        ))}
+        {namespaces.map((ns) => {
+          const nsSlug = (ns.slug || ns.id).replace(/\.md$/, '');
+          return (
+            <a
+              href={`/${nsSlug}`}
+              class="p-5 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 transition-colors block space-y-2 group"
+            >
+              <h3 class="font-bold text-slate-100 text-base group-hover:text-indigo-400 transition-colors">
+                {ns.data.name}
+              </h3>
+              <p class="text-sm text-slate-400 line-clamp-2">{ns.data.summary}</p>
+            </a>
+          );
+        })}
       </div>
     </section>
 

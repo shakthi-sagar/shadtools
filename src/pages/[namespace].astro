@@ -9,13 +9,21 @@ export async function getStaticPaths() {
   const publishedTools = allTools.filter((t) => t.data.status === 'published');
 
   return namespaces.map((ns) => {
-    const nsSlug = ns.slug;
-    const nsTools = publishedTools.filter((t) => t.data.namespace === nsSlug);
+    const nsSlug = (ns.slug || ns.id).replace(/\.md$/, '');
+    const nsTools = publishedTools.filter((t) => {
+      const toolNs = t.data.namespace || (t.slug || t.id).replace(/\.md$/, '').split('/')[0];
+      return toolNs === nsSlug;
+    });
     return {
       params: { namespace: nsSlug },
       props: {
         meta: { name: ns.data.name, summary: ns.data.summary, slug: nsSlug },
-        tools: nsTools.map((t) => ({ ...t.data, slug: t.slug })),
+        tools: nsTools.map((t) => {
+          const cleanSlug = (t.slug || t.id).replace(/\.md$/, '');
+          const parts = cleanSlug.split('/');
+          const slug = parts.length > 1 ? parts[1] : parts[0];
+          return { ...t.data, slug, namespace: nsSlug };
+        }),
       },
     };
   });
@@ -50,10 +58,9 @@ const breadcrumbItems = [{ name: meta.name, url: `/${meta.slug}` }];
       <h2 class="text-xl font-bold text-white">Available Tools</h2>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {tools.map((tool) => {
-          const [ns, toolSlug] = tool.slug.includes('/') ? tool.slug.split('/') : [tool.namespace, tool.slug];
           return (
             <a
-              href={`/${ns}/${toolSlug}`}
+              href={`/${tool.namespace}/${tool.slug}`}
               class="p-5 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 transition-colors block space-y-2 group shadow-sm"
             >
               <div class="flex justify-between items-start">

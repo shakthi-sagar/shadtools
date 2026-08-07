@@ -20,13 +20,16 @@ const namespaces = await getCollection('namespaces');
     <div>
       <h3 class="text-xs font-semibold text-slate-200 uppercase tracking-wider mb-4">Tool Collections</h3>
       <ul class="grid grid-cols-2 gap-2 text-slate-400">
-        {namespaces.map((ns) => (
-          <li>
-            <a href={`/${ns.slug}`} class="hover:text-indigo-400 transition-colors">
-              {ns.data.name}
-            </a>
-          </li>
-        ))}
+        {namespaces.map((ns) => {
+          const slug = (ns.slug || ns.id).replace(/\.md$/, '');
+          return (
+            <li>
+              <a href={`/${slug}`} class="hover:text-indigo-400 transition-colors">
+                {ns.data.name}
+              </a>
+            </li>
+          );
+        })}
       </ul>
     </div>
 
