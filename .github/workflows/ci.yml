@@ -2,7 +2,7 @@ name: CI & Cloudflare Deployment Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, feature/* ]
   pull_request:
     branches: [ main ]
 
@@ -30,11 +30,11 @@ jobs:
         run: npm run build
 
       - name: Deploy to Cloudflare Pages
-        if: github.ref == 'refs/heads/main'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && secrets.CLOUDFLARE_API_TOKEN != ''
         uses: cloudflare/pages-action@v1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: 'shadtools'
           directory: 'dist'
-          gitToCommitIfFallback: 'true'
+          wranglerVersion: '3'
