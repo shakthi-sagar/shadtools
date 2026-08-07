@@ -1,39 +1,108 @@
+/* ==========================================================================
+   ShadTools Design System v2 — Tokens
+   ========================================================================== */
+
 :root {
-  /* Surface Levels */
-  --surface-0: #090d16;
-  --surface-1: #111827;
-  --surface-2: #1e293b;
-  --surface-3: #334155;
-  --surface-input: #020617;
+  /* Primitive Neutral Palette */
+  --gray-0:   #ffffff;
+  --gray-50:  #fafafa;
+  --gray-100: #f4f4f5;
+  --gray-200: #e4e4e7;
+  --gray-300: #d4d4d8;
+  --gray-400: #a1a1aa;
+  --gray-500: #71717a;
+  --gray-600: #52525b;
+  --gray-700: #3f3f46;
+  --gray-800: #27272a;
+  --gray-850: #202023;
+  --gray-900: #18181b;
+  --gray-950: #09090b;
 
-  /* Text Colors */
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --text-accent: #818cf8;
+  /* Primitive Blue Accent Palette */
+  --blue-50:  #eff6ff;
+  --blue-100: #dbeafe;
+  --blue-400: #60a5fa;
+  --blue-500: #3b82f6;
+  --blue-600: #2563eb;
+  --blue-700: #1d4ed8;
 
-  /* Accent & State Colors */
-  --brand-primary: #6366f1;
-  --brand-hover: #4f46e5;
-  --success: #10b981;
-  --success-bg: rgba(16, 185, 129, 0.1);
-  --error: #f43f5e;
-  --error-bg: rgba(244, 63, 94, 0.1);
-  --border: rgba(255, 255, 255, 0.08);
-  --border-focus: #6366f1;
+  /* Primitive State Colors */
+  --green-600: #059669;
+  --amber-600: #d97706;
+  --red-600:   #dc2626;
 
-  /* Typography Scale Floor */
-  --font-base: 1rem;       /* 16px base floor */
-  --font-sm: 0.875rem;     /* 14px */
-  --font-xs: 0.8125rem;    /* 13px mono floor */
-  --font-lg: 1.125rem;     /* 18px */
-  --font-xl: 1.25rem;      /* 20px */
-  --font-2xl: 1.5rem;      /* 24px */
-  --font-3xl: 2rem;        /* 32px */
-
-  /* Spacing & Radii */
+  /* Border Radiuses */
+  --radius-xs: 4px;
   --radius-sm: 6px;
   --radius-md: 8px;
-  --radius-lg: 12px;
-  --target-min: 44px;
+  --radius-lg: 10px;
+  --radius-full: 9999px;
+
+  /* Shadows (Default none; only for popovers & dialogs) */
+  --shadow-none: none;
+  --shadow-popover: 0 8px 30px rgba(0, 0, 0, 0.12);
+  --shadow-dialog: 0 16px 60px rgba(0, 0, 0, 0.20);
+
+  /* Typography Stacks */
+  --font-sans: "Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "Geist Mono", "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* -------------------------------------------------------------------------
+     Semantic Tokens — Light Mode Default
+     ------------------------------------------------------------------------- */
+  --background: #fafafa;
+
+  --surface: #ffffff;
+  --surface-subtle: #f4f4f5;
+  --surface-raised: #ffffff;
+  --surface-input: #ffffff;
+
+  --foreground: #18181b;
+  --foreground-secondary: #52525b;
+  --foreground-muted: #71717a;
+
+  --border: #e4e4e7;
+  --border-strong: #d4d4d8;
+
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --primary-subtle: #eff6ff;
+
+  --focus: #3b82f6;
+
+  --success: #059669;
+  --warning: #d97706;
+  --danger: #dc2626;
+}
+
+/* -------------------------------------------------------------------------
+   Semantic Tokens — Dark Mode Override
+   ------------------------------------------------------------------------- */
+.dark {
+  --background: #09090b;
+
+  --surface: #111113;
+  --surface-subtle: #18181b;
+  --surface-raised: #202023;
+  --surface-input: #0d0d0f;
+
+  --foreground: #fafafa;
+  --foreground-secondary: #d4d4d8;
+  --foreground-muted: #a1a1aa;
+
+  --border: #27272a;
+  --border-strong: #3f3f46;
+
+  --primary: #3b82f6;
+  --primary-hover: #60a5fa;
+  --primary-subtle: #172554;
+
+  --focus: #60a5fa;
+
+  --success: #34d399;
+  --warning: #fbbf24;
+  --danger: #f87171;
+
+  --shadow-popover: 0 8px 30px rgba(0, 0, 0, 0.5);
+  --shadow-dialog: 0 16px 60px rgba(0, 0, 0, 0.7);
 }

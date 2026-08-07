@@ -5,26 +5,48 @@ export default {
   theme: {
     extend: {
       colors: {
-        accent: {
-          documents: '#3b82f6', // Blue
-          finance: '#10b981',   // Green
-          developer: '#8b5cf6', // Purple
-          images: '#f97316',    // Orange
-          time: '#14b8a6',      // Teal
-          units: '#6366f1'      // Indigo
+        background: 'var(--background)',
+        surface: {
+          DEFAULT: 'var(--surface)',
+          subtle: 'var(--surface-subtle)',
+          raised: 'var(--surface-raised)',
+          input: 'var(--surface-input)',
         },
-        dark: {
-          bg: '#0b0f19',
-          card: '#121826',
-          border: 'rgba(255, 255, 255, 0.08)',
-          hover: 'rgba(255, 255, 255, 0.12)'
-        }
+        foreground: {
+          DEFAULT: 'var(--foreground)',
+          secondary: 'var(--foreground-secondary)',
+          muted: 'var(--foreground-muted)',
+        },
+        border: {
+          DEFAULT: 'var(--border)',
+          strong: 'var(--border-strong)',
+        },
+        primary: {
+          DEFAULT: 'var(--primary)',
+          hover: 'var(--primary-hover)',
+          subtle: 'var(--primary-subtle)',
+        },
+        focus: 'var(--focus)',
+        success: 'var(--success)',
+        warning: 'var(--warning)',
+        danger: 'var(--danger)',
+      },
+      borderRadius: {
+        xs: 'var(--radius-xs)',
+        sm: 'var(--radius-sm)',
+        md: 'var(--radius-md)',
+        lg: 'var(--radius-lg)',
+        full: 'var(--radius-full)',
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-        mono: ['Fira Code', 'JetBrains Mono', 'monospace']
-      }
-    }
+        sans: 'var(--font-sans)',
+        mono: 'var(--font-mono)',
+      },
+      boxShadow: {
+        popover: 'var(--shadow-popover)',
+        dialog: 'var(--shadow-dialog)',
+      },
+    },
   },
-  plugins: []
+  plugins: [],
 };

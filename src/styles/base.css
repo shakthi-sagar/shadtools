@@ -1,30 +1,41 @@
-body {
-  background-color: var(--surface-0);
-  color: var(--text-primary);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  font-size: var(--font-base);
-  line-height: 1.6;
-  min-height: 100vh;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+/* ==========================================================================
+   ShadTools Design System v2 — Base Styles
+   ========================================================================== */
 
-/* Accessibility Focus Ring Standard */
-:focus-visible {
-  outline: 2px solid var(--border-focus);
-  outline-offset: 2px;
-}
+@layer base {
+  *, ::before, ::after {
+    box-sizing: border-box;
+    border-color: var(--border);
+  }
 
-/* Base button and input touch target sizing */
-button,
-a,
-input,
-select,
-textarea {
-  min-height: 36px;
-}
+  html {
+    color-scheme: light dark;
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
 
-button.btn-primary,
-button.btn-lg {
-  min-height: var(--target-min);
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    min-height: 100vh;
+    margin: 0;
+  }
+
+  /* Keyboard Visible Focus Target (WCAG 2.2 compliant) */
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  /* Code / Monospace Tabular Numerals */
+  code, kbd, samp, pre {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
 }

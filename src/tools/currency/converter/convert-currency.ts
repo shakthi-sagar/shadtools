@@ -6,6 +6,23 @@ export interface CurrencyRateData {
   isFallback: boolean;
 }
 
+export interface CurrencyItem {
+  code: string;
+  name: string;
+}
+
+export const CURRENCIES: CurrencyItem[] = [
+  { code: 'USD', name: 'US Dollar' },
+  { code: 'EUR', name: 'Euro' },
+  { code: 'GBP', name: 'British Pound' },
+  { code: 'INR', name: 'Indian Rupee' },
+  { code: 'CAD', name: 'Canadian Dollar' },
+  { code: 'AUD', name: 'Australian Dollar' },
+  { code: 'JPY', name: 'Japanese Yen' },
+  { code: 'CNY', name: 'Chinese Yuan' },
+  { code: 'BRL', name: 'Brazilian Real' },
+];
+
 const FALLBACK_RATES: Record<string, number> = {
   USD: 1.0,
   EUR: 0.92,

@@ -1,47 +1,56 @@
-import React from 'react';
-import { UploadCloud, ShieldCheck } from 'lucide-react';
+import React, { useRef } from 'react';
+import { UploadCloud } from 'lucide-react';
 
-interface FileDropzoneProps {
-  onFileSelect: (file: File) => void;
+export interface FileDropzoneProps {
   accept?: string;
-  selectedFileName?: string;
-  maxSizeText?: string;
+  onFileSelect: (file: File) => void;
+  title?: string;
+  subtitle?: string;
+  hint?: string;
 }
 
 export const FileDropzone: React.FC<FileDropzoneProps> = ({
+  accept = 'image/*',
   onFileSelect,
-  accept = 'image/png, image/jpeg, image/webp',
-  selectedFileName,
-  maxSizeText = 'PNG, JPEG or WebP · Maximum 20 MB',
+  title = 'Upload a file',
+  subtitle = 'Drop a file here or click to browse',
+  hint = 'PNG, JPG, WebP up to 20 MB',
 }) => {
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      onFileSelect(e.target.files[0]);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      onFileSelect(e.dataTransfer.files[0]);
     }
   };
 
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
   return (
-    <div className="p-8 rounded-xl border border-dashed border-slate-700 bg-slate-900/40 text-center cursor-pointer relative hover:border-slate-500 transition-colors group">
+    <div
+      onDrop={handleDrop}
+      onDragOver={handleDragOver}
+      onClick={() => inputRef.current?.click()}
+      className="p-8 sm:p-12 border-2 border-dashed border-border hover:border-border-strong rounded-lg bg-surface-subtle/30 text-center cursor-pointer transition-colors space-y-3 group"
+    >
       <input
+        ref={inputRef}
         type="file"
         accept={accept}
-        onChange={handleChange}
-        aria-label="Upload file"
-        className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+        onChange={(e) => e.target.files?.[0] && onFileSelect(e.target.files[0])}
+        className="hidden"
       />
-      <div className="space-y-3 pointer-events-none flex flex-col items-center">
-        <div className="p-3 rounded-full bg-indigo-950/80 border border-indigo-800/60 text-indigo-400 group-hover:scale-105 transition-transform">
-          <UploadCloud className="w-6 h-6" />
-        </div>
-        <p className="text-sm font-semibold text-slate-200 group-hover:text-white transition-colors">
-          {selectedFileName ? selectedFileName : 'Drop file here or click to browse'}
-        </p>
-        <p className="text-xs text-slate-400">{maxSizeText}</p>
-        <p className="text-xs text-emerald-400 font-medium flex items-center gap-1">
-          <ShieldCheck className="w-3.5 h-3.5" />
-          <span>Processed 100% locally inside your browser tab</span>
-        </p>
+      <div className="w-10 h-10 mx-auto rounded-md bg-surface-subtle border border-border flex items-center justify-center text-foreground-secondary group-hover:text-primary group-hover:border-primary/40 transition-colors">
+        <UploadCloud className="w-5 h-5" />
       </div>
+      <div className="space-y-1">
+        <p className="text-sm font-semibold text-foreground">{title}</p>
+        <p className="text-xs text-foreground-secondary">{subtitle}</p>
+      </div>
+      {hint && <p className="text-[11px] text-foreground-muted font-sans">{hint}</p>}
     </div>
   );
 };
