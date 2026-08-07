@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Copy, Check, RefreshCw, Key } from 'lucide-react';
+import { Copy, Check, RefreshCw, Key, Link as LinkIcon } from 'lucide-react';
 import { generateUuidBatch } from '@/tools/crypto/uuid/uuid';
 import { ToolFrame } from '@/components/tool-ui/ToolFrame';
 import { Button } from '@/components/ui/Button';
+import { parseUrlParams, updateUrlParams, copyShareLink } from '@/lib/url-state';
+import { track } from '@/lib/analytics';
 
 export interface UuidToolProps {
   config?: any;
@@ -15,26 +17,70 @@ export const UuidTool: React.FC<UuidToolProps> = () => {
   const [uuids, setUuids] = useState<string[]>([]);
   const [copiedAll, setCopiedAll] = useState<boolean>(false);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [copiedLink, setCopiedLink] = useState<boolean>(false);
+
+  useEffect(() => {
+    const params = parseUrlParams();
+    if (params.count && !isNaN(Number(params.count))) {
+      setCount(Math.min(50, Math.max(1, Number(params.count))));
+    }
+    if (params.uppercase !== undefined) {
+      setUppercase(params.uppercase === 'true');
+    }
+    if (params.hyphens !== undefined) {
+      setHyphens(params.hyphens === 'true');
+    }
+    track('tool_open', { tool_key: 'crypto/uuid', category: 'crypto' });
+  }, []);
 
   const handleGenerate = () => {
     setUuids(generateUuidBatch(count, uppercase, hyphens));
+    track('tool_execute', { tool_key: 'crypto/uuid', category: 'crypto', action_type: 'generate' });
   };
 
   useEffect(() => {
     handleGenerate();
   }, [count, uppercase, hyphens]);
 
+  const handleCountChange = (newCount: number) => {
+    setCount(newCount);
+    updateUrlParams({ count: newCount, uppercase, hyphens });
+  };
+
+  const handleHyphensToggle = () => {
+    const next = !hyphens;
+    setHyphens(next);
+    updateUrlParams({ count, uppercase, hyphens: next });
+  };
+
+  const handleUppercaseToggle = () => {
+    const next = !uppercase;
+    setUppercase(next);
+    updateUrlParams({ count, uppercase: next, hyphens });
+  };
+
   const handleCopyAll = () => {
     if (uuids.length === 0) return;
     navigator.clipboard.writeText(uuids.join('\n'));
     setCopiedAll(true);
+    track('tool_copy', { tool_key: 'crypto/uuid', category: 'crypto', mode: 'copy-all' });
     setTimeout(() => setCopiedAll(false), 2000);
   };
 
   const handleCopySingle = (uuid: string, idx: number) => {
     navigator.clipboard.writeText(uuid);
     setCopiedIndex(idx);
+    track('tool_copy', { tool_key: 'crypto/uuid', category: 'crypto', mode: 'copy-single' });
     setTimeout(() => setCopiedIndex(null), 2000);
+  };
+
+  const handleCopyLink = async () => {
+    const ok = await copyShareLink();
+    if (ok) {
+      setCopiedLink(true);
+      track('tool_share', { tool_key: 'crypto/uuid', category: 'crypto' });
+      setTimeout(() => setCopiedLink(false), 2000);
+    }
   };
 
   return (
@@ -54,7 +100,7 @@ export const UuidTool: React.FC<UuidToolProps> = () => {
               <select
                 aria-label="UUID quantity"
                 value={count}
-                onChange={(e) => setCount(parseInt(e.target.value, 10))}
+                onChange={(e) => handleCountChange(parseInt(e.target.value, 10))}
                 className="bg-transparent font-mono font-medium text-foreground cursor-pointer focus:outline-none"
               >
                 <option value="1">1</option>
@@ -67,7 +113,7 @@ export const UuidTool: React.FC<UuidToolProps> = () => {
 
             <button
               type="button"
-              onClick={() => setHyphens(!hyphens)}
+              onClick={handleHyphensToggle}
               className={`px-2.5 py-1 rounded-md text-xs font-mono font-semibold transition-all select-none cursor-pointer border ${
                 hyphens
                   ? 'bg-surface border-border text-foreground hover:bg-surface-subtle'
@@ -79,7 +125,7 @@ export const UuidTool: React.FC<UuidToolProps> = () => {
 
             <button
               type="button"
-              onClick={() => setUppercase(!uppercase)}
+              onClick={handleUppercaseToggle}
               className={`px-2.5 py-1 rounded-md text-xs font-mono font-semibold transition-all select-none cursor-pointer border ${
                 uppercase
                   ? 'bg-accent text-action-primary-foreground border-accent shadow-xs'
@@ -92,6 +138,16 @@ export const UuidTool: React.FC<UuidToolProps> = () => {
         </div>
 
         <div className="flex items-center gap-2">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={handleCopyLink}
+            leftIcon={copiedLink ? <Check className="w-3.5 h-3.5 text-success" /> : <LinkIcon className="w-3.5 h-3.5" />}
+            className="h-8 text-xs font-medium"
+          >
+            {copiedLink ? 'Link Copied' : 'Share Link'}
+          </Button>
+
           <Button
             variant="secondary"
             size="sm"

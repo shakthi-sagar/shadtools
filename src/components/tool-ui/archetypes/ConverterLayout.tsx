@@ -8,11 +8,12 @@ export interface UnitOption {
 }
 
 export interface ConverterLayoutProps {
+  title?: string;
   amount: number;
   fromId: string;
   toId: string;
   units: UnitOption[];
-  result: number | string;
+  result?: number | string;
   formattedResult: string;
   formula?: string;
   steps?: string;
@@ -82,7 +83,7 @@ export const ConverterLayout: React.FC<ConverterLayoutProps> = ({
           <select
             value={fromId}
             onChange={(e) => onFromChange(e.target.value)}
-            className="w-full h-10 px-3 bg-surface-input text-foreground font-mono text-sm border border-border rounded-md outline-none ring-0 focus:outline-none focus:ring-0 focus:border-accent transition-colors"
+            className="w-full h-10 px-3 bg-surface-input text-foreground font-mono text-sm border border-border rounded-md outline-none ring-0 focus:outline-none focus:ring-0 focus:border-accent transition-colors cursor-pointer"
           >
             {units.map((u) => (
               <option key={u.id} value={u.id}>
@@ -112,7 +113,7 @@ export const ConverterLayout: React.FC<ConverterLayoutProps> = ({
           <select
             value={toId}
             onChange={(e) => onToChange(e.target.value)}
-            className="w-full h-10 px-3 bg-surface-input text-foreground font-mono text-sm border border-border rounded-md outline-none ring-0 focus:outline-none focus:ring-0 focus:border-accent transition-colors"
+            className="w-full h-10 px-3 bg-surface-input text-foreground font-mono text-sm border border-border rounded-md outline-none ring-0 focus:outline-none focus:ring-0 focus:border-accent transition-colors cursor-pointer"
           >
             {units.map((u) => (
               <option key={u.id} value={u.id}>
@@ -134,7 +135,7 @@ export const ConverterLayout: React.FC<ConverterLayoutProps> = ({
             <button
               type="button"
               onClick={handleShare}
-              className="px-2.5 py-1 text-xs font-medium font-mono text-foreground-secondary hover:text-foreground bg-surface border border-border rounded transition-colors flex items-center gap-1.5"
+              className="px-2.5 py-1 text-xs font-medium font-mono text-foreground-secondary hover:text-foreground bg-surface border border-border rounded transition-colors flex items-center gap-1.5 cursor-pointer"
               title="Copy shareable link"
             >
               {shared ? <Check className="w-3.5 h-3.5 text-success" /> : <Share2 className="w-3.5 h-3.5" />}
@@ -143,7 +144,7 @@ export const ConverterLayout: React.FC<ConverterLayoutProps> = ({
             <button
               type="button"
               onClick={handleCopy}
-              className="px-2.5 py-1 text-xs font-medium font-mono text-accent hover:text-accent-hover bg-accent-subtle/40 border border-accent/30 rounded transition-colors flex items-center gap-1.5"
+              className="px-2.5 py-1 text-xs font-medium font-mono text-accent hover:text-accent-hover bg-accent-subtle/40 border border-accent/30 rounded transition-colors flex items-center gap-1.5 cursor-pointer"
             >
               {copied ? <Check className="w-3.5 h-3.5 text-success" /> : <Copy className="w-3.5 h-3.5" />}
               <span>{copied ? 'Copied!' : 'Copy Result'}</span>

@@ -2,34 +2,54 @@ import React, { useState } from 'react';
 import { CodeEditorPane } from '@/components/tool-ui/CodeEditorPane';
 import { Copy, Check, Share2, ArrowRightLeft, Trash2 } from 'lucide-react';
 
+export interface ModeOption {
+  id: string;
+  label: string;
+}
+
 export interface TwoPaneTransformProps {
-  inputLabel: string;
-  outputLabel: string;
+  inputLabel?: string;
+  outputLabel?: string;
+  inputTitle?: string;
+  outputTitle?: string;
   input: string;
   output: string;
   onInputChange: (val: string) => void;
   error?: string | null;
+  errorMessage?: string | null;
   placeholder?: string;
+  inputPlaceholder?: string;
+  outputPlaceholder?: string;
   modes?: string[];
+  mode?: string;
   activeMode?: string;
   onModeChange?: (mode: string) => void;
+  modeOptions?: ModeOption[];
   actions?: React.ReactNode;
   onClear?: () => void;
   onSwap?: () => void;
   onCopyStateUrl?: () => void;
+  onTransform?: () => void;
 }
 
 export const TwoPaneTransform: React.FC<TwoPaneTransformProps> = ({
   inputLabel,
   outputLabel,
+  inputTitle,
+  outputTitle,
   input,
   output,
   onInputChange,
   error,
-  placeholder = 'Type or paste content here...',
+  errorMessage,
+  placeholder,
+  inputPlaceholder,
+  outputPlaceholder,
   modes,
+  mode,
   activeMode,
   onModeChange,
+  modeOptions,
   actions,
   onClear,
   onSwap,
@@ -37,6 +57,12 @@ export const TwoPaneTransform: React.FC<TwoPaneTransformProps> = ({
 }) => {
   const [copiedOutput, setCopiedOutput] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+
+  const resolvedInputLabel = inputTitle || inputLabel || 'Input';
+  const resolvedOutputLabel = outputTitle || outputLabel || 'Output';
+  const resolvedError = errorMessage ?? error;
+  const resolvedInputPlaceholder = inputPlaceholder || placeholder || 'Type or paste content here...';
+  const resolvedActiveMode = mode || activeMode;
 
   const handleCopyOutput = () => {
     navigator.clipboard.writeText(output);
@@ -59,26 +85,43 @@ export const TwoPaneTransform: React.FC<TwoPaneTransformProps> = ({
       {/* Top Action Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3 bg-surface p-3 rounded-lg border border-border">
         {/* Mode Selector Tabs */}
-        {modes && modes.length > 0 && onModeChange ? (
+        {modeOptions && modeOptions.length > 0 && onModeChange ? (
           <div className="flex items-center gap-1 bg-surface-subtle p-1 rounded-md border border-border">
-            {modes.map((mode) => (
+            {modeOptions.map((m) => (
               <button
-                key={mode}
+                key={m.id}
                 type="button"
-                onClick={() => onModeChange(mode)}
+                onClick={() => onModeChange(m.id)}
                 className={`px-3 py-1 text-xs font-mono font-medium rounded transition-colors ${
-                  activeMode === mode
+                  resolvedActiveMode === m.id
                     ? 'bg-accent text-accent-foreground font-semibold shadow-sm'
                     : 'text-foreground-secondary hover:text-foreground hover:bg-surface-hover'
                 }`}
               >
-                {mode}
+                {m.label}
+              </button>
+            ))}
+          </div>
+        ) : modes && modes.length > 0 && onModeChange ? (
+          <div className="flex items-center gap-1 bg-surface-subtle p-1 rounded-md border border-border">
+            {modes.map((m) => (
+              <button
+                key={m}
+                type="button"
+                onClick={() => onModeChange(m)}
+                className={`px-3 py-1 text-xs font-mono font-medium rounded transition-colors ${
+                  resolvedActiveMode === m
+                    ? 'bg-accent text-accent-foreground font-semibold shadow-sm'
+                    : 'text-foreground-secondary hover:text-foreground hover:bg-surface-hover'
+                }`}
+              >
+                {m}
               </button>
             ))}
           </div>
         ) : (
           <div className="text-xs font-mono font-semibold text-foreground-secondary uppercase tracking-wider">
-            {inputLabel} → {outputLabel}
+            {resolvedInputLabel} → {resolvedOutputLabel}
           </div>
         )}
 
@@ -125,24 +168,25 @@ export const TwoPaneTransform: React.FC<TwoPaneTransformProps> = ({
       {/* Dual Pane Editor Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border border-border rounded-lg overflow-hidden bg-surface">
         <CodeEditorPane
-          label={inputLabel}
+          label={resolvedInputLabel}
           value={input}
           onChange={onInputChange}
-          placeholder={placeholder}
+          placeholder={resolvedInputPlaceholder}
           minHeightClass="min-h-[240px]"
         />
 
         <CodeEditorPane
-          label={outputLabel}
+          label={resolvedOutputLabel}
           value={output}
           readOnly
-          error={error}
+          error={resolvedError}
+          placeholder={outputPlaceholder}
           minHeightClass="min-h-[240px]"
           actions={
             <button
               type="button"
               onClick={handleCopyOutput}
-              disabled={!output || !!error}
+              disabled={!output || !!resolvedError}
               className="px-2 py-0.5 text-xs font-mono text-accent hover:text-accent-hover disabled:opacity-40 flex items-center gap-1"
             >
               {copiedOutput ? <Check className="w-3 h-3 text-success" /> : <Copy className="w-3 h-3" />}

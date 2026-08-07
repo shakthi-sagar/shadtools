@@ -1,0 +1,22 @@
+---
+import { TimeTool } from './TimeTool';
+import type { TimeConfig } from './config';
+
+export interface Props {
+  config?: TimeConfig;
+  variantData?: {
+    value?: number;
+    fromId?: string;
+    toId?: string;
+  };
+}
+
+const { config, variantData } = Astro.props;
+---
+
+<TimeTool
+  client:load
+  initialAmount={variantData?.value ?? config?.defaultAmount ?? 1}
+  initialFromId={variantData?.fromId ?? config?.defaultFromUnit ?? 'hour'}
+  initialToId={variantData?.toId ?? config?.defaultToUnit ?? 'minute'}
+/>

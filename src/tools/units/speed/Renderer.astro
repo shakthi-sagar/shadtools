@@ -1,0 +1,22 @@
+---
+import { SpeedTool } from './SpeedTool';
+import type { SpeedConfig } from './config';
+
+export interface Props {
+  config?: SpeedConfig;
+  variantData?: {
+    value?: number;
+    fromId?: string;
+    toId?: string;
+  };
+}
+
+const { config, variantData } = Astro.props;
+---
+
+<SpeedTool
+  client:load
+  initialAmount={variantData?.value ?? config?.defaultAmount ?? 100}
+  initialFromId={variantData?.fromId ?? config?.defaultFromUnit ?? 'kilometer-per-hour'}
+  initialToId={variantData?.toId ?? config?.defaultToUnit ?? 'mile-per-hour'}
+/>

@@ -1,0 +1,12 @@
+---
+import { UrlEncoderTool } from './UrlEncoderTool';
+import type { UrlEncoderConfig } from './config';
+
+export interface Props {
+  config?: UrlEncoderConfig;
+}
+
+const { config } = Astro.props;
+---
+
+<UrlEncoderTool client:load initialMode={config?.defaultMode ?? 'encode'} />

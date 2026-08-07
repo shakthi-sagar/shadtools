@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
-import { ArrowLeftRight, Copy, Check, Scale } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ArrowLeftRight, Copy, Check, Scale, Link as LinkIcon } from 'lucide-react';
 import { convertWeight, WEIGHT_UNITS } from './weight';
 import { ToolFrame } from '@/components/tool-ui/ToolFrame';
 import { Button } from '@/components/ui/Button';
+import { parseUrlParams, updateUrlParams, copyShareLink } from '@/lib/url-state';
+import { track } from '@/lib/analytics';
 
 export interface WeightToolProps {
   config?: any;
@@ -13,20 +15,63 @@ export const WeightTool: React.FC<WeightToolProps> = () => {
   const [fromUnit, setFromUnit] = useState<string>('kg');
   const [toUnit, setToUnit] = useState<string>('lb');
   const [copied, setCopied] = useState<boolean>(false);
+  const [copiedLink, setCopiedLink] = useState<boolean>(false);
+
+  useEffect(() => {
+    const params = parseUrlParams();
+    if (params.value && !isNaN(Number(params.value))) {
+      setValue(params.value);
+    }
+    if (params.from && Object.keys(WEIGHT_UNITS).includes(params.from)) {
+      setFromUnit(params.from);
+    }
+    if (params.to && Object.keys(WEIGHT_UNITS).includes(params.to)) {
+      setToUnit(params.to);
+    }
+    track('tool_open', { tool_key: 'units/weight', category: 'units' });
+  }, []);
+
+  const handleValueChange = (newVal: string) => {
+    setValue(newVal);
+    updateUrlParams({ value: newVal, from: fromUnit, to: toUnit });
+  };
+
+  const handleFromChange = (newFrom: string) => {
+    setFromUnit(newFrom);
+    updateUrlParams({ value, from: newFrom, to: toUnit });
+  };
+
+  const handleToChange = (newTo: string) => {
+    setToUnit(newTo);
+    updateUrlParams({ value, from: fromUnit, to: newTo });
+  };
 
   const numVal = parseFloat(value) || 0;
   const result = convertWeight(numVal, fromUnit, toUnit);
 
   const handleSwap = () => {
-    setFromUnit(toUnit);
-    setToUnit(fromUnit);
+    const nextFrom = toUnit;
+    const nextTo = fromUnit;
+    setFromUnit(nextFrom);
+    setToUnit(nextTo);
+    updateUrlParams({ value, from: nextFrom, to: nextTo });
   };
 
   const handleCopy = () => {
     const text = `${result.toLocaleString(undefined, { maximumFractionDigits: 6 })} ${toUnit}`;
     navigator.clipboard.writeText(text);
     setCopied(true);
+    track('tool_copy', { tool_key: 'units/weight', category: 'units' });
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleCopyLink = async () => {
+    const ok = await copyShareLink();
+    if (ok) {
+      setCopiedLink(true);
+      track('tool_share', { tool_key: 'units/weight', category: 'units' });
+      setTimeout(() => setCopiedLink(false), 2000);
+    }
   };
 
   return (
@@ -61,7 +106,7 @@ export const WeightTool: React.FC<WeightToolProps> = () => {
               id="weight-val"
               type="number"
               value={value}
-              onChange={(e) => setValue(e.target.value)}
+              onChange={(e) => handleValueChange(e.target.value)}
               className="w-full h-10 px-3.5 rounded-md bg-surface-input border border-border text-foreground font-mono text-sm focus:outline-none focus:border-border-strong focus:ring-2 focus:ring-accent/20"
             />
           </div>
@@ -74,7 +119,7 @@ export const WeightTool: React.FC<WeightToolProps> = () => {
             <select
               id="weight-from"
               value={fromUnit}
-              onChange={(e) => setFromUnit(e.target.value)}
+              onChange={(e) => handleFromChange(e.target.value)}
               className="w-full h-10 px-3 rounded-md bg-surface border border-border text-foreground text-xs font-medium focus:outline-none focus:border-border-strong cursor-pointer"
             >
               {Object.entries(WEIGHT_UNITS).map(([key, u]) => (
@@ -93,7 +138,7 @@ export const WeightTool: React.FC<WeightToolProps> = () => {
             <select
               id="weight-to"
               value={toUnit}
-              onChange={(e) => setToUnit(e.target.value)}
+              onChange={(e) => handleToChange(e.target.value)}
               className="w-full h-10 px-3 rounded-md bg-surface border border-border text-foreground text-xs font-medium focus:outline-none focus:border-border-strong cursor-pointer"
             >
               {Object.entries(WEIGHT_UNITS).map(([key, u]) => (
@@ -111,15 +156,26 @@ export const WeightTool: React.FC<WeightToolProps> = () => {
             <span className="text-[11px] font-bold text-foreground-muted uppercase tracking-wider font-mono">
               CONVERTED RESULT
             </span>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={handleCopy}
-              leftIcon={copied ? <Check className="w-3.5 h-3.5 text-success" /> : <Copy className="w-3.5 h-3.5" />}
-              className="h-7 px-2.5 text-xs font-medium"
-            >
-              {copied ? 'Copied Result' : 'Copy Result'}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handleCopyLink}
+                leftIcon={copiedLink ? <Check className="w-3.5 h-3.5 text-success" /> : <LinkIcon className="w-3.5 h-3.5" />}
+                className="h-7 px-2.5 text-xs font-medium"
+              >
+                {copiedLink ? 'Link Copied' : 'Share Link'}
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handleCopy}
+                leftIcon={copied ? <Check className="w-3.5 h-3.5 text-success" /> : <Copy className="w-3.5 h-3.5" />}
+                className="h-7 px-2.5 text-xs font-medium"
+              >
+                {copied ? 'Copied Result' : 'Copy Result'}
+              </Button>
+            </div>
           </div>
 
           <div className="text-2xl font-bold font-mono text-accent">
