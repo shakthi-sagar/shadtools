@@ -1,5 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
+import { getNamespaceSlug, getNamespaceUrl } from '../../lib/routing';
 
 const namespaces = await getCollection('namespaces');
 ---
@@ -17,9 +18,9 @@ const namespaces = await getCollection('namespaces');
     <!-- Navigation -->
     <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-slate-300">
       {namespaces.map((ns) => {
-        const slug = (ns.slug || ns.id).replace(/\.md$/, '');
+        const slug = getNamespaceSlug(ns);
         return (
-          <a href={`/${slug}`} class="hover:text-indigo-400 transition-colors py-1">
+          <a href={getNamespaceUrl(slug)} class="hover:text-indigo-400 transition-colors py-1">
             {ns.data.name}
           </a>
         );

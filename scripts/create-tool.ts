@@ -116,7 +116,7 @@ fs.writeFileSync(
 id: ${toolKey}
 name: ${name}
 namespace: ${namespace}
-status: published
+status: draft
 renderer: ${toolKey}
 pattern: code-editor
 
@@ -131,7 +131,7 @@ seo:
   primaryKeyword: ${slug.replace(/-/g, ' ')}
   keywords:
     - ${slug.replace(/-/g, ' ')}
-  noindex: false
+  noindex: true
 
 privacy:
   processing: local

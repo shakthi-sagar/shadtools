@@ -3,17 +3,17 @@ import { getCollection, render } from 'astro:content';
 import type { GetStaticPaths } from 'astro';
 import ToolLayout from '../../layouts/ToolLayout.astro';
 import { getToolRenderer, parseToolConfig } from '../../tools/registry';
+import { getNamespaceSlug, getToolSlug } from '../../lib/routing';
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const entries = await getCollection(
     'tools',
-    ({ data }) => data.status === 'published' && (!data.seo || !data.seo.noindex)
+    ({ data }) => data.status === 'published'
   );
 
   return entries.map((entry) => {
-    const parts = entry.slug.split('/');
-    const namespace = parts[0];
-    const slug = parts.length > 1 ? parts[1] : parts[0];
+    const namespace = getNamespaceSlug(entry);
+    const slug = getToolSlug(entry);
 
     return {
       params: { namespace, slug },

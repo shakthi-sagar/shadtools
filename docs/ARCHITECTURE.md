@@ -16,90 +16,97 @@ Namespace → Tool
 
 ---
 
-## 2. Directory Structure
+## 2. Frozen Directory Structure
 
 ```text
-shadtools/
-├── public/
-│   ├── favicon.svg
-│   ├── robots.txt
-│   └── _headers
-├── scripts/
-│   ├── create-tool.ts
-│   └── validate-tools.ts
-├── src/
-│   ├── content.config.ts                # Typed Content Collections (Tools, Namespaces)
-│   ├── content/
-│   │   ├── config.ts                    # Re-export for Astro compatibility
-│   │   ├── namespaces/
-│   │   │   ├── json.md
-│   │   │   ├── base64.md
-│   │   │   ├── images.md
-│   │   │   ├── currency.md
-│   │   │   ├── percentage.md
-│   │   │   └── units.md
-│   │   └── tools/
-│   │       ├── json/
-│   │       │   └── formatter.md
-│   │       ├── base64/
-│   │       │   └── encode.md
-│   │       ├── images/
-│   │       │   └── compress.md
-│   │       ├── currency/
-│   │       │   └── converter.md
-│   │       ├── percentage/
-│   │       │   └── calculator.md
-│   │       └── units/
-│   │           └── length.md
-│   ├── pages/
-│   │   ├── index.astro
-│   │   ├── search.astro
-│   │   ├── 404.astro
-│   │   ├── [section].astro              # Namespace Hubs (/json)
-│   │   ├── [namespace]/
-│   │   │   └── [slug].astro             # Tool Pages (/json/formatter)
-│   │   ├── privacy.astro
-│   │   ├── terms.astro
-│   │   ├── disclaimer.astro
-│   │   └── contact.astro
-│   ├── tools/
-│   │   ├── registry.ts                  # Import.meta.glob tool renderer & module discovery
-│   │   ├── tool-module.ts               # ToolModule contract interface
-│   │   ├── json/
-│   │   │   └── formatter/
-│   │   │       ├── index.ts
-│   │   │       ├── Renderer.astro
-│   │   │       ├── JsonFormatterTool.tsx
-│   │   │       ├── format-json.ts
-│   │   │       ├── format-json.test.ts
-│   │   │       └── config.ts
-│   │   ├── base64/
-│   │   │   └── encode/
-│   │   ├── images/
-│   │   │   └── compress/
-│   │   ├── currency/
-│   │   │   └── converter/
-│   │   ├── percentage/
-│   │   │   └── calculator/
-│   │   └── units/
-│   │       └── length/
-│   ├── components/
-│   │   ├── ui/
-│   │   ├── tool-ui/                      # Reusable tool UI shells (ToolShell, CodeEditorShell, FileDropzone, etc.)
-│   │   ├── site/
-│   │   └── seo/
-│   ├── layouts/
-│   │   ├── BaseLayout.astro
-│   │   └── ToolLayout.astro
-│   └── styles/
-│       ├── tokens.css
-│       └── base.css
+src/
+├── content/
+│   ├── namespaces/                   # Namespace metadata markdown (json.md, base64.md, etc.)
+│   └── tools/                        # Tool metadata markdown (json/formatter.md, etc.)
+│
+├── tools/
+│   ├── registry.ts                   # Import.meta.glob tool renderer & module discovery
+│   ├── tool-module.ts                # ToolModule contract interface
+│   ├── tool.types.ts                 # Shared tool TypeScript interfaces
+│   ├── _shared/                      # Cross-cutting tool helpers (files, downloads, workers)
+│   ├── json/
+│   │   ├── _shared/                  # Domain shared utilities
+│   │   └── formatter/
+│   │       ├── index.ts              # ToolModule export
+│   │       ├── Renderer.astro        # Isolated Astro React wrapper with client:load
+│   │       ├── JsonFormatterTool.tsx # Interactive React component
+│   │       ├── format-json.ts        # Pure business logic engine
+│   │       ├── format-json.test.ts   # Engine unit test
+│   │       └── config.ts             # Zod config schema
+│   ├── base64/
+│   ├── images/
+│   ├── currency/
+│   ├── percentage/
+│   └── units/
+│
+├── components/
+│   ├── ui/                           # Base UI primitives (Button, Input, FormField, Select, etc.)
+│   ├── tool-ui/                      # Reusable tool UI shells (ToolShell, CodeEditorShell, FileDropzone, etc.)
+│   ├── tool-page/                    # Tool page sections (ToolHeader, PrivacyNotice, Examples, Faq, etc.)
+│   ├── site/                         # Layout components (Header, Footer, Breadcrumbs, SearchTrigger, etc.)
+│   ├── seo/                          # MetaHead, BreadcrumbJsonLd, WebApplicationJsonLd
+│   └── ads/                          # AdSlot, AdPlaceholder
+│
+├── layouts/
+│   ├── BaseLayout.astro
+│   ├── HubLayout.astro
+│   ├── ToolLayout.astro
+│   └── LegalLayout.astro
+│
+├── lib/
+│   ├── catalog/                      # get-namespaces.ts, get-tools.ts, resolve-related-tools.ts
+│   ├── routing.ts                    # Centralized route & URL helpers (getToolUrl, getNamespaceSlug, etc.)
+│   ├── routing/                      # route-identity.ts, tool-url.ts
+│   ├── seo/                          # canonical.ts, metadata.ts, robots.ts
+│   ├── search/                       # search.types.ts
+│   └── files/                        # download.ts, file-validation.ts
+│
+├── pages/
+│   ├── index.astro                   # Home utility launcher
+│   ├── [namespace].astro             # Namespace Hub (/json)
+│   ├── [namespace]/
+│   │   └── [slug].astro              # Dynamic Tool Route (/json/formatter)
+│   ├── search.astro                  # Pagefind client search
+│   ├── 404.astro
+│   ├── privacy.astro
+│   ├── terms.astro
+│   ├── disclaimer.astro
+│   └── contact.astro
+│
+└── styles/
+    ├── tokens.css                    # CSS variables & 4-level surface hierarchy
+    ├── base.css
+    ├── components.css
+    ├── prose.css
+    ├── utilities.css
+    └── global.css
 ```
 
 ---
 
-## 3. Data & Implementation Separation
+## 3. Data & Implementation Pipeline
 
-- **Content Markdown (`src/content/tools/<namespace>/<slug>.md`)**: Contains metadata, SEO titles, descriptions, instructions, examples, FAQs, and `renderer: "json/formatter"`. Contains zero UI logic.
-- **Tool Implementation (`src/tools/<namespace>/<tool>/`)**: Co-located tool module containing React interface, pure engine functions, unit tests, Zod config schema, `Renderer.astro` wrapper, and `index.ts` definition.
-- **Registry (`src/tools/registry.ts`)**: Auto-discovers tool modules and `Renderer.astro` wrappers via `import.meta.glob`.
+```text
+Content Entry (src/content/tools/json/formatter.md)
+    ↓
+Renderer Key ("json/formatter")
+    ↓
+Registry (src/tools/registry.ts)
+    ↓
+Module Config Validation (Zod schema)
+    ↓
+Renderer.astro (Astro wrapper)
+    ↓
+React Tool Component (src/tools/json/formatter/JsonFormatterTool.tsx)
+```
+
+## 4. Status & Publication Workflow
+
+- `status: draft` → Page is not rendered in search indices, default status for `npm run create-tool`.
+- `status: published` → Dynamic route generates page in static build.
+- `seo.noindex: true` → Page route is generated, but renders `<meta name="robots" content="noindex, nofollow" />` and is excluded from sitemap.xml.
