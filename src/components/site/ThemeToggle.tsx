@@ -1,15 +1,38 @@
-import React from 'react';
-import { Moon } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Sun, Moon } from 'lucide-react';
 
 export const ThemeToggle: React.FC = () => {
+  const [isDark, setIsDark] = useState<boolean>(true);
+
+  useEffect(() => {
+    // Initial theme check on client mount
+    const hasDark = document.documentElement.classList.contains('dark');
+    setIsDark(hasDark);
+  }, []);
+
+  const toggleTheme = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const isCurrentlyDark = document.documentElement.classList.contains('dark');
+    if (isCurrentlyDark) {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+      setIsDark(false);
+    } else {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+      setIsDark(true);
+    }
+  };
+
   return (
     <button
-      aria-label="Theme mode"
-      disabled
-      className="p-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 opacity-80 cursor-default"
-      title="Dark Mode Default"
+      type="button"
+      onClick={toggleTheme}
+      aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+      title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+      className="w-8 h-8 rounded-md bg-surface border border-border hover:border-border-strong hover:bg-surface-subtle text-foreground-secondary hover:text-foreground transition-colors flex items-center justify-center focus-visible:outline-2 focus-visible:outline-focus cursor-pointer select-none"
     >
-      <Moon className="w-4 h-4" />
+      {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-700" />}
     </button>
   );
 };

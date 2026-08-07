@@ -11,7 +11,6 @@ export interface Props {
   ogImage?: string;
   keywords?: string[];
   noindex?: boolean;
-  categoryClass?: string;
 }
 
 const {
@@ -21,13 +20,22 @@ const {
   ogImage,
   keywords,
   noindex,
-  categoryClass = 'category-documents'
 } = Astro.props;
 ---
 
 <!DOCTYPE html>
-<html lang="en" class={`dark ${categoryClass}`}>
+<html lang="en" class="dark">
   <head>
+    <script is:inline>
+      (function() {
+        const storedTheme = localStorage.getItem('theme');
+        if (storedTheme === 'dark' || (!storedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      })();
+    </script>
     <MetaHead
       title={title}
       description={description}
@@ -37,7 +45,7 @@ const {
       noindex={noindex}
     />
   </head>
-  <body class="flex flex-col min-h-screen">
+  <body class="flex flex-col min-h-screen bg-background text-foreground selection:bg-primary-subtle selection:text-primary">
     <Header />
     <main class="flex-grow">
       <slot />

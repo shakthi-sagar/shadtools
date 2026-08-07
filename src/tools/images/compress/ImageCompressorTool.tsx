@@ -1,95 +1,146 @@
 import React, { useState } from 'react';
-import { Download, Loader2 } from 'lucide-react';
-import { compressImage, type ImageCompressResult } from './compress-image';
+import { Download, Sliders, RefreshCw, FileImage } from 'lucide-react';
+import { compressImage } from './compress-image';
+import { ToolFrame } from '../../../components/tool-ui/ToolFrame';
 import { FileDropzone } from '../../../components/tool-ui/FileDropzone';
+import { Button } from '../../../components/ui/Button';
 
 export const ImageCompressorTool: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [quality, setQuality] = useState<number>(0.8);
-  const [result, setResult] = useState<ImageCompressResult | null>(null);
+  const [compressedBlob, setCompressedBlob] = useState<Blob | null>(null);
+  const [compressedUrl, setCompressedUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const handleFileSelect = async (selected: File) => {
-    setFile(selected);
-    await processImage(selected, quality);
+  const handleFileSelect = (selectedFile: File) => {
+    setFile(selectedFile);
+    setPreviewUrl(URL.createObjectURL(selectedFile));
+    setCompressedBlob(null);
+    setCompressedUrl(null);
   };
 
-  const processImage = async (imgFile: File, q: number) => {
+  const handleCompress = async () => {
+    if (!file) return;
     setLoading(true);
     try {
-      const res = await compressImage(imgFile, { quality: q });
-      setResult(res);
-    } catch (err) {
-      console.error('Image compression failed:', err);
+      const res = await compressImage(file, { quality });
+      setCompressedBlob(res.blob);
+      setCompressedUrl(res.dataUrl);
+    } catch (e) {
+      console.error('Compression failed', e);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleQualityChange = async (newQ: number) => {
-    setQuality(newQ);
-    if (file) {
-      await processImage(file, newQ);
-    }
+  const handleDownload = () => {
+    if (!compressedUrl || !file) return;
+    const a = document.createElement('a');
+    a.href = compressedUrl;
+    a.download = `compressed_${file.name}`;
+    a.click();
   };
 
+  const handleReset = () => {
+    setFile(null);
+    setPreviewUrl(null);
+    setCompressedBlob(null);
+    setCompressedUrl(null);
+  };
+
+  const formatSize = (bytes: number) => (bytes / 1024).toFixed(1) + ' KB';
+
   return (
-    <div className="space-y-6">
-      <FileDropzone
-        onFileSelect={handleFileSelect}
-        selectedFileName={file ? file.name : undefined}
-        maxSizeText="PNG, JPEG, WebP · Up to 20 MB"
-      />
-
-      {file && (
-        <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-5">
-          <div className="flex justify-between items-center text-sm font-semibold text-slate-200">
-            <span>Quality: {Math.round(quality * 100)}%</span>
-            <span className="text-emerald-400 font-bold font-mono">
-              {result ? `Saved ${result.compressionRatio}% size` : ''}
-            </span>
-          </div>
-          <input
-            type="range"
-            min="0.1"
-            max="1.0"
-            step="0.05"
-            aria-label="Compression Quality"
-            value={quality}
-            onChange={(e) => handleQualityChange(parseFloat(e.target.value))}
-            className="w-full accent-indigo-500 cursor-pointer"
-          />
-
-          {loading ? (
-            <div className="py-6 flex items-center justify-center gap-2 text-sm text-slate-400">
-              <Loader2 className="w-4 h-4 animate-spin text-indigo-400" />
-              <span>Compressing image...</span>
-            </div>
-          ) : result ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center pt-2">
-              <img src={result.dataUrl} alt="Compressed Preview" className="max-h-52 mx-auto rounded-xl border border-slate-800 object-contain shadow-md" />
-              <div className="space-y-4 p-4 rounded-xl bg-slate-950 border border-slate-800 text-sm">
-                <div className="flex justify-between text-slate-400">
-                  <span>Original Size:</span>
-                  <span className="font-mono text-slate-200">{(result.originalSize / 1024).toFixed(1)} KB</span>
-                </div>
-                <div className="flex justify-between text-slate-400">
-                  <span>Compressed Size:</span>
-                  <span className="font-mono text-emerald-400 font-bold">{(result.compressedSize / 1024).toFixed(1)} KB</span>
-                </div>
-                <a
-                  href={result.dataUrl}
-                  download={`compressed_${file.name}`}
-                  className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm transition-colors shadow-sm"
-                >
-                  <Download className="w-4 h-4" />
-                  <span>Download Image</span>
-                </a>
+    <ToolFrame className="p-6">
+      {!file ? (
+        <FileDropzone
+          onFileSelect={handleFileSelect}
+          title="Upload an image to compress"
+          subtitle="Drop a file here or click to browse"
+          hint="PNG, JPG, WebP up to 20 MB"
+        />
+      ) : (
+        <div className="space-y-6">
+          {/* File Header Status Row */}
+          <div className="flex flex-wrap items-center justify-between p-3.5 rounded-md bg-surface-subtle border border-border gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded bg-surface border border-border flex items-center justify-center text-foreground-secondary">
+                <FileImage className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-foreground truncate max-w-xs">{file.name}</p>
+                <p className="text-xs text-foreground-muted">Original: {formatSize(file.size)}</p>
               </div>
             </div>
-          ) : null}
+            <Button variant="ghost" size="sm" onClick={handleReset}>
+              <RefreshCw className="w-3.5 h-3.5 mr-1" />
+              Choose Another
+            </Button>
+          </div>
+
+          {/* Controls & Preview Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Compression Controls */}
+            <div className="space-y-4 p-4 rounded-md bg-surface border border-border">
+              <div className="flex justify-between items-center text-xs">
+                <span className="font-semibold text-foreground flex items-center gap-1.5">
+                  <Sliders className="w-3.5 h-3.5 text-primary" />
+                  Compression Quality
+                </span>
+                <span className="font-mono text-primary font-bold">{Math.round(quality * 100)}%</span>
+              </div>
+              <input
+                type="range"
+                min="0.1"
+                max="1.0"
+                step="0.05"
+                value={quality}
+                onChange={(e) => setQuality(parseFloat(e.target.value))}
+                className="w-full h-1.5 bg-surface-subtle rounded-lg appearance-none cursor-pointer accent-primary"
+              />
+
+              <div className="pt-2">
+                <Button variant="primary" className="w-full" onClick={handleCompress} disabled={loading}>
+                  {loading ? 'Compressing...' : 'Compress Image'}
+                </Button>
+              </div>
+
+              {compressedBlob && (
+                <div className="p-3 rounded bg-surface-subtle border border-border space-y-1 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-foreground-secondary">New Size:</span>
+                    <span className="font-mono font-bold text-foreground">{formatSize(compressedBlob.size)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-foreground-secondary">Savings:</span>
+                    <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                      {Math.max(0, Math.round(((file.size - compressedBlob.size) / file.size) * 100))}%
+                    </span>
+                  </div>
+                  <div className="pt-2">
+                    <Button variant="secondary" className="w-full" onClick={handleDownload}>
+                      <Download className="w-4 h-4 mr-1.5" />
+                      Download Compressed Image
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Image Preview */}
+            <div className="flex items-center justify-center p-4 rounded-md bg-surface-subtle border border-border min-h-[220px]">
+              {previewUrl && (
+                <img
+                  src={compressedUrl || previewUrl}
+                  alt="Preview"
+                  className="max-h-56 max-w-full rounded object-contain"
+                />
+              )}
+            </div>
+          </div>
         </div>
       )}
-    </div>
+    </ToolFrame>
   );
 };

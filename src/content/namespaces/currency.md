@@ -1,6 +1,8 @@
 ---
 name: "Currency Tools"
 summary: "Convert foreign exchange rates with live market data."
+group: "calculate"
+groupLabel: "Calculate & Convert"
 aliases: ["currency", "forex"]
 featuredTools: ["currency/converter"]
 order: 40

@@ -1,28 +1,32 @@
 import React, { useState } from 'react';
-import { Code, Minimize2, RotateCcw, Copy, Check, AlertCircle } from 'lucide-react';
+import { Copy, Check, Download, RotateCcw, Sliders, AlertCircle } from 'lucide-react';
 import { formatJson, minifyJson } from './format-json';
+import { ToolFrame } from '../../../components/tool-ui/ToolFrame';
+import { ToolToolbar } from '../../../components/tool-ui/ToolToolbar';
+import { Button } from '../../../components/ui/Button';
 
 export const JsonFormatterTool: React.FC = () => {
-  const [input, setInput] = useState<string>('');
+  const [input, setInput] = useState<string>('{\n  "name": "ShadTools",\n  "status": "active",\n  "version": 1.0\n}');
   const [output, setOutput] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
+  const [indent, setIndent] = useState<string>('2');
 
   const handleFormat = () => {
-    setError(null);
-    const res = formatJson(input);
+    const res = formatJson(input, indent === 'tab' ? 'tab' : parseInt(indent, 10));
     if (res.success) {
       setOutput(res.output);
+      setError(null);
     } else {
       setError(res.error || 'Invalid JSON syntax');
     }
   };
 
   const handleMinify = () => {
-    setError(null);
     const res = minifyJson(input);
     if (res.success) {
       setOutput(res.output);
+      setError(null);
     } else {
       setError(res.error || 'Invalid JSON syntax');
     }
@@ -35,7 +39,18 @@ export const JsonFormatterTool: React.FC = () => {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleClear = () => {
+  const handleDownload = () => {
+    if (!output) return;
+    const blob = new Blob([output], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'formatted.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleReset = () => {
     setInput('');
     setOutput('');
     setError(null);
@@ -43,94 +58,84 @@ export const JsonFormatterTool: React.FC = () => {
 
   return (
     <div className="space-y-4">
-      {/* Action Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-slate-900 border border-slate-800">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={handleFormat}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition-colors"
-          >
-            <Code className="w-3.5 h-3.5" />
-            <span>Format JSON</span>
-          </button>
-          <button
-            onClick={handleMinify}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors"
-          >
-            <Minimize2 className="w-3.5 h-3.5" />
-            <span>Minify JSON</span>
-          </button>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            onClick={handleClear}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Reset</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Error Banner */}
-      {error && (
-        <div className="flex items-center gap-2 p-3.5 rounded-xl bg-rose-950/40 border border-rose-800/60 text-rose-300 text-xs font-mono">
-          <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
-          <span><strong className="font-bold">Syntax Error:</strong> {error}</span>
-        </div>
-      )}
-
-      {/* Editor Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Input Pane */}
-        <div className="space-y-2">
-          <div className="flex justify-between items-center text-xs font-semibold text-slate-300 px-1">
-            <label htmlFor="json-input">Input JSON</label>
-            <span className="font-mono text-slate-500 text-[11px]">{input.length} chars</span>
+      <ToolFrame>
+        {/* Toolbar */}
+        <ToolToolbar>
+          <div className="flex items-center gap-2">
+            <Button variant="primary" size="sm" onClick={handleFormat}>
+              Format
+            </Button>
+            <Button variant="secondary" size="sm" onClick={handleMinify}>
+              Minify
+            </Button>
+            <div className="flex items-center gap-1.5 ml-2 text-xs text-foreground-secondary">
+              <Sliders className="w-3.5 h-3.5" />
+              <span>Indent:</span>
+              <select
+                aria-label="Indentation spacing"
+                value={indent}
+                onChange={(e) => setIndent(e.target.value)}
+                className="bg-surface border border-border rounded px-1.5 py-0.5 text-xs font-sans text-foreground cursor-pointer focus:outline-none focus:border-border-strong"
+              >
+                <option value="2">2 spaces</option>
+                <option value="4">4 spaces</option>
+                <option value="tab">1 tab</option>
+              </select>
+            </div>
           </div>
-          <textarea
-            id="json-input"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder='Paste JSON string here (e.g. {"name": "ShadTools", "status": "active"})'
-            className="w-full h-80 p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 font-mono text-sm focus:outline-none focus:border-indigo-500 resize-none leading-relaxed"
-          />
-        </div>
 
-        {/* Output Pane */}
-        <div className="space-y-2">
-          <div className="flex justify-between items-center text-xs font-semibold text-slate-300 px-1">
-            <span>Formatted Output</span>
-            <button
-              onClick={handleCopy}
-              disabled={!output}
-              className="flex items-center gap-1 text-xs font-medium text-indigo-400 hover:text-indigo-300 disabled:opacity-40 transition-colors"
-            >
-              {copied ? (
-                <>
-                  <Check className="w-3.5 h-3.5 text-emerald-400" />
-                  <span className="text-emerald-400">Copied</span>
-                </>
-              ) : (
-                <>
-                  <Copy className="w-3.5 h-3.5" />
-                  <span>Copy</span>
-                </>
-              )}
-            </button>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" onClick={handleCopy} disabled={!output}>
+              {copied ? <Check className="w-3.5 h-3.5 mr-1 text-emerald-500" /> : <Copy className="w-3.5 h-3.5 mr-1" />}
+              {copied ? 'Copied' : 'Copy'}
+            </Button>
+            <Button variant="ghost" size="sm" onClick={handleDownload} disabled={!output}>
+              <Download className="w-3.5 h-3.5 mr-1" />
+              Download
+            </Button>
+            <Button variant="ghost" size="sm" onClick={handleReset}>
+              <RotateCcw className="w-3.5 h-3.5 mr-1" />
+              Reset
+            </Button>
           </div>
-          <textarea
-            value={output}
-            readOnly
-            aria-label="Formatted Output"
-            placeholder="Formatted JSON result will appear here..."
-            className="w-full h-80 p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 text-emerald-400 font-mono text-sm focus:outline-none resize-none leading-relaxed"
-          />
+        </ToolToolbar>
+
+        {/* 50/50 Code Editor Workspace */}
+        <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border min-h-[420px]">
+          {/* Input Pane */}
+          <div className="flex flex-col">
+            <div className="px-3 py-1.5 bg-surface-subtle/40 border-b border-border flex items-center justify-between">
+              <span className="text-[11px] font-medium text-foreground-muted uppercase tracking-wider font-sans">INPUT JSON</span>
+            </div>
+            <textarea
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Paste JSON string here..."
+              className="flex-1 w-full p-4 bg-surface-input text-foreground font-mono text-xs leading-relaxed focus:outline-none resize-none border-none"
+            />
+          </div>
+
+          {/* Output Pane */}
+          <div className="flex flex-col">
+            <div className="px-3 py-1.5 bg-surface-subtle/40 border-b border-border flex items-center justify-between">
+              <span className="text-[11px] font-medium text-foreground-muted uppercase tracking-wider font-sans">OUTPUT</span>
+            </div>
+            {error ? (
+              <div className="p-4 text-xs font-mono text-danger bg-danger/5 flex-1 flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-danger" />
+                <span>Error parsing JSON: {error}</span>
+              </div>
+            ) : (
+              <textarea
+                readOnly
+                value={output}
+                placeholder="Formatted JSON result will appear here..."
+                className="flex-1 w-full p-4 bg-surface-input text-foreground font-mono text-xs leading-relaxed focus:outline-none resize-none border-none"
+              />
+            )}
+          </div>
         </div>
-      </div>
+      </ToolFrame>
     </div>
   );
 };
-
-export default JsonFormatterTool;

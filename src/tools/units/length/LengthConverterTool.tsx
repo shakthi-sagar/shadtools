@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowLeftRight } from 'lucide-react';
 import { LENGTH_UNITS, convertUnit } from './convert-length';
+import { ToolFrame } from '../../../components/tool-ui/ToolFrame';
 
 interface LengthConverterProps {
   config?: any;
@@ -29,22 +30,25 @@ export const LengthConverterTool: React.FC<LengthConverterProps> = ({
   };
 
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-[1fr,auto,1fr] gap-4 items-center p-5 rounded-2xl bg-slate-900 border border-slate-800">
+    <ToolFrame className="p-6">
+      <div className="grid grid-cols-1 md:grid-cols-[1fr,auto,1fr] gap-6 items-center">
+        {/* From Field */}
         <div className="space-y-2">
-          <label htmlFor="length-val" className="text-xs font-semibold text-slate-300 block">From Value</label>
+          <label htmlFor="length-val" className="text-xs font-medium text-foreground-secondary block">
+            From Value
+          </label>
           <input
             id="length-val"
             type="number"
             value={val}
             onChange={(e) => setVal(e.target.value)}
-            className="w-full p-3 rounded-xl bg-slate-950 border border-slate-800 text-white font-mono text-base focus:outline-none focus:border-indigo-500"
+            className="w-full px-3 py-2 rounded-md bg-surface-input border border-border text-foreground font-mono text-base focus:outline-none focus:border-border-strong focus:ring-2 focus:ring-focus min-h-[40px]"
           />
           <select
             aria-label="From Unit"
             value={fromUnit}
             onChange={(e) => setFromUnit(e.target.value)}
-            className="w-full p-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-200 text-sm focus:outline-none focus:border-indigo-500 cursor-pointer"
+            className="w-full px-3 py-2 rounded-md bg-surface-input border border-border text-foreground text-sm cursor-pointer focus:outline-none focus:border-border-strong focus:ring-2 focus:ring-focus min-h-[40px]"
           >
             {LENGTH_UNITS.map((u) => (
               <option key={u.id} value={u.id}>{u.name}</option>
@@ -52,26 +56,29 @@ export const LengthConverterTool: React.FC<LengthConverterProps> = ({
           </select>
         </div>
 
+        {/* Swap Button */}
         <div className="flex justify-center pt-2 md:pt-4">
           <button
             onClick={handleSwap}
             aria-label="Swap Units"
-            className="p-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-indigo-400 transition-colors shadow-sm"
+            title="Swap Units"
+            className="p-2.5 rounded-md bg-surface border border-border hover:bg-surface-subtle hover:border-border-strong text-foreground-secondary hover:text-foreground transition-colors focus-visible:outline-2 focus-visible:outline-focus"
           >
             <ArrowLeftRight className="w-4 h-4" />
           </button>
         </div>
 
+        {/* Result Display */}
         <div className="space-y-2">
-          <span className="text-xs font-semibold text-slate-300 block">Converted Result</span>
-          <div className="w-full p-3 rounded-xl bg-slate-950 border border-slate-800 text-indigo-300 font-mono text-base font-bold truncate">
+          <span className="text-xs font-medium text-foreground-secondary block">Converted Result</span>
+          <div className="w-full px-3 py-2 rounded-md bg-surface-subtle border border-border text-primary font-mono text-2xl font-semibold tabular-nums truncate min-h-[40px] flex items-center">
             {result.toFixed(4)}
           </div>
           <select
             aria-label="To Unit"
             value={toUnit}
             onChange={(e) => setToUnit(e.target.value)}
-            className="w-full p-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-200 text-sm focus:outline-none focus:border-indigo-500 cursor-pointer"
+            className="w-full px-3 py-2 rounded-md bg-surface-input border border-border text-foreground text-sm cursor-pointer focus:outline-none focus:border-border-strong focus:ring-2 focus:ring-focus min-h-[40px]"
           >
             {LENGTH_UNITS.map((u) => (
               <option key={u.id} value={u.id}>{u.name}</option>
@@ -79,6 +86,6 @@ export const LengthConverterTool: React.FC<LengthConverterProps> = ({
           </select>
         </div>
       </div>
-    </div>
+    </ToolFrame>
   );
 };

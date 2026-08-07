@@ -1,34 +1,34 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
+import LegalLayout from '../layouts/LegalLayout.astro';
 ---
 
-<BaseLayout
+<LegalLayout
   title="Privacy Policy - ShadTools"
   description="ShadTools Privacy Policy. 100% in-browser processing guarantee. We do not store or transmit your files or conversion data."
   canonicalUrl="https://shadtools.com/privacy"
 >
-  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-6 glass-card my-12 p-8">
-    <h1 class="text-3xl font-extrabold text-white">Privacy Policy</h1>
-    <p class="text-xs text-slate-400">Last updated: August 7, 2026</p>
+  <section class="space-y-4">
+    <h2>1. In-Browser Local Processing Guarantee</h2>
+    <p>
+      At ShadTools, your privacy is our top priority. All conversion, formatting, calculation, and image processing utilities operate 100% locally inside your web browser using HTML5 Web APIs, JavaScript, and WebAssembly.
+    </p>
+    <p>
+      Your input text, uploaded files, images, code payloads, and calculation inputs are <strong>never</strong> uploaded to any external server, database, or third-party storage system.
+    </p>
 
-    <section class="space-y-3 text-sm text-slate-300 leading-relaxed">
-      <h2 class="text-lg font-bold text-white">1. In-Browser Local Processing Guarantee</h2>
-      <p>
-        At ShadTools, your privacy is our top priority. All conversion, formatting, calculation, and image processing utilities operate 100% locally inside your web browser using HTML5 Web APIs, JavaScript, and WebAssembly.
-      </p>
-      <p>
-        Your input text, uploaded files, images, code payloads, and calculation inputs are **never** uploaded to any external server, database, or third-party storage system.
-      </p>
+    <h2>2. Analytics & Data Collection</h2>
+    <p>
+      We use privacy-first Cloudflare Web Analytics to measure aggregate site performance and global pageviews. Cloudflare Web Analytics does not use cookies, does not track individual users across sites, and does not collect personal identification information.
+    </p>
 
-      <h2 class="text-lg font-bold text-white">2. Analytics & Cookies</h2>
-      <p>
-        We use lightweight, privacy-first Cloudflare Web Analytics to measure global pageviews and site traffic. Cloudflare Web Analytics does not use cookies, does not track individual users, and does not collect personal identification information.
-      </p>
+    <h2>3. Third-Party Advertising</h2>
+    <p>
+      We display non-intrusive advertisements to support the hosting and development of free online tools. Third-party ad networks may use non-personal cookies to serve contextual advertisements.
+    </p>
 
-      <h2 class="text-lg font-bold text-white">3. Third-Party Advertising</h2>
-      <p>
-        We may display display advertisements (such as Google AdSense) to support the ongoing maintenance of free tools. Third-party ad networks may use non-personal cookies to serve contextual advertisements.
-      </p>
-    </section>
-  </div>
-</BaseLayout>
+    <h2>4. Contact Information</h2>
+    <p>
+      If you have questions regarding this Privacy Policy, please reach out to us at <a href="mailto:support@shadtools.com" class="text-primary hover:underline font-medium">support@shadtools.com</a>.
+    </p>
+  </section>
+</LegalLayout>

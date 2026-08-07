@@ -1,6 +1,7 @@
 ---
 import BaseLayout from './BaseLayout.astro';
 import Breadcrumbs from '../components/site/Breadcrumbs.astro';
+import { getToolUrl, getNamespaceUrl } from '../lib/routing';
 
 export interface Props {
   tool: {
@@ -29,11 +30,12 @@ export interface Props {
 
 const { tool, namespace, slug } = Astro.props;
 
-const currentUrl = `https://shadtools.com/${namespace}/${slug}`;
+const currentUrl = `https://shadtools.com${getToolUrl(namespace, slug)}`;
+const nsName = namespace.charAt(0).toUpperCase() + namespace.slice(1);
 
 const breadcrumbItems = [
-  { name: namespace.charAt(0).toUpperCase() + namespace.slice(1), url: `/${namespace}` },
-  { name: tool.name, url: `/${namespace}/${slug}` },
+  { name: nsName, url: getNamespaceUrl(namespace) },
+  { name: tool.name, url: getToolUrl(namespace, slug) },
 ];
 ---
 
@@ -44,96 +46,102 @@ const breadcrumbItems = [
   keywords={tool.seo.keywords}
   noindex={tool.seo.noindex}
 >
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8" data-pagefind-body>
+  <div class="max-w-[1120px] mx-auto px-4 sm:px-6 py-6 space-y-6" data-pagefind-body>
     <!-- Breadcrumb Navigation -->
     <Breadcrumbs items={breadcrumbItems} />
 
-    <!-- Tool Header & Description -->
-    <div class="space-y-3">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-md text-xs font-semibold bg-slate-900 border border-slate-800 text-indigo-300">
-        <span>Online Utility</span>
-      </div>
-      <h1 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+    <!-- Tool Header & Privacy Line -->
+    <div class="space-y-1.5">
+      <h1 class="text-2xl sm:text-3xl font-semibold text-foreground tracking-tight">
         {tool.name}
       </h1>
-      <p class="text-base text-slate-300 max-w-3xl leading-relaxed">
+      <p class="text-sm text-foreground-secondary leading-relaxed max-w-3xl">
         {tool.summary}
       </p>
-      <div class="flex items-center gap-2 pt-1 text-xs text-emerald-400 font-medium">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
-        <span>{tool.privacy.message}</span>
-      </div>
+      {tool.privacy.processing === 'local' ? (
+        <div class="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-medium pt-0.5" title="Data never leaves your browser">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          <span>{tool.privacy.message || 'Processed 100% locally in your browser tab'}</span>
+        </div>
+      ) : (
+        <div class="flex items-center gap-1.5 text-xs text-foreground-secondary font-medium pt-0.5">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-foreground-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19c2.5 0 4.5-2 4.5-4.5 0-2.3-1.7-4.2-3.9-4.5-1-2.6-3.5-4.5-6.6-4.5-3.6 0-6.6 2.5-7.3 6-2.2.4-3.7 2.3-3.7 4.5 0 2.5 2 4.5 4.5 4.5h12.5z"/></svg>
+          <span>{tool.privacy.message || 'Fetches public data · entered parameters remain local'}</span>
+        </div>
+      )}
     </div>
 
-    <!-- Working Interactive Tool Component Slot (Above the Fold) -->
-    <div class="p-4 sm:p-6 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-2xl">
+    <!-- Working Interactive Tool Component Slot (The Tool IS the surface) -->
+    <div class="w-full">
       <slot name="tool" />
     </div>
 
     <!-- Below Tool Ad Position -->
-    <div class="p-4 rounded-xl bg-slate-900/30 border border-slate-800/60 text-center text-xs text-slate-500">
-      <span>Advertisement</span>
+    <div class="py-2">
+      <div class="p-3 rounded-md bg-surface-subtle border border-border text-center text-xs text-foreground-muted">
+        <span>Advertisement</span>
+      </div>
     </div>
 
     <!-- Rendered Markdown Content Slot -->
-    <section class="prose prose-invert max-w-none prose-p:text-slate-300 prose-p:text-base prose-headings:text-white pt-4">
+    <section class="prose max-w-[720px] pt-2">
       <slot name="content" />
     </section>
 
     <!-- Examples Section -->
     {tool.examples && tool.examples.length > 0 && (
-      <section class="space-y-4 pt-4 border-t border-slate-800">
-        <h2 class="text-xl font-bold text-white">Examples</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {tool.examples.map((ex) => (
-            <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 text-sm space-y-2">
-              {ex.title && <p class="font-semibold text-slate-200">{ex.title}</p>}
-              <div class="font-mono bg-slate-950 p-3 rounded-lg text-emerald-400 overflow-x-auto text-xs">
-                <span class="text-slate-500 select-none">In: </span>{ex.input}
-              </div>
-              <div class="font-mono bg-slate-950 p-3 rounded-lg text-indigo-300 overflow-x-auto text-xs">
-                <span class="text-slate-500 select-none">Out: </span>{ex.output}
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-    )}
-
-    <!-- FAQs Section -->
-    {tool.faq && tool.faq.length > 0 && (
-      <section class="space-y-4 pt-4 border-t border-slate-800">
-        <h2 class="text-xl font-bold text-white">Frequently Asked Questions</h2>
+      <section class="max-w-[720px] space-y-3 pt-6 border-t border-border">
+        <h2 class="text-lg font-semibold text-foreground">Examples</h2>
         <div class="space-y-3">
-          {tool.faq.map((item) => (
-            <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-1.5">
-              <h3 class="font-semibold text-slate-100 text-base">{item.question}</h3>
-              <p class="text-sm text-slate-300 leading-relaxed">{item.answer}</p>
+          {tool.examples.map((ex) => (
+            <div class="p-3.5 rounded-md bg-surface border border-border text-xs space-y-2">
+              {ex.title && <p class="font-medium text-foreground">{ex.title}</p>}
+              <div class="font-mono bg-surface-subtle p-2.5 rounded border border-border text-foreground-secondary overflow-x-auto">
+                <span class="text-foreground-muted select-none">In: </span>{ex.input}
+              </div>
+              <div class="font-mono bg-surface-subtle p-2.5 rounded border border-border text-primary overflow-x-auto">
+                <span class="text-foreground-muted select-none">Out: </span>{ex.output}
+              </div>
             </div>
           ))}
         </div>
       </section>
     )}
 
-    <!-- Related Tools Cross-Linking -->
+    <!-- FAQs Section (Clean Disclosure Accordion Rows) -->
+    {tool.faq && tool.faq.length > 0 && (
+      <section class="max-w-[720px] space-y-3 pt-6 border-t border-border">
+        <h2 class="text-lg font-semibold text-foreground">Frequently Asked Questions</h2>
+        <div class="divide-y divide-border border-y border-border">
+          {tool.faq.map((item) => (
+            <details class="group py-3 cursor-pointer">
+              <summary class="flex items-center justify-between font-medium text-sm text-foreground list-none select-none">
+                <span>{item.question}</span>
+                <span class="text-foreground-muted group-open:rotate-45 transition-transform text-lg leading-none">+</span>
+              </summary>
+              <p class="mt-2 text-xs text-foreground-secondary leading-relaxed">
+                {item.answer}
+              </p>
+            </details>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- Related Tools Cross-Linking (Simple Row Links) -->
     {tool.relatedTools && tool.relatedTools.length > 0 && (
-      <section class="space-y-4 pt-4 border-t border-slate-800">
-        <h2 class="text-xl font-bold text-white">Related Tools</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+      <section class="max-w-[720px] space-y-3 pt-6 border-t border-border">
+        <h2 class="text-lg font-semibold text-foreground">Related Tools</h2>
+        <div class="divide-y divide-border border-y border-border">
           {tool.relatedTools.map((rel) => {
             const [relNs, relSlug] = rel.split('/');
             return (
               <a
-                href={`/${relNs}/${relSlug}`}
-                class="p-4 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 transition-colors block space-y-1 group"
+                href={getToolUrl(relNs, relSlug)}
+                class="py-2.5 flex items-center justify-between text-sm text-foreground hover:text-primary transition-colors group"
               >
-                <h3 class="font-semibold text-slate-200 text-base group-hover:text-indigo-400 transition-colors">
-                  {rel}
-                </h3>
-                <span class="text-xs text-indigo-400 font-medium flex items-center gap-1">
-                  <span>Open tool</span>
-                  <span class="group-hover:translate-x-1 transition-transform">→</span>
-                </span>
+                <span class="font-medium">{rel}</span>
+                <span class="text-xs text-foreground-muted group-hover:text-primary transition-colors">→</span>
               </a>
             );
           })}
