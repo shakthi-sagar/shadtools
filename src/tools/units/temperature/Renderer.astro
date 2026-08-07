@@ -1,0 +1,11 @@
+---
+import { TemperatureTool } from '@/tools/units/temperature/TemperatureTool';
+
+interface Props {
+  config?: any;
+}
+
+const { config } = Astro.props;
+---
+
+<TemperatureTool client:load config={config} />

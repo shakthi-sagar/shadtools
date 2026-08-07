@@ -1,5 +1,5 @@
 import type { AstroComponentFactory } from 'astro/runtime/server/index.js';
-import type { ToolModule } from './tool-module';
+import type { ToolModule } from '@/tools/tool-module';
 
 type RendererModule = {
   default: AstroComponentFactory;

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Copy, Check } from 'lucide-react';
-import { calcPercentageOf, calcWhatPercentOf, calcPercentageChange } from './calculate-percentage';
-import { ToolFrame } from '../../../components/tool-ui/ToolFrame';
-import { Button } from '../../../components/ui/Button';
+import { calcPercentageOf, calcWhatPercentOf, calcPercentageChange } from '@/tools/percentage/calculator/calculate-percentage';
+import { ToolFrame } from '@/components/tool-ui/ToolFrame';
+import { Button } from '@/components/ui/Button';
 
 export const PercentageCalcTool: React.FC<{ config?: any }> = () => {
   const [mode, setMode] = useState<'of' | 'is' | 'change'>('of');

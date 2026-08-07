@@ -1,8 +1,8 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import Breadcrumbs from '../components/site/Breadcrumbs.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Breadcrumbs from '@/components/site/Breadcrumbs.astro';
 import { getCollection } from 'astro:content';
-import { getNamespaceSlug, getToolSlug, getNamespaceUrl, getToolUrl } from '../lib/routing';
+import { getNamespaceSlug, getToolSlug, getNamespaceUrl, getToolUrl } from '@/lib/routing';
 
 export async function getStaticPaths() {
   const namespaces = await getCollection('namespaces');

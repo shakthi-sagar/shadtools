@@ -1,5 +1,5 @@
-import type { ToolModule } from '../../tool-module';
-import { diffConfigSchema } from './config';
+import type { ToolModule } from '@/tools/tool-module';
+import { diffConfigSchema } from '@/tools/text/diff/config';
 
 export const toolModule = {
   key: 'text/diff',

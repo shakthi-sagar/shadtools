@@ -1,6 +1,6 @@
-import type { ToolModule } from '../../tool-module';
-import { lengthConverterConfigSchema } from './config';
-import { lengthSeoProvider } from './seo';
+import type { ToolModule } from '@/tools/tool-module';
+import { lengthConverterConfigSchema } from '@/tools/units/length/config';
+import { lengthSeoProvider } from '@/tools/units/length/seo';
 
 export const toolModule = {
   key: 'units/length',

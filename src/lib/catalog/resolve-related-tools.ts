@@ -1,4 +1,4 @@
-import { getAllPublishedTools } from './get-tools';
+import { getAllPublishedTools } from '@/lib/catalog/get-tools';
 
 export async function resolveRelatedTools(relatedKeys: string[]) {
   const allTools = await getAllPublishedTools();

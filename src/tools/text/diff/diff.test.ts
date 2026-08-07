@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { computeLineDiff } from './diff';
+import { computeLineDiff } from '@/tools/text/diff/diff';
 
 describe('Text Diff Engine', () => {
   it('identifies unchanged text', () => {

@@ -1,5 +1,5 @@
-import type { ToolModule } from '../../tool-module';
-import { hashConfigSchema } from './config';
+import type { ToolModule } from '@/tools/tool-module';
+import { hashConfigSchema } from '@/tools/crypto/hash/config';
 
 export const toolModule = {
   key: 'crypto/hash',

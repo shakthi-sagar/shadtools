@@ -1,9 +1,9 @@
 ---
 import { getCollection, render } from 'astro:content';
 import type { InferGetStaticPropsType } from 'astro';
-import ToolLayout from '../../layouts/ToolLayout.astro';
-import { getToolRenderer, parseToolConfig } from '../../tools/registry';
-import { getNamespaceSlug, getToolSlug } from '../../lib/routing';
+import ToolLayout from '@/layouts/ToolLayout.astro';
+import { getToolRenderer, parseToolConfig } from '@/tools/registry';
+import { getNamespaceSlug, getToolSlug } from '@/lib/routing';
 
 export const getStaticPaths = async () => {
   const entries = await getCollection(

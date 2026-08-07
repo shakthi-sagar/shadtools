@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Search, Pin, PinOff } from 'lucide-react';
-import { Dialog } from '../ui/Dialog';
-import type { ToolItem } from './DashboardIsland';
+import { Dialog } from '@/components/ui/Dialog';
+import type { ToolItem } from '@/components/site/DashboardIsland';
 
 export interface ToolPickerModalProps {
   isOpen: boolean;

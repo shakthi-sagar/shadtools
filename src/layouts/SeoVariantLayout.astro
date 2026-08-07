@@ -1,8 +1,8 @@
 ---
-import BaseLayout from './BaseLayout.astro';
-import Breadcrumbs from '../components/site/Breadcrumbs.astro';
-import type { SeoVariantMetadata, SeoVariantResult } from '../tools/tool-module';
-import { getVariantUrl, getToolUrl, getNamespaceUrl } from '../lib/routing';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Breadcrumbs from '@/components/site/Breadcrumbs.astro';
+import type { SeoVariantMetadata, SeoVariantResult } from '@/tools/tool-module';
+import { getVariantUrl, getToolUrl, getNamespaceUrl } from '@/lib/routing';
 
 export interface Props {
   namespace: string;

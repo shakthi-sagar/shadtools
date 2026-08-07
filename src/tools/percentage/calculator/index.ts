@@ -1,5 +1,5 @@
-import type { ToolModule } from '../../tool-module';
-import { percentageCalcConfigSchema } from './config';
+import type { ToolModule } from '@/tools/tool-module';
+import { percentageCalcConfigSchema } from '@/tools/percentage/calculator/config';
 
 export const toolModule = {
   key: 'percentage/calculator',

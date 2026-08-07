@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { lengthSeoProvider, type LengthVariant } from './seo';
+import { lengthSeoProvider, type LengthVariant } from '@/tools/units/length/seo';
 
 describe('Length SEO Provider', () => {
   describe('getSlug / parseVariant roundtrip', () => {

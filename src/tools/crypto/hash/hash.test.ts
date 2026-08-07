@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { generateHashes } from './hash';
+import { generateHashes } from '@/tools/crypto/hash/hash';
 
 describe('Crypto Hash Engine', () => {
   it('generates SHA-256 hash correctly for empty input', async () => {

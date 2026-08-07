@@ -1,0 +1,11 @@
+---
+import { UuidTool } from '@/tools/crypto/uuid/UuidTool';
+
+interface Props {
+  config?: any;
+}
+
+const { config } = Astro.props;
+---
+
+<UuidTool client:load config={config} />

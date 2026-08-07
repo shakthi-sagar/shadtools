@@ -1,0 +1,11 @@
+---
+import { CaseConverterTool } from '@/tools/text/case-converter/CaseConverterTool';
+
+interface Props {
+  config?: any;
+}
+
+const { config } = Astro.props;
+---
+
+<CaseConverterTool client:load config={config} />

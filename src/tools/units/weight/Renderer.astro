@@ -1,0 +1,11 @@
+---
+import { WeightTool } from '@/tools/units/weight/WeightTool';
+
+interface Props {
+  config?: any;
+}
+
+const { config } = Astro.props;
+---
+
+<WeightTool client:load config={config} />

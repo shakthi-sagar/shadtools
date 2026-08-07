@@ -1,112 +1,69 @@
-# ShadTools Architecture Specification
+# System Architecture & Directory Specification
 
-## 1. Taxonomy & URL Hierarchy
-
-ShadTools organizes tools in a clean 2-tier hierarchy:
-
-```text
-Namespace → Tool
-```
-
-### URL Mapping
-- `/json` → Namespace Hub (lists all JSON tools, documentation, related tools)
-- `/json/formatter` → Tool Page (interactive JSON Formatter tool)
-- `/base64/encode` → Tool Page (interactive Base64 Encoder tool)
-- `/images/compress` → Tool Page (interactive Image Compressor tool)
+ShadTools is designed as a zero-latency, local-first utility platform built with **Astro**, **React Islands**, **TypeScript**, and **Tailwind CSS**, hosted on **Cloudflare Pages**.
 
 ---
 
-## 2. Frozen Directory Structure
+## 1. High-Level Architecture Overview
 
 ```text
-src/
-├── content/
-│   ├── namespaces/                   # Namespace metadata markdown (json.md, base64.md, etc.)
-│   └── tools/                        # Tool metadata markdown (json/formatter.md, etc.)
-│
-├── tools/
-│   ├── registry.ts                   # Import.meta.glob tool renderer & module discovery
-│   ├── tool-module.ts                # ToolModule contract interface
-│   ├── tool.types.ts                 # Shared tool TypeScript interfaces
-│   ├── _shared/                      # Cross-cutting tool helpers (files, downloads, workers)
-│   ├── json/
-│   │   ├── _shared/                  # Domain shared utilities
-│   │   └── formatter/
-│   │       ├── index.ts              # ToolModule export
-│   │       ├── Renderer.astro        # Isolated Astro React wrapper with client:load
-│   │       ├── JsonFormatterTool.tsx # Interactive React component
-│   │       ├── format-json.ts        # Pure business logic engine
-│   │       ├── format-json.test.ts   # Engine unit test
-│   │       └── config.ts             # Zod config schema
-│   ├── base64/
-│   ├── images/
-│   ├── currency/
-│   ├── percentage/
-│   └── units/
-│
-├── components/
-│   ├── ui/                           # Base UI primitives (Button, Input, FormField, Select, etc.)
-│   ├── tool-ui/                      # Reusable tool UI shells (ToolShell, CodeEditorShell, FileDropzone, etc.)
-│   ├── tool-page/                    # Tool page sections (ToolHeader, PrivacyNotice, Examples, Faq, etc.)
-│   ├── site/                         # Layout components (Header, Footer, Breadcrumbs, SearchTrigger, etc.)
-│   ├── seo/                          # MetaHead, BreadcrumbJsonLd, WebApplicationJsonLd
-│   └── ads/                          # AdSlot, AdPlaceholder
-│
-├── layouts/
-│   ├── BaseLayout.astro
-│   ├── HubLayout.astro
-│   ├── ToolLayout.astro
-│   └── LegalLayout.astro
-│
-├── lib/
-│   ├── catalog/                      # get-namespaces.ts, get-tools.ts, resolve-related-tools.ts
-│   ├── routing.ts                    # Centralized route & URL helpers (getToolUrl, getNamespaceSlug, etc.)
-│   ├── routing/                      # route-identity.ts, tool-url.ts
-│   ├── seo/                          # canonical.ts, metadata.ts, robots.ts
-│   ├── search/                       # search.types.ts
-│   └── files/                        # download.ts, file-validation.ts
-│
-├── pages/
-│   ├── index.astro                   # Home utility launcher
-│   ├── [namespace].astro             # Namespace Hub (/json)
-│   ├── [namespace]/
-│   │   └── [slug].astro              # Dynamic Tool Route (/json/formatter)
-│   ├── search.astro                  # Pagefind client search
-│   ├── 404.astro
-│   ├── privacy.astro
-│   ├── terms.astro
-│   ├── disclaimer.astro
-│   └── contact.astro
-│
-└── styles/
-    ├── tokens.css                    # CSS variables & 4-level surface hierarchy
-    ├── base.css
-    ├── components.css
-    ├── prose.css
-    ├── utilities.css
-    └── global.css
+User Request → Cloudflare Pages CDN (Edge Static HTML)
+                      │
+                      ├── Fast Initial Paint (Static Astro HTML + CSS Tokens)
+                      │
+                      └── Hydration (<ReactIsland client:load />)
+                            │
+                            └── 100% In-Browser Execution (Web Crypto, Canvas, Wasm)
+```
+
+- **Static Pre-rendering**: Every tool page, category hub, SEO variant page, and documentation page is compiled ahead of time into static HTML files in `dist/`.
+- **Client-Side Processing**: Computation is performed directly in the user's browser memory (Web Crypto API for cryptographic hashes, HTML5 Canvas for image compression, native JS algorithms for text diffs/formatting).
+- **Client-Side Search**: Integrated Pagefind static indexing enables instant full-text search (`⌘K`) across all tools without any external API calls.
+
+---
+
+## 2. Directory Layout & Module Structure
+
+```text
+shadtools/
+├── docs/
+│   ├── ARCHITECTURE.md     # System Architecture & Technical Manual (This file)
+│   ├── DESIGN_SYSTEM.md    # Design System v2 Tokens & UI Specifications
+│   └── ADDING_A_TOOL.md    # Developer Tutorial & Tool Creation Guide
+├── scripts/
+│   ├── create-tool.ts              # CLI Tool Generator
+│   ├── convert-relative-imports.ts # Import alias converter
+│   ├── validate-tools.ts           # Schema & registry validator
+│   └── validate-styles.ts          # Stale design system token validator
+├── src/
+│   ├── components/
+│   │   ├── seo/         # JsonLd, MetaHead, OpenGraph
+│   │   ├── site/        # Header, Footer, HeaderSearch, DashboardIsland, ToolPickerModal
+│   │   ├── tool-page/   # ToolHeader, PrivacyNotice, Faq, RelatedTools, AdSlot
+│   │   ├── tool-ui/     # CodeEditorPane, ToolFrame, ToolPane, ResultPanel, FileDropzone
+│   │   └── ui/          # Button, Dialog, Disclosure, Tooltip, Badge, Progress, Tabs
+│   ├── content/
+│   │   ├── namespaces/  # Namespace metadata definitions
+│   │   └── tools/       # Markdown docs & tool metadata schemas
+│   ├── layouts/         # BaseLayout, ToolLayout, HubLayout, LegalLayout
+│   ├── lib/             # dashboard-store, routing, catalog, analytics
+│   ├── styles/          # tokens.css, base.css, prose.css, global.css
+│   └── tools/           # Modular tool logic, React UI components, & Vitest test files
 ```
 
 ---
 
-## 3. Data & Implementation Pipeline
+## 3. Dynamic Routing & Tool Resolution
 
-```text
-Content Entry (src/content/tools/json/formatter.md)
-    ↓
-Renderer Key ("json/formatter")
-    ↓
-Registry (src/tools/registry.ts)
-    ↓
-Module Config Validation (Zod schema)
-    ↓
-Renderer.astro (Astro wrapper)
-    ↓
-React Tool Component (src/tools/json/formatter/JsonFormatterTool.tsx)
-```
+Tool pages are dynamically generated using Astro's `[namespace]/[slug].astro` dynamic route:
+1. `src/pages/[namespace]/[slug].astro` reads entries from `src/content/tools/`.
+2. It looks up the associated renderer component mapped in `src/tools/registry.ts`.
+3. It loads the React island component with `client:load` for immediate interactivity.
 
-## 4. Status & Publication Workflow
+---
 
-- `status: draft` → Page is not rendered in search indices, default status for `npm run create-tool`.
-- `status: published` → Dynamic route generates page in static build.
-- `seo.noindex: true` → Page route is generated, but renders `<meta name="robots" content="noindex, nofollow" />` and is excluded from sitemap.xml.
+## 4. Cloudflare Pages Deployment Pipeline
+
+1. **Build Command**: `npm run build` (`astro build && pagefind --site dist`)
+2. **Build Output**: `dist/`
+3. **Security Headers**: Managed via `public/_headers` (CSP, `X-Frame-Options`, `X-Content-Type-Options`).

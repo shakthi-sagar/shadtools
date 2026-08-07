@@ -1,5 +1,5 @@
-import type { ToolModule } from '../../tool-module';
-import { jsonFormatterConfigSchema } from './config';
+import type { ToolModule } from '@/tools/tool-module';
+import { jsonFormatterConfigSchema } from '@/tools/json/formatter/config';
 
 export const toolModule = {
   key: 'json/formatter',

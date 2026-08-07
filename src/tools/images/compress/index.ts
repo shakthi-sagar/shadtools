@@ -1,5 +1,5 @@
-import type { ToolModule } from '../../tool-module';
-import { imageCompressConfigSchema } from './config';
+import type { ToolModule } from '@/tools/tool-module';
+import { imageCompressConfigSchema } from '@/tools/images/compress/config';
 
 export const toolModule = {
   key: 'images/compress',

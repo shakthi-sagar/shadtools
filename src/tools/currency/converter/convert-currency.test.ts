@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { convertCurrency } from './convert-currency';
+import { convertCurrency } from '@/tools/currency/converter/convert-currency';
 
 describe('Currency Converter Engine', () => {
   it('converts USD to EUR using rates', () => {

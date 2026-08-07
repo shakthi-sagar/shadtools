@@ -1,6 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
-import { getNamespaceSlug, getNamespaceUrl } from '../../lib/routing';
+import { getNamespaceSlug, getNamespaceUrl } from '@/lib/routing';
 
 const currentYear = new Date().getFullYear();
 const namespaces = await getCollection('namespaces');
