@@ -5,7 +5,6 @@ export const ThemeToggle: React.FC = () => {
   const [isDark, setIsDark] = useState<boolean>(true);
 
   useEffect(() => {
-    // Initial theme check on client mount
     const hasDark = document.documentElement.classList.contains('dark');
     setIsDark(hasDark);
   }, []);
@@ -32,7 +31,7 @@ export const ThemeToggle: React.FC = () => {
       title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
       className="w-8 h-8 rounded-md bg-surface border border-border hover:border-border-strong hover:bg-surface-subtle text-foreground-secondary hover:text-foreground transition-colors flex items-center justify-center focus-visible:outline-2 focus-visible:outline-focus cursor-pointer select-none"
     >
-      {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-700" />}
+      {isDark ? <Sun className="w-4 h-4 text-warning" /> : <Moon className="w-4 h-4 text-foreground-secondary" />}
     </button>
   );
 };

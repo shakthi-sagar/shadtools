@@ -21,7 +21,7 @@ export const CodeEditorShell: React.FC<CodeEditorShellProps> = ({
 }) => {
   return (
     <div className="space-y-1.5 flex-1">
-      <div className="flex justify-between items-center text-xs font-semibold text-slate-300">
+      <div className="flex justify-between items-center text-xs font-semibold text-foreground-secondary">
         <label>{label}</label>
         {action}
       </div>
@@ -31,7 +31,7 @@ export const CodeEditorShell: React.FC<CodeEditorShellProps> = ({
         readOnly={readOnly}
         placeholder={placeholder}
         aria-label={label}
-        className={`w-full ${heightClass} p-3.5 rounded-lg bg-slate-950 border border-slate-800 text-slate-100 font-mono text-sm focus:outline-none focus:border-indigo-500 resize-none leading-relaxed`}
+        className={`w-full ${heightClass} p-3.5 rounded-md bg-surface-input border border-border text-foreground placeholder:text-foreground-muted font-mono text-sm focus:outline-none focus:border-border-strong focus:ring-2 focus:ring-focus resize-none leading-relaxed`}
       />
     </div>
   );

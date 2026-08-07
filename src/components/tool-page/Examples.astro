@@ -7,17 +7,17 @@ const { examples } = Astro.props;
 ---
 
 {examples && examples.length > 0 && (
-  <section class="space-y-4 pt-4 border-t border-slate-800">
-    <h2 class="text-xl font-bold text-white">Examples</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <section class="space-y-4 pt-6 border-t border-border">
+    <h2 class="text-xl font-bold text-foreground">Examples</h2>
+    <div class="space-y-3">
       {examples.map((ex) => (
-        <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 text-sm space-y-2">
-          {ex.title && <p class="font-semibold text-slate-200">{ex.title}</p>}
-          <div class="font-mono bg-slate-950 p-3 rounded-lg text-emerald-400 overflow-x-auto text-xs">
-            <span class="text-slate-500 select-none">In: </span>{ex.input}
+        <div class="p-3.5 rounded-md bg-surface border border-border text-xs space-y-2">
+          {ex.title && <p class="font-semibold text-foreground text-sm">{ex.title}</p>}
+          <div class="font-mono bg-surface-subtle p-2.5 rounded border border-border text-foreground-secondary overflow-x-auto">
+            <span class="text-foreground-muted select-none">In: </span>{ex.input}
           </div>
-          <div class="font-mono bg-slate-950 p-3 rounded-lg text-indigo-300 overflow-x-auto text-xs">
-            <span class="text-slate-500 select-none">Out: </span>{ex.output}
+          <div class="font-mono bg-surface-subtle p-2.5 rounded border border-border text-accent overflow-x-auto">
+            <span class="text-foreground-muted select-none">Out: </span>{ex.output}
           </div>
         </div>
       ))}

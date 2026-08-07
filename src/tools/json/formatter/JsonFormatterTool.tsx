@@ -86,7 +86,7 @@ export const JsonFormatterTool: React.FC<{ config?: any }> = () => {
 
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" onClick={handleCopy} disabled={!output}>
-              {copied ? <Check className="w-3.5 h-3.5 mr-1 text-emerald-500" /> : <Copy className="w-3.5 h-3.5 mr-1" />}
+              {copied ? <Check className="w-3.5 h-3.5 mr-1 text-success" /> : <Copy className="w-3.5 h-3.5 mr-1" />}
               {copied ? 'Copied' : 'Copy'}
             </Button>
             <Button variant="ghost" size="sm" onClick={handleDownload} disabled={!output}>

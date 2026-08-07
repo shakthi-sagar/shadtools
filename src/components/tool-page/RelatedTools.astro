@@ -1,4 +1,6 @@
 ---
+import { getToolUrl } from '../../lib/routing';
+
 export interface Props {
   relatedTools: string[];
 }
@@ -7,24 +9,21 @@ const { relatedTools } = Astro.props;
 ---
 
 {relatedTools && relatedTools.length > 0 && (
-  <section class="space-y-4 pt-6 border-t border-border">
-    <h2 class="text-xl font-bold text-foreground">Related Tools</h2>
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+  <section class="space-y-4">
+    <h2 class="text-xl font-bold text-foreground tracking-tight">Related Tools</h2>
+    <div class="divide-y divide-border border-y border-border">
       {relatedTools.map((rel) => {
         const parts = rel.split('/');
         const relNs = parts[0];
         const relSlug = parts.length > 1 ? parts[1] : parts[0];
         return (
           <a
-            href={`/${relNs}/${relSlug}`}
-            class="p-4 rounded-lg bg-surface border border-border hover:border-border-strong transition-colors block space-y-1 group"
+            href={getToolUrl(relNs, relSlug)}
+            class="py-3 flex items-center justify-between text-sm text-foreground hover:text-accent transition-colors group"
           >
-            <h3 class="font-semibold text-foreground text-sm group-hover:text-accent transition-colors">
-              {rel}
-            </h3>
-            <span class="text-xs text-accent font-medium flex items-center gap-1">
-              <span>Open tool</span>
-              <span class="group-hover:translate-x-1 transition-transform">→</span>
+            <span class="font-medium">{rel}</span>
+            <span class="text-xs text-foreground-muted group-hover:text-accent group-hover:translate-x-1 transition-all">
+              →
             </span>
           </a>
         );

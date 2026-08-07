@@ -7,14 +7,21 @@ const { faq } = Astro.props;
 ---
 
 {faq && faq.length > 0 && (
-  <section class="space-y-4 pt-6 border-t border-border">
-    <h2 class="text-xl font-bold text-foreground">Frequently Asked Questions</h2>
-    <div class="space-y-3">
+  <section class="space-y-4">
+    <h2 class="text-xl font-bold text-foreground tracking-tight">Frequently Asked Questions</h2>
+    <div class="divide-y divide-border border-y border-border">
       {faq.map((item) => (
-        <div class="p-4 rounded-lg bg-surface border border-border space-y-1.5">
-          <h3 class="font-semibold text-foreground text-sm">{item.question}</h3>
-          <p class="text-xs sm:text-sm text-foreground-secondary leading-relaxed">{item.answer}</p>
-        </div>
+        <details class="group py-3.5 cursor-pointer">
+          <summary class="flex items-center justify-between font-semibold text-sm text-foreground list-none select-none hover:text-accent transition-colors">
+            <span>{item.question}</span>
+            <span class="text-foreground-muted group-open:rotate-45 transition-transform text-base font-mono leading-none shrink-0 pl-2">
+              +
+            </span>
+          </summary>
+          <p class="mt-2 text-xs sm:text-sm text-foreground-secondary leading-relaxed pr-4">
+            {item.answer}
+          </p>
+        </details>
       ))}
     </div>
   </section>

@@ -11,10 +11,10 @@ const namespaces = await getCollection('namespaces');
     
     <div class="space-y-2">
       <a href="/" class="flex items-center gap-1.5 font-bold text-sm text-foreground tracking-tight">
-        <span>Shad<span class="text-primary">Tools</span></span>
+        <span>Shad<span class="text-accent">Tools</span></span>
       </a>
       <p class="text-foreground-muted text-xs leading-relaxed max-w-sm">
-        Precision utility workspace. Fast, free, browser-local tools without tracking or unnecessary steps.
+        Precision utility workspace. Fast, clean, browser-local tools without tracking or unnecessary steps.
       </p>
     </div>
 
@@ -27,7 +27,7 @@ const namespaces = await getCollection('namespaces');
           const slug = getNamespaceSlug(ns);
           return (
             <li>
-              <a href={getNamespaceUrl(slug)} class="hover:text-primary transition-colors">
+              <a href={getNamespaceUrl(slug)} class="hover:text-accent transition-colors">
                 {ns.data.name}
               </a>
             </li>
@@ -41,10 +41,10 @@ const namespaces = await getCollection('namespaces');
         Legal & Privacy
       </h3>
       <ul class="space-y-2 text-foreground-secondary">
-        <li><a href="/privacy" class="hover:text-primary transition-colors">Privacy Policy</a></li>
-        <li><a href="/terms" class="hover:text-primary transition-colors">Terms of Service</a></li>
-        <li><a href="/disclaimer" class="hover:text-primary transition-colors">Disclaimer</a></li>
-        <li><a href="/contact" class="hover:text-primary transition-colors">Contact Us</a></li>
+        <li><a href="/privacy" class="hover:text-accent transition-colors">Privacy Policy</a></li>
+        <li><a href="/terms" class="hover:text-accent transition-colors">Terms of Service</a></li>
+        <li><a href="/disclaimer" class="hover:text-accent transition-colors">Disclaimer</a></li>
+        <li><a href="/contact" class="hover:text-accent transition-colors">Contact Us</a></li>
       </ul>
     </div>
 
@@ -52,9 +52,9 @@ const namespaces = await getCollection('namespaces');
 
   <div class="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 mt-8 pt-4 border-t border-border flex flex-col sm:flex-row justify-between items-center text-[11px] text-foreground-muted">
     <p>© {currentYear} ShadTools. High-performance utility platform.</p>
-    <p class="mt-2 sm:mt-0 font-medium text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+    <p class="mt-2 sm:mt-0 font-medium text-success flex items-center gap-1.5">
       <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
-      <span>Processed 100% locally in browser memory</span>
+      <span>Client-side local processing defaults</span>
     </p>
   </div>
 </footer>

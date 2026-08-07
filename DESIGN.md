@@ -116,7 +116,9 @@ accessibility:
 
 # ShadTools Product Contract & Design System Specification
 
-This document is the authoritative product contract and design specification for ShadTools. All AI agents, contributors, and developers must follow the design rules, token schemas, component contracts, accessibility guidelines, and page anatomies defined herein.
+This document is the authoritative product contract and design specification for ShadTools. All AI agents, contributors, and developers must follow the design rules, token schemas, component contracts, accessibility guidelines, tool UX decision gates, and page anatomies defined herein.
+
+> **CRITICAL RULE FOR AI AGENTS**: No tool implementation or refactoring is accepted merely because it uses system tokens correctly. It must satisfy both **SYSTEM CONSISTENCY** and **TASK-SPECIFIC OPTIMIZATION**.
 
 ---
 
@@ -130,18 +132,70 @@ ShadTools design direction is **quiet, precise, local-first, and immediately use
 - **Borders & Radii**: Crisp 1px borders (`#E4E4E7` / `#27272A`), tight radii (4px to 10px maximum), flat workspace panels without shadow unless floating.
 - **Typography**: Geist Sans for interface copy, Geist Mono for code, tabular numerical values, and inputs.
 
-### Core Visual Anti-Patterns
-- NO purple-to-blue gradients or glassmorphism.
-- NO glowing borders or ornamental background blobs.
-- NO border-radius exceeding 10px without documented exception.
-- NO namespace-specific accent colors.
-- NO emoji used as product icons.
-- NO fake social proof, vanity metrics, or decorative marketing cards around tools.
-- NO mandatory user accounts for bookmarking or local customization.
+---
+
+## 2. Tool UX Decision Gate & Interaction Selection
+
+Before selecting components or building any tool interface, AI agents must evaluate the **Tool UX Decision Gate**:
+
+### 12-Point Evaluation Checklist
+1. What is the user's primary input?
+2. What is the desired output?
+3. Is computation effectively instantaneous (cheap client execution)?
+4. Does output depend only on current inputs?
+5. Can the result update continuously without side effects?
+6. Is the workflow reversible or bidirectional?
+7. Is there one input or multiple dependent inputs?
+8. Is the result the main object, or the editor itself?
+9. What is the realistic input size?
+10. What controls are used frequently vs rarely?
+11. What should happen immediately on paste / type / drop?
+12. What changes on mobile viewports?
+
+### Interaction Rules
+- **IF operation is instant + deterministic + free of side effects**:
+  → Prefer **live results as the user types**.
+  → **DO NOT add a primary Submit / Calculate / Convert button**.
+- **IF operation is destructive, expensive, remote, file-generating, or user-triggered**:
+  → Explicit primary action button is appropriate.
+- **IF tool presents two representations of the same data**:
+  → Use a clean segmented mode toggle (`Encode | Decode`), not action buttons in the toolbar.
+- **IF output is short**:
+  → Do not allocate a giant 360px editor workspace. Use compact 220–260px adaptive height.
 
 ---
 
-## 2. Token System & Semantic Rules
+## 3. Tool Archetype Specifications
+
+### 1. JSON Formatter
+- **Pattern**: Large code-editor workspace.
+- **Interaction**: Explicit Format / Minify action buttons.
+- **Panes**: 50/50 input/output split with 420px height.
+- **Toolbar**: Indentation selector (2 spaces, 4 spaces, tab), Copy, Download, Reset.
+
+### 2. Base64 Encoder / Decoder (Live Reference Pattern)
+- **Pattern**: Instant live transformation.
+- **Interaction**: As user types, output updates immediately. No submit button.
+- **Toolbar**: Segmented `Encode | Decode` toggle, character counter (`TEXT 12 chars`), Copy action in output header pane.
+- **Panes**: Compact 220px–260px split workspace.
+
+### 3. Length Converter
+- **Pattern**: Live bidirectional conversion.
+- **Controls**: Number input + unit selector on left, converted value card on right, central swap button.
+- **Height**: Compact form, not an editor.
+
+### 4. Percentage Calculator
+- **Pattern**: Compact mathematical form.
+- **Controls**: Percentage input + total number input, calculated result visually dominant.
+- **Height**: Compact form without full `ToolToolbar`.
+
+### 5. Image Compressor
+- **Pattern**: Upload dropzone state → Compression controls state.
+- **Controls**: Quality slider (0.1 - 1.0), explicit "Compress Image" button, before/after file size savings badge, Download button.
+
+---
+
+## 4. Token System & Semantic Rules
 
 The system enforces strict separation between **accent** tokens (links, focus, selection) and **action** tokens (solid interactive buttons).
 
@@ -168,60 +222,9 @@ The system enforces strict separation between **accent** tokens (links, focus, s
 
 ---
 
-## 3. Component Contracts & Interfaces
+## 5. Page Composition & Hierarchical Spacing
 
-### 3.1 Button & IconButton
-- **Button**: Supports `variant` (`primary`, `secondary`, `ghost`, `danger`), `size` (`sm`: 32px, `md`: 40px, `lg`: 44px), `loading` state (preserves button dimensions, shows spinner, sets `aria-busy="true"`), `fullWidth`, `leftIcon`, `rightIcon`.
-- **IconButton**: Enforces mandatory `label` prop for screen reader accessibility (`aria-label`).
-- **Danger Button Contrast**: Must use `bg-action-danger text-action-danger-foreground hover:bg-action-danger-hover` to guarantee > 4.5:1 contrast in both light and dark modes.
-
-### 3.2 Form Controls (`Input`, `Textarea`, `FormField`)
-- **FormField**: Wraps label, input control, hint, and inline error. Automatically links `aria-describedby` and `aria-invalid` between field and hint/error IDs.
-- **Font Size**: Mobile inputs must enforce minimum 16px text on touch devices to prevent mobile browser auto-zoom.
-
-### 3.3 Dialog & Modal (`Dialog`)
-- **Focus Trapping**: Intercepts `Tab` and `Shift+Tab` to trap focus within the modal window.
-- **Dismissal & Scroll Lock**: Closes on `Escape` keypress or backdrop click. Locks body scroll (`document.body.style.overflow = 'hidden'`) while open, and restores focus to the invoking trigger element upon closing.
-
-### 3.4 Tool Workspace Primitives (`ToolFrame`, `ToolToolbar`, `ToolPane`, `ResultPanel`)
-- **`ToolFrame`**: Outer container for interactive tools. Uses surface background, 1px border, 10px radius (`rounded-lg`), clipped overflow (`overflow-hidden`), and zero shadow.
-- **`ToolToolbar`**: Top bar inside `ToolFrame` containing primary actions on the left and utility tools (copy, clear, reset) on the right. Height 44–48px.
-- **`ToolPane`**: Inner split container for input/output panes. Separated by clean 1px dividers without nested rounded card chrome.
-- **`ResultPanel`**: Displays calculated output with tabular numeric formatting (`tabular-nums`) and copy actions.
-
-### 3.5 Tool Tile (`ToolTile`)
-- **Normal Mode**: Rendered as a single, clean launch target block link (`<a>`). Contains namespace tag, tool title, concise summary, and launch indicator. NO cluttered reorder or unpin buttons are visible in normal mode.
-- **Customize Mode**: Toggle button on the dashboard enables edit controls, revealing accessible reorder buttons (up/down) and unpin action (`×`).
-
-### 3.6 Global Command Search (`SearchCommand`)
-- **Global Key Listener**: Listens for `Ctrl+K` or `⌘K` across the entire application.
-- **Modal Palette**: Opens a focused search dialog overlay with arrow key navigation, `Enter` key opening tool URLs, `Escape` key close, and weighted search ranking using `searchWeight`.
-
----
-
-## 4. Local-First Homepage Dashboard & State Model
-
-The homepage features a hydrated React island (`DashboardIsland.tsx`) mounted over indexable static Astro HTML.
-
-### Storage Contract
-- **Storage Key**: `shadtools.dashboard.v1`
-- **Schema**:
-```ts
-interface DashboardPreferencesV1 {
-  version: 1;
-  pinnedToolIds: string[];
-  recentToolIds: string[];
-}
-```
-- **Fallback**: If `localStorage` is empty or corrupt, defaults to published tools sorted by `dashboardOrder || 100`.
-- **Tool ID Fallback**: Stable tool IDs use `${namespace}/${slug}` format (e.g., `json/formatter`, `currency/converter`).
-- **Recents Loop**: `ToolLayout.astro` executes a lightweight client script calling `recordRecentTool(toolId)` on canonical tool page visits, keeping "Recently Used" automatically updated.
-
----
-
-## 5. Tool & Page Anatomy Templates
-
-### Tool Page Anatomy (`ToolLayout.astro`)
+### Tool Page Composition (`ToolLayout.astro`)
 ```text
 Header Navigation (Sticky 54px)
 ├── Brand logo (ShadTools)
@@ -229,45 +232,24 @@ Header Navigation (Sticky 54px)
 └── Global Search Trigger (Ctrl+K / ⌘K)
 
 Page Canvas (max-w-[1120px])
-├── Breadcrumbs (Home / Namespace / Tool Name)
-├── ToolHeader (Title + Summary)
-├── PrivacyNotice (Client-Side Privacy Status)
-├── Tool Workspace Slot (<ToolFrame> working tool)
-├── Ad Slot
-├── Prose Documentation Slot (<Content />)
-├── Examples Section
-├── FAQ Section (Disclosure Accordion)
-└── Related Tools Section
+├── Breadcrumbs (Home / Namespace / Tool Name) [8px gap]
+├── ToolHeader (Title + Summary) [8px gap]
+├── PrivacyNotice (Compact Inline Status) [24px gap]
+├── Tool Workspace Slot (<ToolFrame> working tool) [32px gap]
+├── Ad Slot [48px gap]
+└── Centered Reading Column (max-w-[720px] mx-auto)
+    ├── Documentation Slot (<Content />) [48px gap]
+    ├── Examples Section [48px gap]
+    ├── FAQ Section (Un-boxed Editorial Disclosures) [48px gap]
+    └── Related Tools Section (Clean Bordered Rows)
 ```
 
 ---
 
-## 6. Accessibility & Privacy Contract
+## 6. QA Matrix & Style Validation
 
-### WCAG 2.2 Level AA Requirements
-- **Focus**: Persistent 2px focus-visible outline (`focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2`).
-- **Target Sizes**: Minimum 24×24px pointer targets with 44px primary mobile touch targets.
-- **Contrast**: > 4.5:1 for normal text, > 3:1 for large text and UI boundaries.
-- **Keyboard**: 100% of workflows usable via keyboard input alone.
-
-### Privacy Status Contract
-Each tool must declare its `privacy.processing` mode:
-1. `local`: **Client-Side Local Processing** — Green success badge (`#047857` light / `#34D399` dark). "Processed locally in this browser. Files and data never leave your device."
-2. `remote-data`: **Remote API & Local Processing** — Blue accent badge (`#2563EB` light / `#60A5FA` dark). "Data is fetched remotely; entered values stay in this browser."
-3. `server-processing`: **Server-Side Processing** — Amber warning badge (`#B45309` light / `#FBBF24` dark). "This tool uploads data for server processing. Review the privacy note before continuing."
-
----
-
-## 7. QA Matrix & Verification Checks
-
-Before completing any interface work, run:
-1. `npm run check`: TypeScript & Astro type diagnostics (0 errors required).
-2. `npm run validate`: Validate tools schema and route metadata.
-3. `npm run test`: Run unit test suites (Vitest).
-4. `npm run build`: Verify production static build and Pagefind search indexing.
-
----
-
-## 8. Document Authority & Links
-
-This file (`/DESIGN.md`) is the primary design authority. Superseded documents must reference `[DESIGN.md](../DESIGN.md)`.
+Run all verification commands before completing interface tasks:
+1. `npm run validate`: Runs `validate-tools.ts` and `validate-styles.ts` (0 stale V1 classes allowed).
+2. `npm run check`: TypeScript & Astro type diagnostics (0 errors required).
+3. `npm run test`: Unit test suites (Vitest).
+4. `npm run build`: Production static build and Pagefind search index.

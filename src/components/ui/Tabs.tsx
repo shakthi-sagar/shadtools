@@ -13,15 +13,16 @@ export interface TabsProps {
 
 export const Tabs: React.FC<TabsProps> = ({ tabs, activeTab, onTabChange }) => {
   return (
-    <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-950 border border-slate-800">
+    <div className="flex items-center gap-1 p-1 rounded-md bg-surface-subtle border border-border">
       {tabs.map((tab) => (
         <button
           key={tab.id}
+          type="button"
           onClick={() => onTabChange(tab.id)}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+          className={`px-3 py-1 rounded text-xs font-medium transition-colors select-none focus-visible:outline-2 focus-visible:outline-focus cursor-pointer ${
             activeTab === tab.id
-              ? 'bg-indigo-600 text-white'
-              : 'text-slate-400 hover:text-slate-200'
+              ? 'bg-surface text-foreground font-semibold border border-border shadow-xs'
+              : 'text-foreground-secondary hover:text-foreground'
           }`}
         >
           {tab.label}

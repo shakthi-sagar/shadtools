@@ -5,38 +5,35 @@ export interface Props {
 }
 
 const { mode = 'local', message } = Astro.props;
-
-const modeConfig = {
-  local: {
-    title: 'Client-Side Local Processing',
-    defaultMessage: 'Processed locally in this browser. Files and data never leave your device.',
-    badgeClass: 'bg-success/10 border-success/30 text-success',
-  },
-  'remote-data': {
-    title: 'Remote API & Local Processing',
-    defaultMessage: 'Data is fetched remotely; entered values stay in this browser.',
-    badgeClass: 'bg-accent/10 border-accent/30 text-accent',
-  },
-  'server-processing': {
-    title: 'Server-Side Processing',
-    defaultMessage: 'This tool uploads data for server processing. Review the privacy note before continuing.',
-    badgeClass: 'bg-warning/10 border-warning/30 text-warning',
-  },
-};
-
-const currentConfig = modeConfig[mode] || modeConfig.local;
-const displayMessage = message || currentConfig.defaultMessage;
 ---
 
-<div class="p-3 rounded-md bg-surface border border-border flex items-center gap-3 text-xs text-foreground-secondary">
-  <div class={`p-1.5 rounded border shrink-0 ${currentConfig.badgeClass}`}>
-    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path>
-      <path d="m9 12 2 2 4-4"></path>
+{mode === 'server-processing' ? (
+  <div class="p-3.5 rounded-md bg-warning/10 border border-warning/30 flex items-center gap-3 text-xs text-foreground-secondary">
+    <div class="p-1.5 rounded border border-warning/30 bg-warning/20 text-warning shrink-0">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path>
+        <path d="m9 12 2 2 4-4"></path>
+      </svg>
+    </div>
+    <div>
+      <span class="font-semibold text-foreground block">Server-Side Processing</span>
+      <span class="text-foreground-muted">{message || 'This tool uploads data for server processing. Review privacy disclosures before proceeding.'}</span>
+    </div>
+  </div>
+) : mode === 'remote-data' ? (
+  <div class="flex items-center gap-1.5 text-xs text-accent font-medium pt-0.5" title="Data fetched remotely, parameters stay local">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"></circle>
+      <line x1="12" y1="16" x2="12" y2="12"></line>
+      <line x1="12" y1="8" x2="12.01" y2="8"></line>
     </svg>
+    <span>{message || 'Fetches public data · entered parameters stay in browser'}</span>
   </div>
-  <div>
-    <span class="font-semibold text-foreground block">{currentConfig.title}</span>
-    <span class="text-foreground-muted">{displayMessage}</span>
+) : (
+  <div class="flex items-center gap-1.5 text-xs text-success font-medium pt-0.5" title="Data never leaves your browser">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20 6 9 17l-5-5"></path>
+    </svg>
+    <span>{message || 'Processed 100% locally in your browser'}</span>
   </div>
-</div>
+)}

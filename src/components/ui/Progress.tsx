@@ -8,9 +8,9 @@ export interface ProgressProps {
 export const Progress: React.FC<ProgressProps> = ({ value, className = '' }) => {
   const percentage = Math.min(100, Math.max(0, value));
   return (
-    <div className={`w-full h-2 rounded-full bg-slate-950 border border-slate-800 overflow-hidden ${className}`}>
+    <div className={`w-full h-2 rounded-full bg-surface-subtle border border-border overflow-hidden ${className}`}>
       <div
-        className="h-full bg-indigo-500 transition-all duration-300 ease-out"
+        className="h-full bg-accent transition-all duration-300 ease-out"
         style={{ width: `${percentage}%` }}
       />
     </div>
