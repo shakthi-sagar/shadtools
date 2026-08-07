@@ -1,13 +1,15 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
+import { getNamespaceSlug, getToolSlug, getToolUrl } from '../lib/routing';
 
 const allTools = await getCollection('tools');
 const publishedTools = allTools
   .filter((e) => e.data.status === 'published')
   .map((e) => {
-    const [ns, toolSlug] = e.id.split('/');
-    return { ...e.data, namespace: ns, slug: toolSlug, id: e.id };
+    const ns = e.data.namespace || getNamespaceSlug(e);
+    const slug = getToolSlug(e);
+    return { ...e.data, namespace: ns, slug, id: e.id };
   });
 ---
 
@@ -17,36 +19,89 @@ const publishedTools = allTools
   canonicalUrl="https://shadtools.com/search"
   noindex={true}
 >
-  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+  <div class="max-w-[1120px] mx-auto px-4 sm:px-6 py-8 space-y-8">
     <div class="space-y-2">
-      <h1 class="text-3xl font-extrabold text-white tracking-tight">Search Tools</h1>
-      <p class="text-slate-400 text-sm">Type a keyword, tool name, or alias to quickly filter tools.</p>
+      <h1 class="text-2xl sm:text-3xl font-semibold text-foreground tracking-tight">Search Tools</h1>
+      <p class="text-sm text-foreground-secondary">Type a keyword, tool name, or alias to instantly search all utility tools.</p>
     </div>
 
-    <!-- Client-side search input -->
-    <div className="space-y-6">
-      <div id="search" class="w-full"></div>
-    </div>
+    <!-- Instant Catalog List & Filter Input -->
+    <div class="space-y-6">
+      <div id="search-input-container" class="w-full">
+        <input
+          type="text"
+          id="tool-search-input"
+          placeholder="Search JSON, Base64, Image, Length, Currency, Percentage..."
+          class="w-full px-4 py-3 rounded-md bg-surface-input border border-border text-foreground text-sm font-sans placeholder:text-foreground-muted focus:outline-none focus:border-border-strong focus:ring-2 focus:ring-focus transition-colors shadow-none"
+        />
+      </div>
 
-    <!-- Instant Catalog List -->
-    <div class="space-y-4 pt-6 border-t border-slate-800">
-      <h2 class="text-lg font-bold text-white">Full Catalog ({publishedTools.length} tools)</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {publishedTools.map((tool) => (
-          <a
-            href={`/${tool.namespace}/${tool.slug}`}
-            class="p-4 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 transition-colors block space-y-1 group"
-          >
-            <div class="flex justify-between items-center">
-              <h3 class="font-semibold text-white text-base group-hover:text-indigo-400 transition-colors">
-                {tool.name}
-              </h3>
-              <span class="text-xs text-slate-500 font-mono">/{tool.namespace}/{tool.slug}</span>
-            </div>
-            <p class="text-sm text-slate-400 line-clamp-2">{tool.summary}</p>
-          </a>
-        ))}
+      <div class="space-y-3 pt-2">
+        <h2 class="text-xs font-semibold text-foreground-muted uppercase tracking-wider font-sans">
+          Catalog (<span id="visible-count">{publishedTools.length}</span> tools)
+        </h2>
+
+        <div id="search-results-list" class="divide-y divide-border border-y border-border">
+          {publishedTools.map((tool) => (
+            <a
+              href={getToolUrl(tool.namespace, tool.slug)}
+              data-search-item
+              data-title={tool.name.toLowerCase()}
+              data-summary={tool.summary.toLowerCase()}
+              data-keywords={(tool.seo.keywords || []).join(' ').toLowerCase()}
+              data-namespace={tool.namespace.toLowerCase()}
+              class="py-3 px-2 flex items-center justify-between hover:bg-surface-subtle transition-colors group rounded-sm"
+            >
+              <div class="space-y-0.5 max-w-2xl">
+                <div class="flex items-center gap-2">
+                  <h3 class="font-medium text-foreground text-sm group-hover:text-primary transition-colors">
+                    {tool.name}
+                  </h3>
+                  <span class="text-[11px] font-mono text-foreground-muted">/{tool.namespace}/{tool.slug}</span>
+                </div>
+                <p class="text-xs text-foreground-secondary line-clamp-1">
+                  {tool.summary}
+                </p>
+              </div>
+              <span class="text-xs text-foreground-muted group-hover:text-primary transition-colors flex items-center gap-1 font-medium pl-4 shrink-0">
+                <span>Open tool</span>
+                <span class="group-hover:translate-x-0.5 transition-transform">→</span>
+              </span>
+            </a>
+          ))}
+        </div>
       </div>
     </div>
   </div>
+
+  <script is:inline>
+    (function () {
+      const input = document.getElementById('tool-search-input');
+      const items = document.querySelectorAll('[data-search-item]');
+      const countEl = document.getElementById('visible-count');
+
+      if (!input) return;
+
+      input.addEventListener('input', function (e) {
+        const query = (e.target.value || '').toLowerCase().trim();
+        let visible = 0;
+
+        items.forEach(function (item) {
+          const title = item.getAttribute('data-title') || '';
+          const summary = item.getAttribute('data-summary') || '';
+          const keywords = item.getAttribute('data-keywords') || '';
+          const ns = item.getAttribute('data-namespace') || '';
+
+          if (!query || title.includes(query) || summary.includes(query) || keywords.includes(query) || ns.includes(query)) {
+            item.style.display = 'flex';
+            visible++;
+          } else {
+            item.style.display = 'none';
+          }
+        });
+
+        if (countEl) countEl.textContent = String(visible);
+      });
+    })();
+  </script>
 </BaseLayout>

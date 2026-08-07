@@ -3,45 +3,36 @@ import { Sun, Moon } from 'lucide-react';
 
 export const ThemeToggle: React.FC = () => {
   const [isDark, setIsDark] = useState<boolean>(true);
-  const [mounted, setMounted] = useState<boolean>(false);
 
   useEffect(() => {
-    setMounted(true);
-    const hasDarkClass = document.documentElement.classList.contains('dark');
-    setIsDark(hasDarkClass);
+    // Initial theme check on client mount
+    const hasDark = document.documentElement.classList.contains('dark');
+    setIsDark(hasDark);
   }, []);
 
-  const toggleTheme = () => {
-    const nextDark = !isDark;
-    setIsDark(nextDark);
-    if (nextDark) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
+  const toggleTheme = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const isCurrentlyDark = document.documentElement.classList.contains('dark');
+    if (isCurrentlyDark) {
       document.documentElement.classList.remove('dark');
       localStorage.setItem('theme', 'light');
+      setIsDark(false);
+    } else {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+      setIsDark(true);
     }
   };
 
-  if (!mounted) {
-    return (
-      <button
-        aria-label="Toggle theme"
-        className="w-8 h-8 rounded-md bg-surface border border-border flex items-center justify-center text-foreground-secondary"
-      >
-        <Moon className="w-4 h-4" />
-      </button>
-    );
-  }
-
   return (
     <button
+      type="button"
       onClick={toggleTheme}
       aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
       title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-      className="w-8 h-8 rounded-md bg-surface border border-border hover:border-border-strong hover:bg-surface-subtle text-foreground-secondary hover:text-foreground transition-colors flex items-center justify-center focus-visible:outline-2 focus-visible:outline-focus"
+      className="w-8 h-8 rounded-md bg-surface border border-border hover:border-border-strong hover:bg-surface-subtle text-foreground-secondary hover:text-foreground transition-colors flex items-center justify-center focus-visible:outline-2 focus-visible:outline-focus cursor-pointer select-none"
     >
-      {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+      {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-700" />}
     </button>
   );
 };

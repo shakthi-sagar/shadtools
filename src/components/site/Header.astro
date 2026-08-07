@@ -14,7 +14,7 @@ const namespaceItems = namespaces.map((ns) => ({
 <header class="sticky top-0 z-50 bg-surface/90 backdrop-blur-md border-b border-border h-[54px] flex items-center">
   <div class="max-w-[1240px] w-full mx-auto px-4 sm:px-6 flex items-center justify-between">
     <!-- Brand Wordmark & Browse Menu -->
-    <div class="flex items-center gap-4 sm:gap-6">
+    <div class="flex items-center gap-3 sm:gap-6">
       <a href="/" class="flex items-center gap-2 font-bold text-base text-foreground tracking-tight shrink-0 group">
         <div class="w-6 h-6 rounded-sm bg-primary flex items-center justify-center text-white font-extrabold text-xs">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
@@ -22,10 +22,8 @@ const namespaceItems = namespaces.map((ns) => ({
         <span>Shad<span class="text-primary">Tools</span></span>
       </a>
 
-      <!-- Browse Menu (Desktop Only) -->
-      <div class="hidden md:block">
-        <BrowseMenu client:load namespaces={namespaceItems} />
-      </div>
+      <!-- Browse Menu Dropdown (Accessible Everywhere) -->
+      <BrowseMenu client:load namespaces={namespaceItems} />
     </div>
 
     <!-- Search & Theme Controls -->
