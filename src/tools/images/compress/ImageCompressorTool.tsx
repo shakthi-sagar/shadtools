@@ -56,7 +56,7 @@ export const ImageCompressorTool: React.FC<ImageCompressorToolProps> = () => {
   const formatSize = (bytes: number) => (bytes / 1024).toFixed(1) + ' KB';
 
   return (
-    <ToolFrame className="p-6">
+    <ToolFrame className="p-5 sm:p-6">
       {!file ? (
         <FileDropzone
           onFileSelect={handleFileSelect}
@@ -77,8 +77,12 @@ export const ImageCompressorTool: React.FC<ImageCompressorToolProps> = () => {
                 <p className="text-xs text-foreground-muted">Original: {formatSize(file.size)}</p>
               </div>
             </div>
-            <Button variant="ghost" size="sm" onClick={handleReset}>
-              <RefreshCw className="w-3.5 h-3.5 mr-1" />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleReset}
+              leftIcon={<RefreshCw className="w-3.5 h-3.5" />}
+            >
               Choose Another
             </Button>
           </div>
@@ -105,13 +109,13 @@ export const ImageCompressorTool: React.FC<ImageCompressorToolProps> = () => {
               />
 
               <div className="pt-2">
-                <Button variant="primary" className="w-full" onClick={handleCompress} disabled={loading}>
-                  {loading ? 'Compressing...' : 'Compress Image'}
+                <Button variant="primary" fullWidth onClick={handleCompress} loading={loading}>
+                  Compress Image
                 </Button>
               </div>
 
               {compressedBlob && (
-                <div className="p-3 rounded bg-surface-subtle border border-border space-y-1 text-xs">
+                <div className="p-3 rounded-md bg-surface-subtle border border-border space-y-2 text-xs">
                   <div className="flex justify-between">
                     <span className="text-foreground-secondary">New Size:</span>
                     <span className="font-mono font-bold text-foreground">{formatSize(compressedBlob.size)}</span>
@@ -119,12 +123,16 @@ export const ImageCompressorTool: React.FC<ImageCompressorToolProps> = () => {
                   <div className="flex justify-between">
                     <span className="text-foreground-secondary">Savings:</span>
                     <span className="font-mono font-bold text-success">
-                      {Math.max(0, Math.round(((file.size - compressedBlob.size) / file.size) * 100))}%
+                      -{Math.max(0, Math.round(((file.size - compressedBlob.size) / file.size) * 100))}%
                     </span>
                   </div>
-                  <div className="pt-2">
-                    <Button variant="secondary" className="w-full" onClick={handleDownload}>
-                      <Download className="w-4 h-4 mr-1.5" />
+                  <div className="pt-1">
+                    <Button
+                      variant="secondary"
+                      fullWidth
+                      onClick={handleDownload}
+                      leftIcon={<Download className="w-4 h-4" />}
+                    >
                       Download Compressed Image
                     </Button>
                   </div>
