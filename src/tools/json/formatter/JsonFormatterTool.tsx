@@ -5,7 +5,7 @@ import { ToolFrame } from '../../../components/tool-ui/ToolFrame';
 import { ToolToolbar } from '../../../components/tool-ui/ToolToolbar';
 import { Button } from '../../../components/ui/Button';
 
-export const JsonFormatterTool: React.FC = () => {
+export const JsonFormatterTool: React.FC<{ config?: any }> = () => {
   const [input, setInput] = useState<string>('{\n  "name": "ShadTools",\n  "status": "active",\n  "version": 1.0\n}');
   const [output, setOutput] = useState<string>('');
   const [error, setError] = useState<string | null>(null);

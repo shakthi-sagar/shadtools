@@ -5,7 +5,11 @@ import { ToolFrame } from '../../../components/tool-ui/ToolFrame';
 import { FileDropzone } from '../../../components/tool-ui/FileDropzone';
 import { Button } from '../../../components/ui/Button';
 
-export const ImageCompressorTool: React.FC = () => {
+export interface ImageCompressorToolProps {
+  config?: any;
+}
+
+export const ImageCompressorTool: React.FC<ImageCompressorToolProps> = () => {
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [quality, setQuality] = useState<number>(0.8);
@@ -66,7 +70,7 @@ export const ImageCompressorTool: React.FC = () => {
           <div className="flex flex-wrap items-center justify-between p-3.5 rounded-md bg-surface-subtle border border-border gap-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded bg-surface border border-border flex items-center justify-center text-foreground-secondary">
-                <FileImage className="w-5 h-5 text-primary" />
+                <FileImage className="w-5 h-5 text-accent" />
               </div>
               <div>
                 <p className="text-sm font-semibold text-foreground truncate max-w-xs">{file.name}</p>
@@ -85,10 +89,10 @@ export const ImageCompressorTool: React.FC = () => {
             <div className="space-y-4 p-4 rounded-md bg-surface border border-border">
               <div className="flex justify-between items-center text-xs">
                 <span className="font-semibold text-foreground flex items-center gap-1.5">
-                  <Sliders className="w-3.5 h-3.5 text-primary" />
+                  <Sliders className="w-3.5 h-3.5 text-accent" />
                   Compression Quality
                 </span>
-                <span className="font-mono text-primary font-bold">{Math.round(quality * 100)}%</span>
+                <span className="font-mono text-accent font-bold">{Math.round(quality * 100)}%</span>
               </div>
               <input
                 type="range"
@@ -97,7 +101,7 @@ export const ImageCompressorTool: React.FC = () => {
                 step="0.05"
                 value={quality}
                 onChange={(e) => setQuality(parseFloat(e.target.value))}
-                className="w-full h-1.5 bg-surface-subtle rounded-lg appearance-none cursor-pointer accent-primary"
+                className="w-full h-1.5 bg-surface-subtle rounded-lg appearance-none cursor-pointer accent-accent"
               />
 
               <div className="pt-2">
@@ -114,7 +118,7 @@ export const ImageCompressorTool: React.FC = () => {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-foreground-secondary">Savings:</span>
-                    <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                    <span className="font-mono font-bold text-success">
                       {Math.max(0, Math.round(((file.size - compressedBlob.size) / file.size) * 100))}%
                     </span>
                   </div>

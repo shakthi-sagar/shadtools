@@ -1,15 +1,29 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Search } from 'lucide-react';
 
 export const SearchTrigger: React.FC = () => {
+  const [shortcutText, setShortcutText] = useState<string>('Ctrl K');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const isMac = /Mac|iPod|iPhone|iPad/.test(navigator.userAgent);
+      setShortcutText(isMac ? '⌘ K' : 'Ctrl K');
+    }
+  }, []);
+
   return (
     <a
       href="/search"
-      className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-300 hover:text-white hover:border-slate-700 transition-colors"
+      aria-label="Search tools"
+      className="flex items-center gap-2 p-2 sm:px-3 sm:py-1.5 rounded-md bg-surface-subtle border border-border text-xs text-foreground-secondary hover:text-foreground hover:border-border-strong transition-colors sm:min-w-[200px] md:min-w-[240px] justify-center sm:justify-between"
     >
-      <Search className="w-3.5 h-3.5 text-slate-400" />
-      <span>Search</span>
-      <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono bg-slate-950 rounded text-slate-400 border border-slate-800">Ctrl+K</kbd>
+      <span className="flex items-center gap-2">
+        <Search className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-foreground-muted" />
+        <span className="hidden sm:inline">Search tools...</span>
+      </span>
+      <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono bg-surface border border-border rounded text-foreground-muted">
+        {shortcutText}
+      </kbd>
     </a>
   );
 };

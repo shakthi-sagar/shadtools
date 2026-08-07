@@ -1,5 +1,5 @@
 /* ==========================================================================
-   ShadTools Design System v2 — Tokens
+   ShadTools Design System v2 — Semantic Tokens
    ========================================================================== */
 
 :root {
@@ -27,9 +27,12 @@
   --blue-700: #1d4ed8;
 
   /* Primitive State Colors */
-  --green-600: #059669;
+  --green-700: #047857;
+  --green-400: #34d399;
   --amber-600: #d97706;
+  --amber-400: #fbbf24;
   --red-600:   #dc2626;
+  --red-400:   #f87171;
 
   /* Border Radiuses */
   --radius-xs: 4px;
@@ -64,13 +67,23 @@
   --border: #e4e4e7;
   --border-strong: #d4d4d8;
 
+  /* Separated Accent vs Action Tokens */
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --accent-subtle: #eff6ff;
+
+  --action-primary: #2563eb;
+  --action-primary-hover: #1d4ed8;
+  --action-primary-foreground: #ffffff;
+
+  /* Compatibility primary alias */
   --primary: #2563eb;
   --primary-hover: #1d4ed8;
   --primary-subtle: #eff6ff;
 
-  --focus: #3b82f6;
+  --focus: #2563eb;
 
-  --success: #059669;
+  --success: #047857;
   --warning: #d97706;
   --danger: #dc2626;
 }
@@ -93,8 +106,18 @@
   --border: #27272a;
   --border-strong: #3f3f46;
 
-  --primary: #3b82f6;
-  --primary-hover: #60a5fa;
+  /* Separated Accent vs Action Tokens */
+  --accent: #60a5fa;
+  --accent-hover: #93c5fd;
+  --accent-subtle: #172554;
+
+  --action-primary: #2563eb;
+  --action-primary-hover: #1d4ed8;
+  --action-primary-foreground: #ffffff;
+
+  /* Compatibility primary alias */
+  --primary: #60a5fa;
+  --primary-hover: #93c5fd;
   --primary-subtle: #172554;
 
   --focus: #60a5fa;

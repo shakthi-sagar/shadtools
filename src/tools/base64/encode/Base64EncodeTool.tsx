@@ -5,7 +5,7 @@ import { ToolFrame } from '../../../components/tool-ui/ToolFrame';
 import { ToolToolbar } from '../../../components/tool-ui/ToolToolbar';
 import { Button } from '../../../components/ui/Button';
 
-export const Base64EncodeTool: React.FC = () => {
+export const Base64EncodeTool: React.FC<{ config?: any }> = () => {
   const [mode, setMode] = useState<'encode' | 'decode'>('encode');
   const [input, setInput] = useState<string>('Hello World!');
   const [output, setOutput] = useState<string>('');

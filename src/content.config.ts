@@ -61,6 +61,9 @@ const tools = defineCollection({
       .default([]),
 
     featured: z.boolean().default(false),
+    dashboardOrder: z.number().int().optional(),
+    icon: z.string().optional(),
+    searchWeight: z.number().default(1),
     updatedAt: z.coerce.date().optional(),
   }),
 });

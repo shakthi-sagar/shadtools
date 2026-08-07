@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { calcPercentageOf } from './calculate-percentage';
 import { ToolFrame } from '../../../components/tool-ui/ToolFrame';
 
-export const PercentageCalcTool: React.FC = () => {
+export const PercentageCalcTool: React.FC<{ config?: any }> = () => {
   const [percent, setPercent] = useState<string>('20');
   const [total, setTotal] = useState<string>('500');
 
@@ -37,7 +37,7 @@ export const PercentageCalcTool: React.FC = () => {
           </div>
           <div className="space-y-1">
             <span className="text-xs text-foreground-secondary block">Calculated Result</span>
-            <div className="w-full px-3 py-2 rounded-md bg-surface-subtle border border-border text-primary font-mono text-xl font-semibold tabular-nums min-h-[40px] flex items-center">
+            <div className="w-full px-3 py-2 rounded-md bg-surface-subtle border border-border text-accent font-mono text-xl font-semibold tabular-nums min-h-[40px] flex items-center">
               {result.toFixed(2)}
             </div>
           </div>

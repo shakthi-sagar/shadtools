@@ -1,11 +1,11 @@
 ---
 import { getCollection, render } from 'astro:content';
-import type { GetStaticPaths } from 'astro';
+import type { InferGetStaticPropsType } from 'astro';
 import ToolLayout from '../../layouts/ToolLayout.astro';
 import { getToolRenderer, parseToolConfig } from '../../tools/registry';
 import { getNamespaceSlug, getToolSlug } from '../../lib/routing';
 
-export const getStaticPaths: GetStaticPaths = async () => {
+export const getStaticPaths = async () => {
   const entries = await getCollection(
     'tools',
     ({ data }) => data.status === 'published'
@@ -22,15 +22,16 @@ export const getStaticPaths: GetStaticPaths = async () => {
   });
 };
 
-const { entry, namespace, slug } = Astro.props;
+type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+const { entry, namespace, slug } = Astro.props as Props;
 
-const Renderer = await getToolRenderer(entry.data.renderer);
-const config = parseToolConfig(entry.data.renderer, entry.data.config);
-const { Content } = await render(entry);
+const Renderer = await getToolRenderer((entry as any).data.renderer);
+const config = parseToolConfig((entry as any).data.renderer, (entry as any).data.config);
+const { Content } = await render(entry as any);
 ---
 
 <ToolLayout
-  tool={entry.data as any}
+  tool={(entry as any).data}
   namespace={namespace}
   slug={slug}
 >

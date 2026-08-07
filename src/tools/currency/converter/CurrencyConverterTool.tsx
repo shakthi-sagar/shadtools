@@ -3,10 +3,21 @@ import { ArrowLeftRight } from 'lucide-react';
 import { CURRENCIES, convertCurrency } from './convert-currency';
 import { ToolFrame } from '../../../components/tool-ui/ToolFrame';
 
-export const CurrencyConverterTool: React.FC = () => {
-  const [amount, setAmount] = useState<string>('100');
-  const [fromCode, setFromCode] = useState<string>('USD');
-  const [toCode, setToCode] = useState<string>('EUR');
+export interface CurrencyConverterToolProps {
+  config?: any;
+  initialValue?: number | string;
+  initialFrom?: string;
+  initialTo?: string;
+}
+
+export const CurrencyConverterTool: React.FC<CurrencyConverterToolProps> = ({
+  initialValue = '100',
+  initialFrom = 'USD',
+  initialTo = 'EUR',
+}) => {
+  const [amount, setAmount] = useState<string>(String(initialValue));
+  const [fromCode, setFromCode] = useState<string>(initialFrom);
+  const [toCode, setToCode] = useState<string>(initialTo);
 
   const numAmount = parseFloat(amount) || 0;
   const result = convertCurrency(numAmount, fromCode, toCode);
@@ -58,7 +69,7 @@ export const CurrencyConverterTool: React.FC = () => {
         {/* Converted Amount */}
         <div className="space-y-2">
           <span className="text-xs font-medium text-foreground-secondary block">Converted Value</span>
-          <div className="w-full px-3 py-2 rounded-md bg-surface-subtle border border-border text-primary font-mono text-2xl font-semibold tabular-nums truncate min-h-[40px] flex items-center">
+          <div className="w-full px-3 py-2 rounded-md bg-surface-subtle border border-border text-accent font-mono text-2xl font-semibold tabular-nums truncate min-h-[40px] flex items-center">
             {result.toFixed(2)} {toCode}
           </div>
           <select

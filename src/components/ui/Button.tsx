@@ -3,17 +3,26 @@ import React from 'react';
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
   size?: 'sm' | 'md' | 'lg';
+  loading?: boolean;
+  fullWidth?: boolean;
+  leftIcon?: React.ReactNode;
+  rightIcon?: React.ReactNode;
 }
 
 export const Button: React.FC<ButtonProps> = ({
   children,
   variant = 'primary',
   size = 'md',
+  loading = false,
+  fullWidth = false,
+  leftIcon,
+  rightIcon,
   className = '',
+  disabled,
   ...props
 }) => {
   const baseStyle =
-    'inline-flex items-center justify-center font-medium rounded-md transition-colors select-none focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
+    'inline-flex items-center justify-center font-medium rounded-md transition-colors select-none focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2 disabled:opacity-50 disabled:cursor-not-allowed gap-2';
 
   const sizeStyles = {
     sm: 'px-3 py-1 text-xs min-h-[32px]',
@@ -22,18 +31,41 @@ export const Button: React.FC<ButtonProps> = ({
   };
 
   const variantStyles = {
-    primary: 'bg-primary text-white hover:bg-primary-hover active:bg-primary-hover',
+    primary: 'bg-action text-action-foreground hover:bg-action-hover active:bg-action-hover',
     secondary: 'bg-surface border border-border text-foreground hover:bg-surface-subtle hover:border-border-strong',
     ghost: 'text-foreground-secondary hover:bg-surface-subtle hover:text-foreground',
     danger: 'bg-danger text-white hover:opacity-90',
   };
 
+  const widthStyle = fullWidth ? 'w-full' : '';
+
   return (
     <button
-      className={`${baseStyle} ${sizeStyles[size]} ${variantStyles[variant]} ${className}`}
+      className={`${baseStyle} ${sizeStyles[size]} ${variantStyles[variant]} ${widthStyle} ${className}`}
+      disabled={disabled || loading}
+      aria-busy={loading ? 'true' : undefined}
       {...props}
     >
-      {children}
+      {loading ? (
+        <svg
+          className="animate-spin h-4 w-4 text-current"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          />
+        </svg>
+      ) : (
+        leftIcon
+      )}
+      <span>{children}</span>
+      {!loading && rightIcon}
     </button>
   );
 };

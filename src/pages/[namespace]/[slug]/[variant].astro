@@ -11,7 +11,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
   const paths: Array<{
     params: { namespace: string; slug: string; variant: string };
-    props: Record<string, unknown>;
+    props: Record<string, any>;
   }> = [];
 
   for (const { key, module } of seoTools) {
@@ -34,7 +34,6 @@ export const getStaticPaths: GetStaticPaths = async () => {
       const result = module.seoPages.compute(variantData);
       const isIndexable = module.seoPages.isIndexable(variantData);
 
-      // Nearby variants for internal linking
       const nearbyVariants = module.seoPages.getNearbyVariants
         ? module.seoPages.getNearbyVariants(variantData).map((nv) => ({
             slug: module.seoPages!.getSlug(nv),
@@ -68,6 +67,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
   return paths;
 };
 
+const props = Astro.props as any;
 const {
   namespace,
   toolSlug,
@@ -80,7 +80,7 @@ const {
   noindex,
   nearbyVariants,
   privacyMessage,
-} = Astro.props;
+} = props;
 
 const Renderer = await getToolRenderer(rendererKey);
 ---
@@ -99,8 +99,8 @@ const Renderer = await getToolRenderer(rendererKey);
   <Renderer
     slot="tool"
     config={{}}
-    initialValue={variantData.value}
-    initialFrom={variantData.fromId}
-    initialTo={variantData.toId}
+    initialValue={variantData?.value}
+    initialFrom={variantData?.fromId}
+    initialTo={variantData?.toId}
   />
 </SeoVariantLayout>

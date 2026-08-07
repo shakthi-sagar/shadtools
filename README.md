@@ -2,18 +2,18 @@
 
 **ShadTools** is a high-performance, scalable, SEO-optimized utility web platform built with **Astro**, **TypeScript (Strict Mode)**, **Tailwind CSS**, and **React Islands Architecture**, hosted on **Cloudflare Pages**.
 
-All conversion, formatting, calculation, and image tools run **100% locally inside the user's browser memory** — files and data never leave the client device.
+ShadTools defaults to client-side local processing — data stays inside the user's browser memory whenever possible. Each tool explicitly displays its processing mode (`local`, `remote-data`, or `server-processing`).
 
 ---
 
 ## ⚡ Tech Stack
 
-- **Framework**: Astro 4+ (Static Site Generation via `getStaticPaths()`)
+- **Framework**: Astro 4+ (Static Site Generation with optional SSR routes)
 - **Language**: TypeScript (Strict Mode)
-- **Styling**: Tailwind CSS with Category HSL Accent tokens
+- **Styling**: Tailwind CSS with Design System v2 semantic tokens and Geist typography
 - **Interactive Islands**: React 18
 - **Unit & E2E Testing**: Vitest & Playwright
-- **Hosting**: Cloudflare Pages Edge CDN
+- **Hosting**: Cloudflare Pages / Workers
 - **Analytics**: Cloudflare Web Analytics
 
 ---
@@ -31,7 +31,7 @@ npm run dev
 npm run test
 
 # 4. Validate tool metadata & SEO schemas
-npm run validate-tools
+npm run validate
 
 # 5. Build static production site
 npm run build
@@ -74,4 +74,5 @@ Create a new file in `src/content/tools/[slug].ts` following the typed `ToolDefi
 ## 🔒 Security & Privacy Features
 
 - Pre-configured `public/_headers` with Content Security Policy, `X-Frame-Options`, `X-Content-Type-Options`, and immutable static asset caching.
-- Zero server file processing — 100% browser local memory execution.
+- Explicit tool privacy statuses: `local` (100% browser execution), `remote-data` (external API fetch, local input), and `server-processing` (server upload disclosure).
+

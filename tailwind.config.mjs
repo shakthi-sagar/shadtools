@@ -21,6 +21,16 @@ export default {
           DEFAULT: 'var(--border)',
           strong: 'var(--border-strong)',
         },
+        accent: {
+          DEFAULT: 'var(--accent)',
+          hover: 'var(--accent-hover)',
+          subtle: 'var(--accent-subtle)',
+        },
+        action: {
+          DEFAULT: 'var(--action-primary)',
+          hover: 'var(--action-primary-hover)',
+          foreground: 'var(--action-primary-foreground)',
+        },
         primary: {
           DEFAULT: 'var(--primary)',
           hover: 'var(--primary-hover)',
