@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, X, ArrowRight } from 'lucide-react';
+import { track } from '@/lib/analytics';
 
 export interface SearchToolItem {
   id: string;
@@ -121,6 +122,9 @@ export const HeaderSearch: React.FC<HeaderSearchProps> = ({ tools = DEFAULT_TOOL
 
   useEffect(() => {
     setSelectedIndex(0);
+    if (query.trim()) {
+      track('search_used', { query_length: query.trim().length });
+    }
   }, [query]);
 
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {

@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
-import { ArrowLeftRight, Copy, Check, Ruler } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ArrowLeftRight, Copy, Check, Ruler, Link as LinkIcon } from 'lucide-react';
 import { LENGTH_UNITS, convertUnit } from '@/tools/units/length/convert-length';
 import { ToolFrame } from '@/components/tool-ui/ToolFrame';
 import { Button } from '@/components/ui/Button';
+import { parseUrlParams, updateUrlParams, copyShareLink } from '@/lib/url-state';
+import { track } from '@/lib/analytics';
 
 interface LengthConverterProps {
   config?: any;
@@ -22,20 +24,63 @@ export const LengthConverterTool: React.FC<LengthConverterProps> = ({
   const [fromUnit, setFromUnit] = useState<string>(initialFrom || 'm');
   const [toUnit, setToUnit] = useState<string>(initialTo || 'ft');
   const [copied, setCopied] = useState<boolean>(false);
+  const [copiedLink, setCopiedLink] = useState<boolean>(false);
+
+  useEffect(() => {
+    const params = parseUrlParams();
+    if (params.value && !isNaN(Number(params.value))) {
+      setVal(params.value);
+    }
+    if (params.from && LENGTH_UNITS.some((u) => u.id === params.from)) {
+      setFromUnit(params.from);
+    }
+    if (params.to && LENGTH_UNITS.some((u) => u.id === params.to)) {
+      setToUnit(params.to);
+    }
+    track('tool_open', { tool_key: 'units/length', category: 'units' });
+  }, []);
+
+  const handleValChange = (newVal: string) => {
+    setVal(newVal);
+    updateUrlParams({ value: newVal, from: fromUnit, to: toUnit });
+  };
+
+  const handleFromChange = (newFrom: string) => {
+    setFromUnit(newFrom);
+    updateUrlParams({ value: val, from: newFrom, to: toUnit });
+  };
+
+  const handleToChange = (newTo: string) => {
+    setToUnit(newTo);
+    updateUrlParams({ value: val, from: fromUnit, to: newTo });
+  };
 
   const numVal = parseFloat(val) || 0;
   const result = convertUnit(numVal, fromUnit, toUnit, LENGTH_UNITS);
   const formattedResult = Number.isInteger(result) ? String(result) : result.toFixed(4).replace(/\.?0+$/, '');
 
   const handleSwap = () => {
-    setFromUnit(toUnit);
-    setToUnit(fromUnit);
+    const nextFrom = toUnit;
+    const nextTo = fromUnit;
+    setFromUnit(nextFrom);
+    setToUnit(nextTo);
+    updateUrlParams({ value: val, from: nextFrom, to: nextTo });
   };
 
   const handleCopy = () => {
     navigator.clipboard.writeText(`${formattedResult} ${toUnit}`);
     setCopied(true);
+    track('tool_copy', { tool_key: 'units/length', category: 'units' });
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleCopyLink = async () => {
+    const ok = await copyShareLink();
+    if (ok) {
+      setCopiedLink(true);
+      track('tool_share', { tool_key: 'units/length', category: 'units' });
+      setTimeout(() => setCopiedLink(false), 2000);
+    }
   };
 
   const fromUnitObj = LENGTH_UNITS.find((u) => u.id === fromUnit);
@@ -73,7 +118,7 @@ export const LengthConverterTool: React.FC<LengthConverterProps> = ({
               id="length-val"
               type="number"
               value={val}
-              onChange={(e) => setVal(e.target.value)}
+              onChange={(e) => handleValChange(e.target.value)}
               placeholder="Enter value..."
               className="w-full h-10 px-3.5 rounded-md bg-surface-input border border-border text-foreground font-mono text-sm focus:outline-none focus:border-border-strong focus:ring-2 focus:ring-accent/20"
             />
@@ -87,7 +132,7 @@ export const LengthConverterTool: React.FC<LengthConverterProps> = ({
             <select
               id="length-from"
               value={fromUnit}
-              onChange={(e) => setFromUnit(e.target.value)}
+              onChange={(e) => handleFromChange(e.target.value)}
               className="w-full h-10 px-3 rounded-md bg-surface border border-border text-foreground text-xs font-medium focus:outline-none focus:border-border-strong cursor-pointer"
             >
               {LENGTH_UNITS.map((u) => (
@@ -106,7 +151,7 @@ export const LengthConverterTool: React.FC<LengthConverterProps> = ({
             <select
               id="length-to"
               value={toUnit}
-              onChange={(e) => setToUnit(e.target.value)}
+              onChange={(e) => handleToChange(e.target.value)}
               className="w-full h-10 px-3 rounded-md bg-surface border border-border text-foreground text-xs font-medium focus:outline-none focus:border-border-strong cursor-pointer"
             >
               {LENGTH_UNITS.map((u) => (
@@ -124,15 +169,26 @@ export const LengthConverterTool: React.FC<LengthConverterProps> = ({
             <span className="text-[11px] font-bold text-foreground-muted uppercase tracking-wider font-mono">
               CONVERTED RESULT
             </span>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={handleCopy}
-              leftIcon={copied ? <Check className="w-3.5 h-3.5 text-success" /> : <Copy className="w-3.5 h-3.5" />}
-              className="h-7 px-2.5 text-xs font-medium"
-            >
-              {copied ? 'Copied Result' : 'Copy Result'}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handleCopyLink}
+                leftIcon={copiedLink ? <Check className="w-3.5 h-3.5 text-success" /> : <LinkIcon className="w-3.5 h-3.5" />}
+                className="h-7 px-2.5 text-xs font-medium"
+              >
+                {copiedLink ? 'Link Copied' : 'Share Link'}
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handleCopy}
+                leftIcon={copied ? <Check className="w-3.5 h-3.5 text-success" /> : <Copy className="w-3.5 h-3.5" />}
+                className="h-7 px-2.5 text-xs font-medium"
+              >
+                {copied ? 'Copied Result' : 'Copy Result'}
+              </Button>
+            </div>
           </div>
 
           <div className="text-2xl font-bold font-mono text-accent">

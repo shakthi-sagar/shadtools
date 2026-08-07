@@ -3,6 +3,7 @@ import { Pin, PinOff, RotateCcw, ArrowUp, ArrowDown, Clock, Star, Plus, Settings
 import { Button } from '@/components/ui/Button';
 import { getDashboardState, saveDashboardState } from '@/lib/dashboard-store';
 import { ToolPickerModal } from '@/components/site/ToolPickerModal';
+import { track } from '@/lib/analytics';
 
 export interface ToolItem {
   id: string;
@@ -58,6 +59,11 @@ export const DashboardIsland: React.FC<DashboardIslandProps> = ({ allTools = [] 
 
   const togglePin = (toolId: string) => {
     const isPinned = pinnedIds.includes(toolId);
+    if (isPinned) {
+      track('dashboard_unpin', { tool_key: toolId });
+    } else {
+      track('dashboard_pin', { tool_key: toolId });
+    }
     const newPins = isPinned
       ? pinnedIds.filter((id) => id !== toolId)
       : [...pinnedIds, toolId];

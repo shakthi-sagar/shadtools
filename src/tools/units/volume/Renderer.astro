@@ -1,0 +1,22 @@
+---
+import { VolumeTool } from './VolumeTool';
+import type { VolumeConfig } from './config';
+
+export interface Props {
+  config?: VolumeConfig;
+  variantData?: {
+    value?: number;
+    fromId?: string;
+    toId?: string;
+  };
+}
+
+const { config, variantData } = Astro.props;
+---
+
+<VolumeTool
+  client:load
+  initialAmount={variantData?.value ?? config?.defaultAmount ?? 1}
+  initialFromId={variantData?.fromId ?? config?.defaultFromUnit ?? 'liter'}
+  initialToId={variantData?.toId ?? config?.defaultToUnit ?? 'gallon'}
+/>

@@ -1,0 +1,22 @@
+---
+import { DataStorageTool } from './DataStorageTool';
+import type { DataStorageConfig } from './config';
+
+export interface Props {
+  config?: DataStorageConfig;
+  variantData?: {
+    value?: number;
+    fromId?: string;
+    toId?: string;
+  };
+}
+
+const { config, variantData } = Astro.props;
+---
+
+<DataStorageTool
+  client:load
+  initialAmount={variantData?.value ?? config?.defaultAmount ?? 1}
+  initialFromId={variantData?.fromId ?? config?.defaultFromUnit ?? 'gigabyte'}
+  initialToId={variantData?.toId ?? config?.defaultToUnit ?? 'megabyte'}
+/>
