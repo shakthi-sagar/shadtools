@@ -49,13 +49,13 @@ export const Base64EncodeTool: React.FC<Base64EncodeToolProps> = () => {
   return (
     <ToolFrame>
       {/* Top Controls Bar */}
-      <div className="flex items-center justify-between p-3 bg-surface-subtle/50 border-b border-border flex-wrap gap-2">
+      <div className="flex items-center justify-between p-2.5 bg-surface-subtle/50 border-b border-border flex-wrap gap-2">
         {/* Segmented Mode Toggle (Encode | Decode) */}
-        <div className="flex items-center gap-1 p-1 rounded-md bg-surface border border-border">
+        <div className="flex items-center gap-1 p-0.5 rounded-md bg-surface border border-border">
           <button
             type="button"
             onClick={() => setMode('encode')}
-            className={`px-3 py-1 rounded text-xs font-medium transition-colors select-none focus-visible:outline-2 focus-visible:outline-focus ${
+            className={`px-3 py-1 rounded text-xs font-medium transition-colors select-none focus-visible:outline-2 focus-visible:outline-focus cursor-pointer ${
               mode === 'encode'
                 ? 'bg-surface-subtle text-foreground font-semibold border border-border shadow-xs'
                 : 'text-foreground-secondary hover:text-foreground'
@@ -66,7 +66,7 @@ export const Base64EncodeTool: React.FC<Base64EncodeToolProps> = () => {
           <button
             type="button"
             onClick={() => setMode('decode')}
-            className={`px-3 py-1 rounded text-xs font-medium transition-colors select-none focus-visible:outline-2 focus-visible:outline-focus ${
+            className={`px-3 py-1 rounded text-xs font-medium transition-colors select-none focus-visible:outline-2 focus-visible:outline-focus cursor-pointer ${
               mode === 'decode'
                 ? 'bg-surface-subtle text-foreground font-semibold border border-border shadow-xs'
                 : 'text-foreground-secondary hover:text-foreground'
@@ -83,8 +83,8 @@ export const Base64EncodeTool: React.FC<Base64EncodeToolProps> = () => {
         </Button>
       </div>
 
-      {/* 50/50 Workspace Grid (Compact 220px - 260px Height) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border min-h-[220px] max-h-[280px]">
+      {/* 50/50 Workspace Grid (Compact 140px - 220px Height) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border min-h-[140px] max-h-[220px]">
         {/* Input Pane */}
         <div className="flex flex-col">
           <div className="px-3 py-1.5 bg-surface-subtle/30 border-b border-border flex items-center justify-between">
@@ -99,7 +99,7 @@ export const Base64EncodeTool: React.FC<Base64EncodeToolProps> = () => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder={mode === 'encode' ? 'Type or paste text to encode...' : 'Paste Base64 string to decode...'}
-            className="flex-1 w-full p-3.5 bg-surface-input text-foreground font-mono text-xs leading-relaxed focus:outline-none resize-none border-none min-h-[160px]"
+            className="flex-1 w-full p-3 bg-surface-input text-foreground font-mono text-xs leading-relaxed focus:outline-none resize-none border-none min-h-[120px]"
             autoFocus
           />
         </div>
@@ -124,7 +124,7 @@ export const Base64EncodeTool: React.FC<Base64EncodeToolProps> = () => {
           </div>
 
           {error ? (
-            <div className="p-4 text-xs font-mono text-danger bg-danger/5 flex-1 leading-relaxed">
+            <div className="p-3 text-xs font-mono text-danger bg-danger/5 flex-1 leading-relaxed">
               ⚠️ {error}
             </div>
           ) : (
@@ -132,7 +132,7 @@ export const Base64EncodeTool: React.FC<Base64EncodeToolProps> = () => {
               readOnly
               value={output}
               placeholder="Instant Base64 output will appear here as you type..."
-              className="flex-1 w-full p-3.5 bg-surface-input text-foreground font-mono text-xs leading-relaxed focus:outline-none resize-none border-none min-h-[160px]"
+              className="flex-1 w-full p-3 bg-surface-input text-foreground font-mono text-xs leading-relaxed focus:outline-none resize-none border-none min-h-[120px]"
             />
           )}
         </div>
