@@ -1,16 +1,34 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
+import LegalLayout from '../layouts/LegalLayout.astro';
 ---
 
-<BaseLayout
+<LegalLayout
   title="Contact Us - ShadTools"
   description="Get in touch with the ShadTools team for tool requests, feedback, or business inquiries."
   canonicalUrl="https://shadtools.com/contact"
 >
-  <div class="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-6 glass-card my-12 p-8">
-    <h1 class="text-3xl font-extrabold text-white">Contact Us</h1>
-    <p class="text-xs text-slate-300">
-      Have a suggestion for a new utility tool or found an issue? Reach out to us at <a href="mailto:support@shadtools.com" class="text-blue-400 font-bold">support@shadtools.com</a>.
+  <section class="space-y-4">
+    <p>
+      Have a suggestion for a new utility tool, found an issue, or want to submit feedback? We would love to hear from you.
     </p>
-  </div>
-</BaseLayout>
+
+    <div class="p-6 rounded-lg bg-surface border border-border space-y-3 not-prose my-6">
+      <h2 class="text-base font-semibold text-foreground">Direct Email</h2>
+      <p class="text-sm text-foreground-secondary leading-relaxed">
+        Reach our engineering and support team directly at:
+      </p>
+      <a
+        href="mailto:support@shadtools.com"
+        class="inline-flex items-center gap-2 text-primary hover:text-primary-hover font-mono text-sm font-semibold hover:underline"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+        <span>support@shadtools.com</span>
+      </a>
+    </div>
+
+    <h2>Response Times</h2>
+    <p>
+      We review feedback and tool requests daily and typically respond within 24 hours on business days.
+    </p>
+  </section>
+</LegalLayout>

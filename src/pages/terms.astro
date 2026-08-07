@@ -1,22 +1,31 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
+import LegalLayout from '../layouts/LegalLayout.astro';
 ---
 
-<BaseLayout
+<LegalLayout
   title="Terms of Service - ShadTools"
   description="ShadTools Terms of Service. Guidelines for using our free online web tools."
   canonicalUrl="https://shadtools.com/terms"
 >
-  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-6 glass-card my-12 p-8">
-    <h1 class="text-3xl font-extrabold text-white">Terms of Service</h1>
-    <p class="text-xs text-slate-400">Last updated: August 7, 2026</p>
+  <section class="space-y-4">
+    <h2>1. Acceptance of Terms</h2>
+    <p>
+      By accessing or using ShadTools (shadtools.com), you agree to be bound by these Terms of Service. If you do not agree to these terms, please discontinue use of the platform.
+    </p>
 
-    <section class="space-y-3 text-sm text-slate-300 leading-relaxed">
-      <h2 class="text-lg font-bold text-white">1. Acceptance of Terms</h2>
-      <p>By accessing or using ShadTools (shadtools.com), you agree to be bound by these Terms of Service.</p>
-      
-      <h2 class="text-lg font-bold text-white">2. Acceptable Use</h2>
-      <p>ShadTools provides free online tools for lawful utility purposes. You agree not to use the service for illegal activities, reverse engineering, or harmful automation.</p>
-    </section>
-  </div>
-</BaseLayout>
+    <h2>2. Acceptable Use</h2>
+    <p>
+      ShadTools provides free online utility tools for lawful, personal, and professional purposes. You agree not to use the service for illegal activities, reverse engineering, or harmful automated scraping that disrupts platform availability.
+    </p>
+
+    <h2>3. Intellectual Property</h2>
+    <p>
+      The platform architecture, brand assets, design system, and custom tool implementations are the property of ShadTools. Data processed by users remains 100% owned by the respective user.
+    </p>
+
+    <h2>4. Limitation of Liability</h2>
+    <p>
+      ShadTools is provided "as is" without warranties of any kind. We are not liable for any damages resulting from the use or inability to use the platform.
+    </p>
+  </section>
+</LegalLayout>
