@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Search, Pin, PinOff } from 'lucide-react';
 import { Dialog } from '@/components/ui/Dialog';
 import type { ToolItem } from '@/components/site/DashboardIsland';
+import { ToolIcon } from '@/components/site/ToolIcon';
 
 export interface ToolPickerModalProps {
   isOpen: boolean;
@@ -53,11 +54,12 @@ export const ToolPickerModal: React.FC<ToolPickerModalProps> = ({
             filtered.map((tool) => {
               const isPinned = pinnedIds.includes(tool.id);
               return (
-                <div key={tool.id} className="flex items-center justify-between p-3 hover:bg-surface-subtle transition-colors">
-                  <div>
+                <div key={tool.id} className="flex items-center justify-between p-3 hover:bg-surface-subtle transition-colors gap-3">
+                  <ToolIcon id={tool.id} namespace={tool.namespace} className="h-9 w-9" />
+                  <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                       <span className="font-semibold text-xs text-foreground">{tool.name}</span>
-                      <span className="text-[10px] text-accent uppercase font-mono px-1.5 py-0.2 rounded bg-accent-subtle">
+                      <span className="hidden sm:inline-flex text-[10px] text-accent uppercase font-mono px-1.5 py-0.5 rounded bg-accent-subtle">
                         {tool.namespace}
                       </span>
                     </div>

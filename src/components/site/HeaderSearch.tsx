@@ -13,6 +13,7 @@ export interface SearchToolItem {
 
 export interface HeaderSearchProps {
   tools?: SearchToolItem[];
+  variant?: 'header' | 'hero';
 }
 
 const DEFAULT_TOOLS: SearchToolItem[] = [
@@ -66,7 +67,7 @@ const DEFAULT_TOOLS: SearchToolItem[] = [
   },
 ];
 
-export const HeaderSearch: React.FC<HeaderSearchProps> = ({ tools = DEFAULT_TOOLS }) => {
+export const HeaderSearch: React.FC<HeaderSearchProps> = ({ tools = DEFAULT_TOOLS, variant = 'header' }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [query, setQuery] = useState<string>('');
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
@@ -145,10 +146,10 @@ export const HeaderSearch: React.FC<HeaderSearchProps> = ({ tools = DEFAULT_TOOL
   };
 
   return (
-    <div ref={containerRef} className="relative w-full max-w-xs sm:max-w-sm">
+    <div ref={containerRef} className={`relative w-full ${variant === 'hero' ? 'max-w-2xl' : 'max-w-xs sm:max-w-sm'}`}>
       {/* Search Input Bar (Mounted statically in Header) */}
       <div className="relative flex items-center">
-        <Search className="w-4 h-4 text-foreground-muted absolute left-3 pointer-events-none" />
+        <Search className={`${variant === 'hero' ? 'w-5 h-5 left-4' : 'w-4 h-4 left-3'} text-foreground-muted absolute pointer-events-none`} />
         <input
           ref={inputRef}
           type="text"
@@ -159,9 +160,9 @@ export const HeaderSearch: React.FC<HeaderSearchProps> = ({ tools = DEFAULT_TOOL
             if (!isOpen) setIsOpen(true);
           }}
           onKeyDown={handleInputKeyDown}
-          placeholder="Search tools..."
+          placeholder={variant === 'hero' ? 'What do you want to do?' : 'Search tools...'}
           aria-label="Search tools"
-          className="w-full pl-9 pr-12 py-1.5 text-xs rounded-md bg-surface-input border border-border text-foreground placeholder:text-foreground-muted font-sans focus:outline-none focus:border-border-strong focus:ring-2 focus:ring-focus transition-colors h-8"
+          className={`w-full pr-14 rounded-lg bg-surface-input border border-border text-foreground placeholder:text-foreground-muted font-sans focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/10 transition-all ${variant === 'hero' ? 'pl-12 h-14 text-base shadow-sm' : 'pl-9 h-9 text-sm'}`}
         />
         
         {query ? (
@@ -185,7 +186,7 @@ export const HeaderSearch: React.FC<HeaderSearchProps> = ({ tools = DEFAULT_TOOL
 
       {/* Floating Dropdown Results Popover */}
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-1.5 z-50 bg-surface-raised border border-border shadow-popover rounded-md max-h-80 overflow-y-auto divide-y divide-border">
+        <div className={`absolute top-full left-0 right-0 z-50 bg-surface-raised border border-border shadow-popover rounded-lg max-h-96 overflow-y-auto divide-y divide-border ${variant === 'hero' ? 'mt-2' : 'mt-1.5'}`}>
           {filtered.length === 0 ? (
             <div className="p-3 text-center text-xs text-foreground-muted">
               No tools matching "{query}"

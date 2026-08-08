@@ -13,12 +13,14 @@
     "check": "astro check && tsc --noEmit",
     "create-tool": "tsx scripts/create-tool.ts",
     "lint": "eslint .",
+    "prepare": "husky",
     "preview": "astro preview",
     "test": "vitest run",
     "test:e2e": "playwright test",
     "test:watch": "vitest",
     "validate": "tsx scripts/validate-tools.ts && tsx scripts/validate-styles.ts && tsx scripts/validate-seo.ts",
-    "validate:post-build": "tsx scripts/validate-sitemap.ts && tsx scripts/validate-performance.ts"
+    "validate:post-build": "tsx scripts/validate-sitemap.ts && tsx scripts/validate-performance.ts",
+    "verify:push": "npm run validate && npx tsc --noEmit && npm run test && npm run build && npm run test:e2e -- --project=chromium"
   },
   "dependencies": {
     "@astrojs/react": "^3.6.2",
@@ -40,6 +42,7 @@
     "@types/qrcode": "^1.5.5",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
+    "husky": "^9.1.7",
     "pagefind": "^1.1.0",
     "tsx": "^4.19.0",
     "typescript": "^5.5.4",
