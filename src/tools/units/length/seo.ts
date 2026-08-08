@@ -300,7 +300,9 @@ export const lengthSeoProvider: SeoPageProvider<LengthVariant> = {
     // Related Conversions Links
     const reversePair = { from: data.toId, to: data.fromId };
     const otherPairs = CONVERSION_PAIRS.filter(
-      (p) => !(p.from === data.fromId && p.to === data.toId)
+      (p) =>
+        !(p.from === data.fromId && p.to === data.toId) &&
+        !(p.from === data.toId && p.to === data.fromId)
     ).slice(0, 5);
     const linkItems = [reversePair, ...otherPairs].map((p) => {
       const f = getMeta(p.from);

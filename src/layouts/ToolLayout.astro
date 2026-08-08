@@ -5,15 +5,29 @@ import ToolHeader from '@/components/tool-page/ToolHeader.astro';
 import PrivacyNotice from '@/components/tool-page/PrivacyNotice.astro';
 import Faq from '@/components/tool-page/Faq.astro';
 import RelatedTools from '@/components/tool-page/RelatedTools.astro';
+import SeoVariantContent from '@/components/tool-page/SeoVariantContent.astro';
+import SeoVariantLinks from '@/components/tool-page/SeoVariantLinks.astro';
 import AdSlot from '@/components/tool-page/AdSlot.astro';
 import WebApplicationJsonLd from '@/components/seo/WebApplicationJsonLd.astro';
-import { getToolUrl, getNamespaceUrl } from '@/lib/routing';
+import type { BreadcrumbParent, SeoSection, SeoVariantMetadata, SeoVariantResult } from '@/tools/tool-module';
+import { getToolUrl, getNamespaceUrl, getVariantUrl } from '@/lib/routing';
+
+interface SeoVariantPage {
+  slug: string;
+  meta: SeoVariantMetadata;
+  result: SeoVariantResult;
+  noindex: boolean;
+  breadcrumbParent?: BreadcrumbParent | null;
+  sections?: SeoSection[];
+  nearbyVariants?: Array<{ slug: string; label: string }>;
+}
 
 export interface Props {
   tool: {
     id: string;
     name: string;
     namespace: string;
+    pattern: 'code-editor' | 'file' | 'calculator' | 'converter' | 'generator';
     summary: string;
     seo: {
       title: string;
@@ -32,67 +46,135 @@ export interface Props {
   };
   namespace: string;
   slug: string;
+  seoVariant?: SeoVariantPage;
 }
 
-const { tool, namespace, slug } = Astro.props;
+const { tool, namespace, slug, seoVariant } = Astro.props;
 
 const toolId = tool.id || `${namespace}/${slug}`;
-const currentUrl = `https://shadtools.com${getToolUrl(namespace, slug)}`;
+const isSeoVariant = Boolean(seoVariant);
+const currentPath = seoVariant
+  ? getVariantUrl(namespace, slug, seoVariant.slug)
+  : getToolUrl(namespace, slug);
+const currentUrl = `https://shadtools.com${currentPath}`;
 const nsName = namespace.charAt(0).toUpperCase() + namespace.slice(1);
+const pageTitle = seoVariant?.meta.title || tool.seo.title;
+const pageDescription = seoVariant?.meta.description || tool.seo.description;
+const pageHeading = seoVariant?.meta.h1 || tool.name;
+const queryLabel = seoVariant?.meta.h1.replace(/\s+Converter$/i, '') || '';
+const pageSummary = seoVariant
+  ? `Convert ${queryLabel} with an editable calculator, clear formula, and nearby values.`
+  : tool.summary;
+const showPrivacyNotice = tool.pattern !== 'converter' && tool.pattern !== 'calculator';
 
 const breadcrumbItems = [
   { name: nsName, url: getNamespaceUrl(namespace) },
   { name: tool.name, url: getToolUrl(namespace, slug) },
 ];
+
+if (seoVariant?.breadcrumbParent) {
+  breadcrumbItems.push({
+    name: seoVariant.breadcrumbParent.name,
+    url: getVariantUrl(namespace, slug, seoVariant.breadcrumbParent.slug),
+  });
+}
+
+if (seoVariant) {
+  breadcrumbItems.push({
+    name: seoVariant.meta.h1,
+    url: currentPath,
+  });
+}
+
+const breadcrumbSchema = seoVariant
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: breadcrumbItems.map((item, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: item.name,
+        item: `https://shadtools.com${item.url}`,
+      })),
+    }
+  : null;
 ---
 
 <BaseLayout
-  title={tool.seo.title}
-  description={tool.seo.description}
+  title={pageTitle}
+  description={pageDescription}
   canonicalUrl={currentUrl}
   keywords={tool.seo.keywords}
-  noindex={tool.seo.noindex}
+  noindex={seoVariant?.noindex ?? tool.seo.noindex}
 >
-  <WebApplicationJsonLd name={tool.name} description={tool.seo.description} url={currentUrl} />
+  <WebApplicationJsonLd name={pageHeading} description={pageDescription} url={currentUrl} />
+  {breadcrumbSchema && (
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(breadcrumbSchema)} />
+  )}
 
-  <div class="max-w-[1120px] mx-auto px-4 sm:px-6 py-6" data-pagefind-body>
-    <!-- Header Section with Hierarchical 8px Spacing -->
-    <div class="space-y-2">
+  <div
+    class="max-w-[1120px] mx-auto px-4 sm:px-6 py-7 sm:py-8"
+    data-pagefind-body={!isSeoVariant || undefined}
+    data-pagefind-ignore={isSeoVariant || undefined}
+  >
+    <header class="space-y-3">
       <Breadcrumbs items={breadcrumbItems} />
-      <ToolHeader name={tool.name} summary={tool.summary} />
-      <PrivacyNotice mode={tool.privacy.processing} message={tool.privacy.message} />
-    </div>
+      <ToolHeader name={pageHeading} summary={pageSummary} />
+      {showPrivacyNotice && (
+        <PrivacyNotice mode={tool.privacy.processing} message={tool.privacy.message} />
+      )}
+    </header>
 
-    <!-- 24px Gap Before Working Interactive Tool -->
-    <div class="mt-6 w-full">
+    <div class="mt-7 w-full">
       <slot name="tool" />
     </div>
 
-    <!-- 32px Gap After Tool Workspace -->
     <div class="mt-8">
       <AdSlot />
     </div>
 
-    <!-- Left-Aligned 720px Reading Column (Flush with Left Grid Margin) -->
-    <div class="max-w-[720px] mt-12 space-y-12">
-      <!-- Rendered Markdown Content / Documentation -->
-      <section class="prose">
-        <slot name="content" />
-      </section>
+    <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,720px)_260px] gap-10 lg:gap-12 items-start mt-12">
+      <div class="min-w-0 space-y-12">
+        {seoVariant ? (
+          <SeoVariantContent
+            namespace={namespace}
+            toolSlug={slug}
+            queryLabel={queryLabel}
+            result={seoVariant.result}
+            sections={seoVariant.sections}
+            nearbyVariants={seoVariant.nearbyVariants}
+          />
+        ) : (
+          <section class="prose">
+            <slot name="content" />
+          </section>
+        )}
 
-      <!-- FAQ Section -->
-      {tool.faq && tool.faq.length > 0 && (
-        <Faq faq={tool.faq} />
-      )}
+        {tool.faq && tool.faq.length > 0 && (
+          <Faq faq={tool.faq} />
+        )}
+      </div>
 
-      <!-- Related Tools Section -->
-      {tool.relatedTools && tool.relatedTools.length > 0 && (
-        <RelatedTools relatedTools={tool.relatedTools} />
+      {(isSeoVariant || (tool.relatedTools && tool.relatedTools.length > 0)) && (
+        <aside class="lg:sticky lg:top-24">
+          <div class="space-y-8">
+            {seoVariant && (
+              <SeoVariantLinks
+                namespace={namespace}
+                toolSlug={slug}
+                toolName={tool.name}
+                sections={seoVariant.sections}
+              />
+            )}
+            {tool.relatedTools && tool.relatedTools.length > 0 && (
+              <RelatedTools relatedTools={tool.relatedTools} />
+            )}
+          </div>
+        </aside>
       )}
     </div>
   </div>
 
-  <!-- Client-side script to record tool visit in localStorage recents -->
   <script is:inline define:vars={{ toolId }}>
     (function() {
       if (typeof window === 'undefined' || !toolId) return;

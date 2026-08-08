@@ -1,7 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import type { GetStaticPaths } from 'astro';
-import SeoVariantLayout from '@/layouts/SeoVariantLayout.astro';
+import ToolLayout from '@/layouts/ToolLayout.astro';
 import { getAllSeoEnabledTools, getToolRenderer } from '@/tools/registry';
 import { getNamespaceSlug, getToolSlug } from '@/lib/routing';
 
@@ -58,7 +58,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
         props: {
           namespace,
           toolSlug,
-          toolName: contentEntry.data.name,
+          tool: contentEntry.data,
           rendererKey: contentEntry.data.renderer,
           variantSlug,
           variantData,
@@ -68,7 +68,6 @@ export const getStaticPaths: GetStaticPaths = async () => {
           breadcrumbParent,
           sections,
           nearbyVariants,
-          privacyMessage: contentEntry.data.privacy?.message,
         },
       });
     }
@@ -81,7 +80,7 @@ const props = Astro.props as any;
 const {
   namespace,
   toolSlug,
-  toolName,
+  tool,
   rendererKey,
   variantSlug,
   variantData,
@@ -91,30 +90,31 @@ const {
   breadcrumbParent,
   sections,
   nearbyVariants,
-  privacyMessage,
 } = props;
 
 const Renderer = await getToolRenderer(rendererKey);
 ---
 
-<SeoVariantLayout
+<ToolLayout
+  tool={tool}
   namespace={namespace}
-  toolSlug={toolSlug}
-  toolName={toolName}
-  variant={variantSlug}
-  meta={meta}
-  result={result}
-  noindex={noindex}
-  breadcrumbParent={breadcrumbParent}
-  sections={sections}
-  nearbyVariants={nearbyVariants}
-  privacyMessage={privacyMessage}
+  slug={toolSlug}
+  seoVariant={{
+    slug: variantSlug,
+    meta,
+    result,
+    noindex,
+    breadcrumbParent,
+    sections,
+    nearbyVariants,
+  }}
 >
   <Renderer
     slot="tool"
     config={{}}
+    variantData={variantData}
     initialValue={variantData?.value}
     initialFrom={variantData?.fromId}
     initialTo={variantData?.toId}
   />
-</SeoVariantLayout>
+</ToolLayout>

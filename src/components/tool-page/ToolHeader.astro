@@ -7,7 +7,7 @@ export interface Props {
 const { name, summary } = Astro.props;
 ---
 
-<div class="space-y-1.5">
-  <h1 class="text-2xl sm:text-3xl font-semibold text-foreground tracking-tight">{name}</h1>
-  <p class="text-sm sm:text-base text-foreground-secondary max-w-3xl leading-relaxed">{summary}</p>
+<div class="space-y-2">
+  <h1 class="text-[2rem] leading-[1.12] sm:text-[2.375rem] font-semibold text-foreground tracking-[-0.035em]">{name}</h1>
+  <p class="text-[0.9375rem] sm:text-base text-foreground-secondary max-w-[720px] leading-7">{summary}</p>
 </div>
