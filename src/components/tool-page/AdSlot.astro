@@ -6,6 +6,6 @@ export interface Props {
 const { slotId = 'default' } = Astro.props;
 ---
 
-<div class="p-3 rounded-md bg-surface-subtle border border-border text-center text-xs text-foreground-muted select-none" data-ad-slot={slotId}>
+<div class="flex min-h-20 items-center justify-center border-y border-border bg-surface-subtle/40 px-3 text-[10px] uppercase text-foreground-muted select-none" data-ad-slot={slotId}>
   <span>Advertisement</span>
 </div>

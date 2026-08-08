@@ -13,7 +13,7 @@ const { title, description, canonicalUrl, breadcrumbs } = Astro.props;
 ---
 
 <BaseLayout title={title} description={description} canonicalUrl={canonicalUrl}>
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+  <div class="mx-auto max-w-[1040px] space-y-8 px-4 py-6 sm:px-6 sm:py-9">
     <Breadcrumbs items={breadcrumbs} />
     <slot />
   </div>

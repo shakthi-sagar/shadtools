@@ -8,7 +8,7 @@ export interface ToolFrameProps {
 export const ToolFrame: React.FC<ToolFrameProps> = ({ children, className = '' }) => {
   return (
     <div
-      className={`border border-border bg-surface rounded-lg overflow-hidden transition-colors ${className}`}
+      className={`overflow-hidden rounded-lg border border-border bg-surface ${className}`}
     >
       {children}
     </div>

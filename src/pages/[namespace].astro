@@ -6,20 +6,16 @@ import { getNamespaceSlug, getToolSlug, getNamespaceUrl, getToolUrl } from '@/li
 
 export async function getStaticPaths() {
   const namespaces = await getCollection('namespaces');
-  const allTools = await getCollection('tools');
-  const publishedTools = allTools.filter((t) => t.data.status === 'published');
-
-  return namespaces.map((ns) => {
-    const nsSlug = getNamespaceSlug(ns);
-    const nsTools = publishedTools.filter((t) => {
-      const toolNs = t.data.namespace || getNamespaceSlug(t);
-      return toolNs === nsSlug;
-    });
+  const publishedTools = (await getCollection('tools')).filter((tool) => tool.data.status === 'published');
+  return namespaces.map((namespace) => {
+    const slug = getNamespaceSlug(namespace);
     return {
-      params: { namespace: nsSlug },
+      params: { namespace: slug },
       props: {
-        meta: { name: ns.data.name, summary: ns.data.summary, slug: nsSlug },
-        tools: nsTools.map((t) => ({ ...t.data, slug: getToolSlug(t), namespace: nsSlug })),
+        meta: { name: namespace.data.name, summary: namespace.data.summary, slug },
+        tools: publishedTools
+          .filter((tool) => (tool.data.namespace || getNamespaceSlug(tool)) === slug)
+          .map((tool) => ({ ...tool.data, slug: getToolSlug(tool), namespace: slug })),
       },
     };
   });
@@ -29,45 +25,27 @@ const { meta, tools } = Astro.props;
 const breadcrumbItems = [{ name: meta.name, url: getNamespaceUrl(meta.slug) }];
 ---
 
-<BaseLayout
-  title={`${meta.name} – Free Online Tools`}
-  description={meta.summary}
-  canonicalUrl={`https://shadtools.com/${meta.slug}`}
->
-  <div class="max-w-[1120px] mx-auto px-4 sm:px-6 py-6 space-y-6" data-pagefind-body>
+<BaseLayout title={`${meta.name} - Free Online Tools`} description={meta.summary} canonicalUrl={`https://shadtools.com/${meta.slug}`}>
+  <div class="mx-auto max-w-[1040px] px-4 py-6 sm:px-6 sm:py-9" data-pagefind-body>
     <Breadcrumbs items={breadcrumbItems} />
-
-    <!-- Hub Header -->
-    <div class="space-y-2">
-      <h1 class="text-2xl sm:text-3xl font-semibold text-foreground tracking-tight">{meta.name}</h1>
-      <p class="text-foreground-secondary max-w-3xl text-sm sm:text-base leading-relaxed">
-        {meta.summary}
-      </p>
+    <div class="mb-8 mt-6 max-w-3xl">
+      <p class="mb-2 text-xs font-semibold uppercase text-accent">Tool collection</p>
+      <h1 class="text-2xl font-semibold text-foreground sm:text-3xl">{meta.name}</h1>
+      <p class="mt-2 text-sm leading-6 text-foreground-secondary sm:text-[15px]">{meta.summary}</p>
     </div>
-
-    <!-- Tools List (Clean Bordered Rows) -->
-    <section class="space-y-3 pt-2">
-      <h2 class="text-xs font-semibold text-foreground-muted uppercase tracking-wider font-sans">
-        Available Tools ({tools.length})
-      </h2>
-      <div class="divide-y divide-border border-y border-border">
+    <section aria-labelledby="available-tools-heading">
+      <div class="mb-3 flex items-center justify-between">
+        <h2 id="available-tools-heading" class="text-sm font-semibold text-foreground">Available tools</h2>
+        <span class="text-xs text-foreground-muted">{tools.length} total</span>
+      </div>
+      <div class="divide-y divide-border overflow-hidden rounded-lg border border-border bg-surface">
         {tools.map((tool) => (
-          <a
-            href={getToolUrl(tool.namespace, tool.slug)}
-            class="py-3 px-2 flex items-center justify-between hover:bg-surface-subtle transition-colors group rounded-sm"
-          >
-            <div class="space-y-0.5 max-w-2xl">
-              <h3 class="font-medium text-foreground text-sm group-hover:text-primary transition-colors">
-                {tool.name}
-              </h3>
-              <p class="text-xs text-foreground-secondary line-clamp-1">
-                {tool.summary}
-              </p>
-            </div>
-            <span class="text-xs text-foreground-muted group-hover:text-primary transition-colors flex items-center gap-1 font-medium pl-4 shrink-0">
-              <span>Open tool</span>
-              <span class="group-hover:translate-x-0.5 transition-transform">→</span>
+          <a href={getToolUrl(tool.namespace, tool.slug)} class="group grid min-h-[76px] items-center gap-2 px-4 py-3 hover:bg-surface-subtle sm:grid-cols-[1fr_auto] sm:px-5">
+            <span class="min-w-0">
+              <span class="block text-sm font-semibold text-foreground group-hover:text-accent">{tool.name}</span>
+              <span class="mt-1 block text-xs leading-5 text-foreground-muted sm:line-clamp-1">{tool.summary}</span>
             </span>
+            <span class="inline-flex items-center gap-1.5 text-xs font-medium text-foreground-muted group-hover:text-accent">Open <span aria-hidden="true">&rarr;</span></span>
           </a>
         ))}
       </div>

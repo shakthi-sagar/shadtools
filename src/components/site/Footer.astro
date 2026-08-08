@@ -1,60 +1,15 @@
 ---
-import { getCollection } from 'astro:content';
-import { getNamespaceSlug, getNamespaceUrl } from '@/lib/routing';
-
 const currentYear = new Date().getFullYear();
-const namespaces = await getCollection('namespaces');
 ---
 
-<footer class="mt-20 border-t border-border bg-surface py-10 text-xs text-foreground-secondary">
-  <div class="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-8">
-    
-    <div class="space-y-2">
-      <a href="/" class="flex items-center gap-1.5 font-bold text-sm text-foreground tracking-tight">
-        <span>Shad<span class="text-accent">Tools</span></span>
-      </a>
-      <p class="text-foreground-muted text-xs leading-relaxed max-w-sm">
-        Precision utility workspace. Fast, clean, browser-local tools without tracking or unnecessary steps.
-      </p>
-    </div>
-
-    <div>
-      <h3 class="text-[11px] font-semibold text-foreground uppercase tracking-wider mb-3 font-sans">
-        Tool Collections
-      </h3>
-      <ul class="grid grid-cols-2 gap-2 text-foreground-secondary">
-        {namespaces.map((ns) => {
-          const slug = getNamespaceSlug(ns);
-          return (
-            <li>
-              <a href={getNamespaceUrl(slug)} class="hover:text-accent transition-colors">
-                {ns.data.name}
-              </a>
-            </li>
-          );
-        })}
-      </ul>
-    </div>
-
-    <div>
-      <h3 class="text-[11px] font-semibold text-foreground uppercase tracking-wider mb-3 font-sans">
-        Legal & Privacy
-      </h3>
-      <ul class="space-y-2 text-foreground-secondary">
-        <li><a href="/privacy" class="hover:text-accent transition-colors">Privacy Policy</a></li>
-        <li><a href="/terms" class="hover:text-accent transition-colors">Terms of Service</a></li>
-        <li><a href="/disclaimer" class="hover:text-accent transition-colors">Disclaimer</a></li>
-        <li><a href="/contact" class="hover:text-accent transition-colors">Contact Us</a></li>
-      </ul>
-    </div>
-
-  </div>
-
-  <div class="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 mt-8 pt-4 border-t border-border flex flex-col sm:flex-row justify-between items-center text-[11px] text-foreground-muted">
-    <p>© {currentYear} ShadTools. High-performance utility platform.</p>
-    <p class="mt-2 sm:mt-0 font-medium text-success flex items-center gap-1.5">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
-      <span>Client-side local processing defaults</span>
-    </p>
+<footer class="border-t border-border px-4 py-6 text-xs text-foreground-muted sm:px-6">
+  <div class="mx-auto flex max-w-[1180px] flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <p>&copy; {currentYear} ShadTools. Fast utilities, without the detour.</p>
+    <nav aria-label="Footer navigation" class="flex flex-wrap gap-x-5 gap-y-2">
+      <a href="/privacy" class="hover:text-foreground">Privacy</a>
+      <a href="/terms" class="hover:text-foreground">Terms</a>
+      <a href="/disclaimer" class="hover:text-foreground">Disclaimer</a>
+      <a href="/contact" class="hover:text-foreground">Contact</a>
+    </nav>
   </div>
 </footer>

@@ -6,9 +6,11 @@ export default {
     extend: {
       colors: {
         background: 'var(--background)',
+        sidebar: 'var(--sidebar)',
         surface: {
           DEFAULT: 'var(--surface)',
           subtle: 'var(--surface-subtle)',
+          hover: 'var(--surface-hover)',
           raised: 'var(--surface-raised)',
           input: 'var(--surface-input)',
         },
@@ -25,6 +27,7 @@ export default {
           DEFAULT: 'var(--accent)',
           hover: 'var(--accent-hover)',
           subtle: 'var(--accent-subtle)',
+          foreground: 'var(--accent-foreground)',
         },
         action: {
           DEFAULT: 'var(--action-primary)',

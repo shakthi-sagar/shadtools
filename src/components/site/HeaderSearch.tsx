@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Search, X, ArrowRight } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { ArrowUpRight, Search, X } from 'lucide-react';
 import { track } from '@/lib/analytics';
+import { getNamespaceVisual } from '@/components/site/tool-visuals';
 
 export interface SearchToolItem {
   id: string;
@@ -15,205 +16,126 @@ export interface HeaderSearchProps {
   tools?: SearchToolItem[];
 }
 
-const DEFAULT_TOOLS: SearchToolItem[] = [
-  {
-    id: 'base64/encode',
-    name: 'Base64 Encoder & Decoder',
-    namespace: 'base64',
-    summary: 'Encode plain text to Base64 or decode Base64 strings back to UTF-8 instantly.',
-    url: '/base64/encode',
-    searchWeight: 10,
-  },
-  {
-    id: 'json/formatter',
-    name: 'JSON Formatter & Minifier',
-    namespace: 'json',
-    summary: 'Format, validate, beautify, and minify JSON strings with custom indentation.',
-    url: '/json/formatter',
-    searchWeight: 9,
-  },
-  {
-    id: 'units/length',
-    name: 'Length Unit Converter',
-    namespace: 'units',
-    summary: 'Convert meters, feet, inches, yards, kilometers, and miles instantly.',
-    url: '/units/length',
-    searchWeight: 8,
-  },
-  {
-    id: 'percentage/calculator',
-    name: 'Percentage Calculator',
-    namespace: 'percentage',
-    summary: 'Calculate percentage of a number, percentage differences, and percentage change.',
-    url: '/percentage/calculator',
-    searchWeight: 8,
-  },
-  {
-    id: 'images/compress',
-    name: 'Image Compressor',
-    namespace: 'images',
-    summary: 'Compress PNG, JPG, and WebP images locally in browser memory.',
-    url: '/images/compress',
-    searchWeight: 7,
-  },
-  {
-    id: 'currency/converter',
-    name: 'Currency Converter',
-    namespace: 'currency',
-    summary: 'Convert global currencies with daily updated exchange rates.',
-    url: '/currency/converter',
-    searchWeight: 7,
-  },
-];
-
-export const HeaderSearch: React.FC<HeaderSearchProps> = ({ tools = DEFAULT_TOOLS }) => {
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [query, setQuery] = useState<string>('');
-  const [selectedIndex, setSelectedIndex] = useState<number>(0);
-  const [shortcutText, setShortcutText] = useState<string>('⌘K');
-
+export const HeaderSearch: React.FC<HeaderSearchProps> = ({ tools = [] }) => {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState('');
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [shortcut, setShortcut] = useState('Ctrl K');
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Detect Mac vs Windows for shortcut display
   useEffect(() => {
-    if (typeof navigator !== 'undefined' && /Mac/i.test(navigator.userAgent)) {
-      setShortcutText('⌘K');
-    } else {
-      setShortcutText('Ctrl K');
-    }
-  }, []);
-
-  // Global Ctrl+K / Cmd+K listener
-  useEffect(() => {
-    const handleGlobalKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
-        e.preventDefault();
-        setIsOpen(true);
-        inputRef.current?.focus();
+    setShortcut(/Mac/i.test(navigator.userAgent) ? 'Cmd K' : 'Ctrl K');
+    const onKeyDown = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        setOpen(true);
+        requestAnimationFrame(() => inputRef.current?.focus());
       }
     };
-
-    window.addEventListener('keydown', handleGlobalKeyDown);
-    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
   }, []);
 
-  // Close on outside click
   useEffect(() => {
-    const handleOutsideClick = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setIsOpen(false);
-      }
+    const onPointerDown = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) setOpen(false);
     };
-
-    document.addEventListener('mousedown', handleOutsideClick);
-    return () => document.removeEventListener('mousedown', handleOutsideClick);
+    document.addEventListener('mousedown', onPointerDown);
+    return () => document.removeEventListener('mousedown', onPointerDown);
   }, []);
 
-  const filtered = (query.trim()
-    ? tools.filter(
-        (t) =>
-          t.name.toLowerCase().includes(query.toLowerCase()) ||
-          t.summary.toLowerCase().includes(query.toLowerCase()) ||
-          t.namespace.toLowerCase().includes(query.toLowerCase())
-      )
-    : tools
-  ).sort((a, b) => (b.searchWeight || 1) - (a.searchWeight || 1));
+  const normalized = query.trim().toLowerCase();
+  const results = [...tools]
+    .filter((tool) => !normalized || `${tool.name} ${tool.summary} ${tool.namespace}`.toLowerCase().includes(normalized))
+    .sort((a, b) => (b.searchWeight || 1) - (a.searchWeight || 1) || a.name.localeCompare(b.name))
+    .slice(0, 8);
 
   useEffect(() => {
     setSelectedIndex(0);
-    if (query.trim()) {
-      track('search_used', { query_length: query.trim().length });
-    }
-  }, [query]);
+    if (normalized) track('search_used', { query_length: normalized.length });
+  }, [normalized]);
 
-  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      setSelectedIndex((prev) => (prev < filtered.length - 1 ? prev + 1 : 0));
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      setSelectedIndex((prev) => (prev > 0 ? prev - 1 : filtered.length - 1));
-    } else if (e.key === 'Enter' && filtered[selectedIndex]) {
-      e.preventDefault();
-      window.location.href = filtered[selectedIndex].url;
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      setIsOpen(false);
+  const onInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      setSelectedIndex((index) => (index + 1) % Math.max(results.length, 1));
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      setSelectedIndex((index) => (index - 1 + Math.max(results.length, 1)) % Math.max(results.length, 1));
+    } else if (event.key === 'Enter' && results[selectedIndex]) {
+      window.location.href = results[selectedIndex].url;
+    } else if (event.key === 'Escape') {
+      setOpen(false);
       inputRef.current?.blur();
     }
   };
 
   return (
-    <div ref={containerRef} className="relative w-full max-w-xs sm:max-w-sm">
-      {/* Search Input Bar (Mounted statically in Header) */}
-      <div className="relative flex items-center">
-        <Search className="w-4 h-4 text-foreground-muted absolute left-3 pointer-events-none" />
-        <input
-          ref={inputRef}
-          type="text"
-          value={query}
-          onFocus={() => setIsOpen(true)}
-          onChange={(e) => {
-            setQuery(e.target.value);
-            if (!isOpen) setIsOpen(true);
+    <div ref={containerRef} className="relative mx-auto w-full max-w-[720px]">
+      <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground-muted" />
+      <input
+        ref={inputRef}
+        value={query}
+        onFocus={() => setOpen(true)}
+        onChange={(event) => {
+          setQuery(event.target.value);
+          setOpen(true);
+        }}
+        onKeyDown={onInputKeyDown}
+        placeholder="Search tools"
+        aria-label="Search tools"
+        aria-expanded={open}
+        className="h-10 w-full rounded-md border border-border bg-surface-input pl-10 pr-20 text-sm text-foreground shadow-none outline-none placeholder:text-foreground-muted focus:border-border-strong focus:ring-2 focus:ring-focus/20"
+      />
+      {query ? (
+        <button
+          type="button"
+          onClick={() => {
+            setQuery('');
+            inputRef.current?.focus();
           }}
-          onKeyDown={handleInputKeyDown}
-          placeholder="Search tools..."
-          aria-label="Search tools"
-          className="w-full pl-9 pr-12 py-1.5 text-xs rounded-md bg-surface-input border border-border text-foreground placeholder:text-foreground-muted font-sans focus:outline-none focus:border-border-strong focus:ring-2 focus:ring-focus transition-colors h-8"
-        />
-        
-        {query ? (
-          <button
-            type="button"
-            onClick={() => {
-              setQuery('');
-              inputRef.current?.focus();
-            }}
-            aria-label="Clear query"
-            className="absolute right-2.5 text-foreground-muted hover:text-foreground p-0.5 rounded focus-visible:outline-2 focus-visible:outline-focus cursor-pointer"
-          >
-            <X className="w-3.5 h-3.5" />
-          </button>
-        ) : (
-          <kbd className="absolute right-2 text-[10px] font-mono text-foreground-muted bg-surface-subtle border border-border px-1.5 py-0.5 rounded pointer-events-none select-none">
-            {shortcutText}
-          </kbd>
-        )}
-      </div>
+          className="absolute right-2 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded text-foreground-muted hover:bg-surface-hover hover:text-foreground"
+          aria-label="Clear search"
+        >
+          <X className="h-3.5 w-3.5" />
+        </button>
+      ) : (
+        <kbd className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 rounded border border-border bg-surface-subtle px-1.5 py-0.5 text-[10px] text-foreground-muted">
+          {shortcut}
+        </kbd>
+      )}
 
-      {/* Floating Dropdown Results Popover */}
-      {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-1.5 z-50 bg-surface-raised border border-border shadow-popover rounded-md max-h-80 overflow-y-auto divide-y divide-border">
-          {filtered.length === 0 ? (
-            <div className="p-3 text-center text-xs text-foreground-muted">
-              No tools matching "{query}"
+      {open && (
+        <div className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-lg border border-border bg-surface-raised shadow-popover">
+          <div className="border-b border-border px-3 py-2 text-[10px] font-semibold uppercase text-foreground-muted">
+            {normalized ? 'Search results' : 'Popular tools'}
+          </div>
+          {results.length ? (
+            <div className="max-h-[420px] overflow-y-auto p-1.5">
+              {results.map((tool, index) => {
+                const visual = getNamespaceVisual(tool.namespace);
+                const Icon = visual.icon;
+                return (
+                  <a
+                    key={tool.id}
+                    href={tool.url}
+                    className={`flex items-center gap-3 rounded-md px-3 py-2.5 ${index === selectedIndex ? 'bg-surface-hover' : 'hover:bg-surface-subtle'}`}
+                  >
+                    <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-md ${visual.soft} ${visual.color}`}>
+                      <Icon className="h-4 w-4" />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-medium text-foreground">{tool.name}</span>
+                      <span className="block truncate text-xs text-foreground-muted">{tool.summary}</span>
+                    </span>
+                    <ArrowUpRight className="h-4 w-4 shrink-0 text-foreground-muted" />
+                  </a>
+                );
+              })}
             </div>
           ) : (
-            filtered.slice(0, 8).map((tool, idx) => (
-              <a
-                key={tool.id}
-                href={tool.url}
-                onClick={() => setIsOpen(false)}
-                className={`flex items-center justify-between p-2.5 transition-colors group ${
-                  idx === selectedIndex ? 'bg-surface-subtle border-l-2 border-l-accent' : 'hover:bg-surface-subtle'
-                }`}
-              >
-                <div className="space-y-0.5 min-w-0 pr-2">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-semibold text-foreground group-hover:text-accent truncate">
-                      {tool.name}
-                    </span>
-                    <span className="text-[9px] text-accent uppercase font-mono px-1 py-0.2 rounded bg-accent-subtle shrink-0">
-                      {tool.namespace}
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-foreground-muted truncate">{tool.summary}</p>
-                </div>
-                <ArrowRight className="w-3.5 h-3.5 text-foreground-muted group-hover:text-accent shrink-0" />
-              </a>
-            ))
+            <p className="px-4 py-8 text-center text-sm text-foreground-muted">No tools found for "{query}".</p>
           )}
         </div>
       )}

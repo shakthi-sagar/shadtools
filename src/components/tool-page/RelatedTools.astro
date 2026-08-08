@@ -1,33 +1,25 @@
 ---
+import { resolveRelatedTools } from '@/lib/catalog/resolve-related-tools';
 import { getToolUrl } from '@/lib/routing';
 
-export interface Props {
-  relatedTools: string[];
-}
-
+export interface Props { relatedTools: string[]; }
 const { relatedTools } = Astro.props;
+const resolvedTools = await resolveRelatedTools(relatedTools || []);
 ---
 
-{relatedTools && relatedTools.length > 0 && (
-  <section class="space-y-4">
-    <h2 class="text-xl font-bold text-foreground tracking-tight">Related Tools</h2>
-    <div class="divide-y divide-border border-y border-border">
-      {relatedTools.map((rel) => {
-        const parts = rel.split('/');
-        const relNs = parts[0];
-        const relSlug = parts.length > 1 ? parts[1] : parts[0];
-        return (
-          <a
-            href={getToolUrl(relNs, relSlug)}
-            class="py-3 flex items-center justify-between text-sm text-foreground hover:text-accent transition-colors group"
-          >
-            <span class="font-medium">{rel}</span>
-            <span class="text-xs text-foreground-muted group-hover:text-accent group-hover:translate-x-1 transition-all">
-              →
-            </span>
-          </a>
-        );
-      })}
+{resolvedTools.length > 0 && (
+  <section aria-labelledby="related-tools-heading">
+    <h2 id="related-tools-heading" class="mb-3 text-xs font-semibold uppercase text-foreground-muted">Related tools</h2>
+    <div class="divide-y divide-border overflow-hidden rounded-lg border border-border bg-surface">
+      {resolvedTools.map((tool) => (
+        <a href={getToolUrl(tool.namespace, tool.slug)} class="group flex items-center justify-between gap-3 px-3.5 py-3 hover:bg-surface-subtle">
+          <span>
+            <span class="block text-sm font-medium text-foreground group-hover:text-accent">{tool.name}</span>
+            <span class="mt-0.5 block text-xs capitalize text-foreground-muted">{tool.namespace}</span>
+          </span>
+          <span aria-hidden="true" class="text-foreground-muted group-hover:text-accent">&rarr;</span>
+        </a>
+      ))}
     </div>
   </section>
 )}

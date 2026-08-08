@@ -1,7 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Breadcrumbs from '@/components/site/Breadcrumbs.astro';
-import ToolHeader from '@/components/tool-page/ToolHeader.astro';
 import PrivacyNotice from '@/components/tool-page/PrivacyNotice.astro';
 import Faq from '@/components/tool-page/Faq.astro';
 import RelatedTools from '@/components/tool-page/RelatedTools.astro';
@@ -11,21 +10,9 @@ import { getToolUrl, getNamespaceUrl } from '@/lib/routing';
 
 export interface Props {
   tool: {
-    id: string;
-    name: string;
-    namespace: string;
-    summary: string;
-    seo: {
-      title: string;
-      description: string;
-      primaryKeyword: string;
-      keywords?: string[];
-      noindex?: boolean;
-    };
-    privacy: {
-      processing: 'local' | 'remote-data' | 'server-processing';
-      message: string;
-    };
+    id: string; name: string; namespace: string; summary: string;
+    seo: { title: string; description: string; primaryKeyword: string; keywords?: string[]; noindex?: boolean };
+    privacy: { processing: 'local' | 'remote-data' | 'server-processing'; message: string };
     examples?: Array<{ title?: string; input: string; output: string }>;
     faq?: Array<{ question: string; answer: string }>;
     relatedTools?: string[];
@@ -35,80 +22,54 @@ export interface Props {
 }
 
 const { tool, namespace, slug } = Astro.props;
-
 const toolId = tool.id || `${namespace}/${slug}`;
 const currentUrl = `https://shadtools.com${getToolUrl(namespace, slug)}`;
 const nsName = namespace.charAt(0).toUpperCase() + namespace.slice(1);
-
 const breadcrumbItems = [
   { name: nsName, url: getNamespaceUrl(namespace) },
   { name: tool.name, url: getToolUrl(namespace, slug) },
 ];
 ---
 
-<BaseLayout
-  title={tool.seo.title}
-  description={tool.seo.description}
-  canonicalUrl={currentUrl}
-  keywords={tool.seo.keywords}
-  noindex={tool.seo.noindex}
->
+<BaseLayout title={tool.seo.title} description={tool.seo.description} canonicalUrl={currentUrl} keywords={tool.seo.keywords} noindex={tool.seo.noindex}>
   <WebApplicationJsonLd name={tool.name} description={tool.seo.description} url={currentUrl} />
-
-  <div class="max-w-[1120px] mx-auto px-4 sm:px-6 py-6" data-pagefind-body>
-    <!-- Header Section with Hierarchical 8px Spacing -->
-    <div class="space-y-2">
-      <Breadcrumbs items={breadcrumbItems} />
-      <ToolHeader name={tool.name} summary={tool.summary} />
+  <div class="mx-auto max-w-[1180px] px-4 py-6 sm:px-6 sm:py-8" data-pagefind-body>
+    <Breadcrumbs items={breadcrumbItems} />
+    <div class="mb-6 mt-5 flex flex-col gap-4 border-b border-border pb-6 lg:flex-row lg:items-end lg:justify-between">
+      <div class="max-w-3xl">
+        <p class="mb-2 text-xs font-semibold uppercase text-accent">{nsName} tool</p>
+        <h1 class="text-2xl font-semibold leading-tight text-foreground sm:text-3xl">{tool.name}</h1>
+        <p class="mt-2 text-sm leading-6 text-foreground-secondary sm:text-[15px]">{tool.summary}</p>
+      </div>
       <PrivacyNotice mode={tool.privacy.processing} message={tool.privacy.message} />
     </div>
 
-    <!-- 24px Gap Before Working Interactive Tool -->
-    <div class="mt-6 w-full">
-      <slot name="tool" />
-    </div>
+    <section aria-label={`${tool.name} workspace`} class="w-full"><slot name="tool" /></section>
+    <div class="mt-8"><AdSlot slotId={`${namespace}-${slug}`} /></div>
 
-    <!-- 32px Gap After Tool Workspace -->
-    <div class="mt-8">
-      <AdSlot />
-    </div>
-
-    <!-- Left-Aligned 720px Reading Column (Flush with Left Grid Margin) -->
-    <div class="max-w-[720px] mt-12 space-y-12">
-      <!-- Rendered Markdown Content / Documentation -->
-      <section class="prose">
-        <slot name="content" />
-      </section>
-
-      <!-- FAQ Section -->
-      {tool.faq && tool.faq.length > 0 && (
-        <Faq faq={tool.faq} />
-      )}
-
-      <!-- Related Tools Section -->
-      {tool.relatedTools && tool.relatedTools.length > 0 && (
-        <RelatedTools relatedTools={tool.relatedTools} />
-      )}
+    <div class="mt-12 grid items-start gap-12 lg:grid-cols-[minmax(0,760px)_280px] lg:justify-between">
+      <div class="space-y-12">
+        <section class="prose max-w-none"><slot name="content" /></section>
+        {tool.faq?.length && <Faq faq={tool.faq} />}
+      </div>
+      {tool.relatedTools?.length && <aside class="lg:sticky lg:top-24"><RelatedTools relatedTools={tool.relatedTools} /></aside>}
     </div>
   </div>
 
-  <!-- Client-side script to record tool visit in localStorage recents -->
   <script is:inline define:vars={{ toolId }}>
     (function() {
-      if (typeof window === 'undefined' || !toolId) return;
+      if (!toolId) return;
       try {
-        const KEY = 'shadtools.dashboard.v1';
-        const raw = localStorage.getItem(KEY);
+        const key = 'shadtools.dashboard.v1';
+        const raw = localStorage.getItem(key);
         let state = { version: 1, pinnedToolIds: [], recentToolIds: [] };
         if (raw) {
           const parsed = JSON.parse(raw);
           if (parsed && parsed.version === 1) state = parsed;
         }
         state.recentToolIds = [toolId, ...state.recentToolIds.filter((id) => id !== toolId)].slice(0, 8);
-        localStorage.setItem(KEY, JSON.stringify(state));
-      } catch (e) {
-        // Storage unavailable or disabled
-      }
+        localStorage.setItem(key, JSON.stringify(state));
+      } catch {}
     })();
   </script>
 </BaseLayout>

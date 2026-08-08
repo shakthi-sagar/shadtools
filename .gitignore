@@ -5,6 +5,9 @@ node_modules/
 dist/
 .astro/
 .tempmediaStorage/
+artifacts/
+playwright-report/
+test-results/
 
 # Logs
 npm-debug.log*

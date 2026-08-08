@@ -1,12 +1,7 @@
 import React, { useState } from 'react';
-import { Copy, Check, Share2 } from 'lucide-react';
+import { ArrowLeftRight, Check, Copy, Link } from 'lucide-react';
 
-export interface UnitOption {
-  id: string;
-  name: string;
-  symbol: string;
-}
-
+export interface UnitOption { id: string; name: string; symbol: string; }
 export interface ConverterLayoutProps {
   title?: string;
   amount: number;
@@ -25,148 +20,70 @@ export interface ConverterLayoutProps {
 }
 
 export const ConverterLayout: React.FC<ConverterLayoutProps> = ({
-  amount,
-  fromId,
-  toId,
-  units,
-  formattedResult,
-  formula,
-  steps,
-  onAmountChange,
-  onFromChange,
-  onToChange,
-  onSwap,
-  onCopyStateUrl,
+  amount, fromId, toId, units, formattedResult, formula, steps,
+  onAmountChange, onFromChange, onToChange, onSwap, onCopyStateUrl,
 }) => {
   const [copied, setCopied] = useState(false);
   const [shared, setShared] = useState(false);
-
-  const handleCopy = () => {
+  const copyResult = () => {
     navigator.clipboard.writeText(formattedResult);
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setTimeout(() => setCopied(false), 1800);
   };
-
-  const handleShare = () => {
-    if (onCopyStateUrl) {
-      onCopyStateUrl();
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-    }
+  const copyLink = () => {
+    if (onCopyStateUrl) onCopyStateUrl();
+    else navigator.clipboard.writeText(window.location.href);
     setShared(true);
-    setTimeout(() => setShared(false), 2000);
+    setTimeout(() => setShared(false), 1800);
   };
 
   return (
-    <div className="space-y-6 max-w-[1120px] mx-auto">
-      {/* 3-Column Input Architecture (Mandatory Directive 4) */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-start bg-surface p-4 sm:p-5 rounded-lg border border-border">
-        {/* Amount Input */}
-        <div className="space-y-1.5 w-full">
-          <label className="block text-xs font-semibold text-foreground-secondary uppercase tracking-wider font-mono">
-            Amount
-          </label>
+    <div className="overflow-hidden rounded-lg border border-border bg-surface">
+      <div className="grid gap-4 border-b border-border p-4 sm:grid-cols-[1fr_1fr_40px_1fr] sm:items-end sm:p-5">
+        <label className="block space-y-1.5">
+          <span className="text-xs font-medium text-foreground-secondary">Value</span>
           <input
             type="number"
-            value={isNaN(amount) ? '' : amount}
-            onChange={(e) => onAmountChange(parseFloat(e.target.value) || 0)}
-            className="w-full h-10 px-3 bg-surface-input text-foreground font-mono text-sm border border-border rounded-md outline-none ring-0 focus:outline-none focus:ring-0 focus:border-accent transition-colors"
-            placeholder="Enter value..."
+            value={Number.isNaN(amount) ? '' : amount}
+            onChange={(event) => onAmountChange(Number.parseFloat(event.target.value) || 0)}
+            className="h-11 w-full rounded-md border border-border bg-surface-input px-3 font-mono text-sm text-foreground outline-none focus:border-border-strong focus:ring-2 focus:ring-focus/20"
           />
-        </div>
-
-        {/* From Unit Selector */}
-        <div className="space-y-1.5 w-full">
-          <label className="block text-xs font-semibold text-foreground-secondary uppercase tracking-wider font-mono">
-            From
-          </label>
-          <select
-            value={fromId}
-            onChange={(e) => onFromChange(e.target.value)}
-            className="w-full h-10 px-3 bg-surface-input text-foreground font-mono text-sm border border-border rounded-md outline-none ring-0 focus:outline-none focus:ring-0 focus:border-accent transition-colors cursor-pointer"
-          >
-            {units.map((u) => (
-              <option key={u.id} value={u.id}>
-                {u.name} ({u.symbol})
-              </option>
-            ))}
+        </label>
+        <label className="block space-y-1.5">
+          <span className="text-xs font-medium text-foreground-secondary">From</span>
+          <select value={fromId} onChange={(event) => onFromChange(event.target.value)} className="h-11 w-full rounded-md border border-border bg-surface-input px-3 text-sm text-foreground outline-none focus:border-border-strong">
+            {units.map((unit) => <option key={unit.id} value={unit.id}>{unit.name} ({unit.symbol})</option>)}
           </select>
-        </div>
-
-        {/* To Unit Selector */}
-        <div className="space-y-1.5 w-full">
-          <div className="flex items-center justify-between">
-            <label className="block text-xs font-semibold text-foreground-secondary uppercase tracking-wider font-mono">
-              To
-            </label>
-            {onSwap && (
-              <button
-                type="button"
-                onClick={onSwap}
-                className="text-[11px] font-mono text-accent hover:underline flex items-center gap-1"
-                title="Swap units"
-              >
-                ⇄ Swap
-              </button>
-            )}
-          </div>
-          <select
-            value={toId}
-            onChange={(e) => onToChange(e.target.value)}
-            className="w-full h-10 px-3 bg-surface-input text-foreground font-mono text-sm border border-border rounded-md outline-none ring-0 focus:outline-none focus:ring-0 focus:border-accent transition-colors cursor-pointer"
-          >
-            {units.map((u) => (
-              <option key={u.id} value={u.id}>
-                {u.name} ({u.symbol})
-              </option>
-            ))}
+        </label>
+        {onSwap && (
+          <button type="button" onClick={onSwap} className="grid h-10 w-10 place-items-center rounded-md border border-border bg-surface-subtle text-foreground-secondary hover:border-border-strong hover:text-foreground" title="Swap units" aria-label="Swap units">
+            <ArrowLeftRight className="h-4 w-4" />
+          </button>
+        )}
+        <label className="block space-y-1.5">
+          <span className="text-xs font-medium text-foreground-secondary">To</span>
+          <select value={toId} onChange={(event) => onToChange(event.target.value)} className="h-11 w-full rounded-md border border-border bg-surface-input px-3 text-sm text-foreground outline-none focus:border-border-strong">
+            {units.map((unit) => <option key={unit.id} value={unit.id}>{unit.name} ({unit.symbol})</option>)}
           </select>
-        </div>
+        </label>
       </div>
 
-      {/* Converted Result Card */}
-      <div className="bg-surface rounded-lg border border-border overflow-hidden">
-        {/* Header Strip with Copy Result Button (Mandatory Directive 4) */}
-        <div className="h-10 px-4 bg-surface-subtle border-b border-border flex items-center justify-between">
-          <span className="text-[11px] font-bold text-foreground-secondary uppercase tracking-wider font-mono">
-            Converted Result
-          </span>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={handleShare}
-              className="px-2.5 py-1 text-xs font-medium font-mono text-foreground-secondary hover:text-foreground bg-surface border border-border rounded transition-colors flex items-center gap-1.5 cursor-pointer"
-              title="Copy shareable link"
-            >
-              {shared ? <Check className="w-3.5 h-3.5 text-success" /> : <Share2 className="w-3.5 h-3.5" />}
-              <span>{shared ? 'Link Copied!' : 'Share Link'}</span>
+      <div className="bg-surface-subtle/60 p-4 sm:p-5">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <span className="text-[10px] font-semibold uppercase text-foreground-muted">Converted result</span>
+            <p className="mt-1 break-words font-mono text-2xl font-semibold leading-tight text-foreground sm:text-3xl">{formattedResult}</p>
+            {formula && <p className="mt-2 font-mono text-xs text-foreground-muted">Formula: <span className="text-foreground-secondary">{formula}</span></p>}
+            {steps && <p className="mt-1 font-mono text-xs text-foreground-muted">Calculation: <span className="text-accent">{steps}</span></p>}
+          </div>
+          <div className="flex shrink-0 gap-2">
+            <button type="button" onClick={copyLink} className="inline-flex h-8 items-center gap-1.5 rounded-md border border-border bg-surface px-2.5 text-xs text-foreground-secondary hover:border-border-strong hover:text-foreground">
+              {shared ? <Check className="h-3.5 w-3.5 text-success" /> : <Link className="h-3.5 w-3.5" />}{shared ? 'Copied' : 'Share'}
             </button>
-            <button
-              type="button"
-              onClick={handleCopy}
-              className="px-2.5 py-1 text-xs font-medium font-mono text-accent hover:text-accent-hover bg-accent-subtle/40 border border-accent/30 rounded transition-colors flex items-center gap-1.5 cursor-pointer"
-            >
-              {copied ? <Check className="w-3.5 h-3.5 text-success" /> : <Copy className="w-3.5 h-3.5" />}
-              <span>{copied ? 'Copied!' : 'Copy Result'}</span>
+            <button type="button" onClick={copyResult} className="inline-flex h-8 items-center gap-1.5 rounded-md bg-accent px-2.5 text-xs font-medium text-accent-foreground hover:bg-accent-hover">
+              {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}{copied ? 'Copied' : 'Copy'}
             </button>
           </div>
-        </div>
-
-        {/* Result Body */}
-        <div className="p-5 space-y-2">
-          <p className="text-2xl sm:text-3xl font-bold font-mono text-foreground tracking-tight">
-            {formattedResult}
-          </p>
-          {formula && (
-            <p className="text-xs font-mono text-foreground-muted">
-              Formula: <span className="text-foreground">{formula}</span>
-            </p>
-          )}
-          {steps && (
-            <p className="text-xs font-mono text-foreground-muted">
-              Step: <span className="text-accent font-semibold">{steps}</span>
-            </p>
-          )}
         </div>
       </div>
     </div>

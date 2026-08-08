@@ -1,121 +1,56 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
-import { getNamespaceSlug, getToolSlug, getNamespaceUrl, getToolUrl } from '@/lib/routing';
+import { getNamespaceSlug, getToolSlug, getToolUrl } from '@/lib/routing';
 import { DashboardIsland } from '@/components/site/DashboardIsland';
 
-const namespaces = await getCollection('namespaces');
-const allToolsCollection = await getCollection('tools');
+const namespaces = (await getCollection('namespaces'))
+  .sort((a, b) => (a.data.order || 100) - (b.data.order || 100));
+const toolEntries = (await getCollection('tools')).filter((entry) => entry.data.status === 'published');
 
-const publishedTools = allToolsCollection
-  .filter((e) => e.data.status === 'published')
-  .map((e) => {
-    const ns = getNamespaceSlug(e);
-    const sl = getToolSlug(e);
-    return {
-      id: e.data.id || sl,
-      name: e.data.name,
-      namespace: ns,
-      slug: sl,
-      summary: e.data.summary,
-      featured: e.data.featured,
-      url: getToolUrl(ns, sl),
-    };
-  });
-
-const sortedNamespaces = namespaces.sort((a, b) => (a.data.order || 100) - (b.data.order || 100));
-
-const groups = Array.from(new Set(sortedNamespaces.map((n) => n.data.group))).map((groupKey) => {
-  const groupItems = sortedNamespaces.filter((n) => n.data.group === groupKey);
-  const groupLabel = groupItems[0]?.data.groupLabel || groupKey.charAt(0).toUpperCase() + groupKey.slice(1);
+const publishedTools = toolEntries.map((entry) => {
+  const namespace = getNamespaceSlug(entry);
+  const slug = getToolSlug(entry);
   return {
-    key: groupKey,
-    label: groupLabel,
-    namespaces: groupItems,
+    id: entry.data.id || `${namespace}/${slug}`,
+    name: entry.data.name,
+    namespace,
+    slug,
+    summary: entry.data.summary,
+    featured: entry.data.featured,
+    dashboardOrder: entry.data.dashboardOrder,
+    url: getToolUrl(namespace, slug),
+  };
+});
+
+const collections = namespaces.map((namespace) => {
+  const slug = getNamespaceSlug(namespace);
+  return {
+    slug,
+    name: namespace.data.name,
+    summary: namespace.data.summary,
+    toolCount: publishedTools.filter((tool) => tool.namespace === slug).length,
   };
 });
 ---
 
 <BaseLayout
-  title="ShadTools – Instant Browser Utilities"
+  title="ShadTools - Instant Browser Utilities"
   description="Fast, free, privacy-first browser utilities. Format JSON, convert units, compare text, and generate hashes instantly."
   canonicalUrl="https://shadtools.com"
 >
-  <div class="max-w-[1120px] mx-auto px-4 sm:px-6 py-6 space-y-8" data-pagefind-body>
-    
-    <!-- Clean Header & Command Trigger Launcher -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
-      <div class="space-y-1">
-        <h1 class="text-2xl font-bold text-foreground tracking-tight flex items-center gap-2">
-          <span>SHADTOOLS</span>
-          <span class="text-xs px-2 py-0.5 rounded bg-accent/10 text-accent font-mono font-medium">v1.0</span>
-        </h1>
-        <p class="text-xs text-foreground-secondary font-mono">
-          Instant, privacy-first utilities in your browser memory.
-        </p>
-      </div>
-
-      <!-- Quick Command Search Trigger Button (Raycast style) -->
-      <button
-        type="button"
-        onclick="document.getElementById('cmd-k-trigger')?.click()"
-        class="flex items-center justify-between gap-3 px-4 py-2 bg-surface border border-border hover:border-border-strong rounded-lg text-xs font-mono text-foreground-muted hover:text-foreground shadow-xs transition-colors w-full sm:w-72"
-      >
-        <span class="flex items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-foreground-secondary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-          <span>Search tools...</span>
-        </span>
-        <kbd class="px-1.5 py-0.5 bg-surface-subtle border border-border rounded text-[10px] text-foreground-muted">⌘K</kbd>
-      </button>
+  <div class="mx-auto max-w-[1180px] px-4 py-7 sm:px-6 sm:py-9" data-pagefind-body>
+    <div class="mb-9 max-w-2xl">
+      <p class="mb-2 text-xs font-semibold uppercase text-accent">Personal utility workspace</p>
+      <h1 class="text-2xl font-semibold leading-tight text-foreground sm:text-3xl">Everything you need, ready when you are.</h1>
+      <p class="mt-2 text-sm leading-6 text-foreground-secondary">Fast browser tools for data, text, images, conversions, and everyday calculations.</p>
     </div>
 
-    <!-- Personalized App Launcher Dashboard -->
-    <section>
-      <DashboardIsland client:load allTools={publishedTools} />
-    </section>
+    <DashboardIsland client:load allTools={publishedTools} collections={collections} />
 
-    <!-- Explore by Tool Collections & Categories -->
-    <section class="space-y-4 pt-4 border-t border-border">
-      <h2 class="text-xs font-semibold text-foreground-muted uppercase tracking-wider font-mono">
-        EXPLORE BY CATEGORY
-      </h2>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {groups.map((grp) => (
-          <div class="space-y-3">
-            <h3 class="text-xs font-semibold text-foreground-muted uppercase tracking-wider font-sans border-b border-border pb-1.5">
-              {grp.label}
-            </h3>
-            <div class="space-y-2">
-              {grp.namespaces.map((ns) => {
-                const nsSlug = getNamespaceSlug(ns);
-                return (
-                  <a
-                    href={getNamespaceUrl(nsSlug)}
-                    class="block p-3 rounded-md bg-surface border border-border hover:border-accent/40 hover:bg-surface-subtle transition-all group"
-                  >
-                    <div class="flex items-center justify-between">
-                      <span class="font-medium text-sm text-foreground group-hover:text-accent transition-colors">{ns.data.name}</span>
-                      <span class="text-xs text-foreground-muted group-hover:translate-x-0.5 transition-transform">→</span>
-                    </div>
-                    <p class="text-xs text-foreground-secondary mt-1 line-clamp-1">{ns.data.summary}</p>
-                  </a>
-                );
-              })}
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-
-    <!-- Client-Side Privacy Guarantee -->
-    <section class="p-3.5 rounded-lg bg-surface-subtle border border-border text-xs flex items-center justify-between gap-4">
-      <div class="flex items-center gap-2 text-foreground-secondary">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-success shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
-        <span>Zero server tracking. 100% client-side local calculation.</span>
-      </div>
-      <a href="/privacy" class="text-accent hover:underline font-mono font-medium shrink-0">Privacy Details →</a>
-    </section>
-
+    <div class="mt-10 flex flex-col gap-2 border-t border-border py-5 text-xs text-foreground-muted sm:flex-row sm:items-center sm:justify-between">
+      <p>Most tools run entirely in your browser. Your inputs stay on your device.</p>
+      <a href="/privacy" class="font-medium text-foreground-secondary hover:text-accent">Read the privacy policy</a>
+    </div>
   </div>
 </BaseLayout>

@@ -1,7 +1,11 @@
 ---
 import MetaHead from '@/components/seo/MetaHead.astro';
-import Header from '@/components/site/Header.astro';
+import { getCollection } from 'astro:content';
+import { getNamespaceSlug, getToolSlug, getToolUrl } from '@/lib/routing';
+import { AppChrome } from '@/components/site/AppChrome';
 import Footer from '@/components/site/Footer.astro';
+import '@fontsource-variable/inter';
+import '@fontsource-variable/jetbrains-mono';
 import '../styles/global.css';
 
 export interface Props {
@@ -11,6 +15,7 @@ export interface Props {
   ogImage?: string;
   keywords?: string[];
   noindex?: boolean;
+  hideFooter?: boolean;
 }
 
 const {
@@ -20,7 +25,27 @@ const {
   ogImage,
   keywords,
   noindex,
+  hideFooter = false,
 } = Astro.props;
+
+const namespaces = (await getCollection('namespaces'))
+  .sort((a, b) => (a.data.order || 100) - (b.data.order || 100))
+  .map((namespace) => ({ name: namespace.data.name, slug: getNamespaceSlug(namespace) }));
+
+const tools = (await getCollection('tools'))
+  .filter((tool) => tool.data.status === 'published')
+  .map((tool) => {
+    const namespace = getNamespaceSlug(tool);
+    const slug = getToolSlug(tool);
+    return {
+      id: tool.data.id || tool.slug,
+      name: tool.data.name,
+      namespace,
+      summary: tool.data.summary,
+      url: getToolUrl(namespace, slug),
+      searchWeight: tool.data.featured ? 10 : 1,
+    };
+  });
 ---
 
 <!DOCTYPE html>
@@ -45,11 +70,13 @@ const {
       noindex={noindex}
     />
   </head>
-  <body class="flex flex-col min-h-screen bg-background text-foreground selection:bg-accent-subtle selection:text-accent">
-    <Header />
-    <main class="flex-grow">
-      <slot />
-    </main>
-    <Footer />
+  <body class="min-h-screen bg-background text-foreground">
+    <AppChrome client:load namespaces={namespaces} tools={tools} currentPath={Astro.url.pathname} />
+    <div class="min-h-screen pt-16 lg:pl-[236px]">
+      <main class="min-h-[calc(100vh-4rem)]">
+        <slot />
+      </main>
+      {!hideFooter && <Footer />}
+    </div>
   </body>
 </html>

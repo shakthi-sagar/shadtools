@@ -34,7 +34,7 @@ export const FileDropzone: React.FC<FileDropzoneProps> = ({
       onDrop={handleDrop}
       onDragOver={handleDragOver}
       onClick={() => inputRef.current?.click()}
-      className="p-8 sm:p-12 border-2 border-dashed border-border hover:border-border-strong rounded-lg bg-surface-subtle/30 text-center cursor-pointer transition-colors space-y-3 group"
+      className="group cursor-pointer space-y-3 rounded-lg border border-dashed border-border bg-surface-subtle/40 p-8 text-center transition-colors hover:border-accent/60 hover:bg-surface-subtle sm:p-12"
     >
       <input
         ref={inputRef}
@@ -43,7 +43,7 @@ export const FileDropzone: React.FC<FileDropzoneProps> = ({
         onChange={(e) => e.target.files?.[0] && onFileSelect(e.target.files[0])}
         className="hidden"
       />
-      <div className="w-10 h-10 mx-auto rounded-md bg-surface-subtle border border-border flex items-center justify-center text-foreground-secondary group-hover:text-primary group-hover:border-primary/40 transition-colors">
+      <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-md border border-border bg-surface text-foreground-secondary transition-colors group-hover:border-accent/40 group-hover:text-primary">
         <UploadCloud className="w-5 h-5" />
       </div>
       <div className="space-y-1">

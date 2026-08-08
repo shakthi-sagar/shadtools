@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { X } from 'lucide-react';
 
 export interface DialogProps {
   isOpen: boolean;
@@ -111,7 +112,7 @@ export const Dialog: React.FC<DialogProps> = ({
         aria-modal="true"
         aria-labelledby="dialog-title"
         aria-describedby={description ? 'dialog-description' : undefined}
-        className={`relative z-10 w-full max-w-lg rounded-lg bg-surface-raised border border-border p-6 shadow-dialog focus:outline-none ${className}`}
+        className={`relative z-10 w-full max-w-lg overflow-hidden rounded-lg border border-border bg-surface-raised p-5 shadow-dialog focus:outline-none ${className}`}
       >
         <div className="flex items-start justify-between mb-4">
           <div>
@@ -129,9 +130,7 @@ export const Dialog: React.FC<DialogProps> = ({
             aria-label="Close dialog"
             className="rounded-md p-1 text-foreground-muted hover:text-foreground hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-focus"
           >
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <X className="h-4 w-4" />
           </button>
         </div>
 

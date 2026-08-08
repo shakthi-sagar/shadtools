@@ -26,41 +26,29 @@ export const CodeEditorPane: React.FC<CodeEditorPaneProps> = ({
   minHeightClass = 'min-h-[160px]',
   autoFocus = false,
   showCharCount = true,
-}) => {
-  return (
-    <div className="flex flex-col flex-1 bg-surface">
-      {/* Pane Header Strip */}
-      <div className="h-9 px-4 bg-surface-subtle/80 border-b border-border flex items-center justify-between shrink-0">
-        <span className="text-[11px] font-bold text-foreground-secondary uppercase tracking-wider font-mono flex items-center gap-1.5">
-          {icon}
-          {label}
-        </span>
-        <div className="flex items-center gap-2">
-          {showCharCount && (
-            <span className="text-[11px] font-mono font-medium text-foreground-muted">
-              {value.length} characters
-            </span>
-          )}
-          {actions}
-        </div>
+}) => (
+  <div className="flex min-w-0 flex-1 flex-col bg-surface">
+    <div className="flex h-10 shrink-0 items-center justify-between border-b border-border bg-surface-subtle px-4">
+      <span className="flex items-center gap-1.5 text-[10px] font-semibold uppercase text-foreground-secondary">
+        {icon}{label}
+      </span>
+      <div className="flex items-center gap-2">
+        {showCharCount && <span className="text-[10px] font-mono text-foreground-muted">{value.length} chars</span>}
+        {actions}
       </div>
-
-      {/* Editor Body or Error Message */}
-      {error ? (
-        <div className="p-4 text-xs font-mono text-danger bg-danger/5 flex-1 leading-relaxed border-l-2 border-danger">
-          ⚠️ {error}
-        </div>
-      ) : (
-        <textarea
-          value={value}
-          onChange={(e) => onChange && onChange(e.target.value)}
-          readOnly={readOnly}
-          placeholder={placeholder}
-          aria-label={label}
-          autoFocus={autoFocus}
-          className={`flex-1 w-full p-4 bg-surface-input text-foreground font-mono text-xs leading-relaxed outline-none ring-0 focus:outline-none focus:ring-0 focus:border-none focus:bg-surface-input resize-none border-none shadow-none ${minHeightClass} transition-colors`}
-        />
-      )}
     </div>
-  );
-};
+    {error ? (
+      <div className="flex-1 border-l-2 border-danger bg-danger/5 p-4 font-mono text-xs leading-6 text-danger">{error}</div>
+    ) : (
+      <textarea
+        value={value}
+        onChange={(event) => onChange?.(event.target.value)}
+        readOnly={readOnly}
+        placeholder={placeholder}
+        aria-label={label}
+        autoFocus={autoFocus}
+        className={`w-full flex-1 resize-none border-none bg-surface-input p-4 font-mono text-xs leading-6 text-foreground shadow-none outline-none placeholder:text-foreground-muted focus:bg-surface-input focus:outline-none focus:ring-0 ${minHeightClass}`}
+      />
+    )}
+  </div>
+);

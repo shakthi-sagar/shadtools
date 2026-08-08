@@ -1,8 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { Pin, PinOff, RotateCcw, ArrowUp, ArrowDown, Clock, Star, Plus, Settings2, Check } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import React, { useEffect, useMemo, useState } from 'react';
+import {
+  ArrowRight,
+  Check,
+  Clock3,
+  LayoutGrid,
+  ListFilter,
+  RotateCcw,
+  Settings2,
+  Star,
+} from 'lucide-react';
 import { getDashboardState, saveDashboardState } from '@/lib/dashboard-store';
 import { ToolPickerModal } from '@/components/site/ToolPickerModal';
+import { getNamespaceVisual } from '@/components/site/tool-visuals';
 import { track } from '@/lib/analytics';
 
 export interface ToolItem {
@@ -13,265 +22,278 @@ export interface ToolItem {
   summary: string;
   featured?: boolean;
   dashboardOrder?: number;
-  icon?: string;
   url: string;
 }
 
-export interface DashboardIslandProps {
-  allTools: ToolItem[];
+export interface ToolCollection {
+  slug: string;
+  name: string;
+  summary: string;
+  toolCount: number;
 }
 
-export const DashboardIsland: React.FC<DashboardIslandProps> = ({ allTools = [] }) => {
-  const [pinnedIds, setPinnedIds] = useState<string[]>([]);
-  const [recentIds, setRecentIds] = useState<string[]>([]);
-  const [isLoaded, setIsLoaded] = useState<boolean>(false);
-  const [isCustomizeMode, setIsCustomizeMode] = useState<boolean>(false);
-  const [isPickerOpen, setIsPickerOpen] = useState<boolean>(false);
+interface DashboardIslandProps {
+  allTools: ToolItem[];
+  collections: ToolCollection[];
+}
 
-  // Compute default fallback tools (sorted by dashboardOrder || 100)
-  const sortedDefaultTools = [...allTools]
-    .filter((t) => t.featured || (t.dashboardOrder && t.dashboardOrder < 100))
-    .sort((a, b) => (a.dashboardOrder || 100) - (b.dashboardOrder || 100));
+const preferredQuickAccess = [
+  'json/formatter',
+  'base64/encode',
+  'images/compress',
+  'units/length',
+  'crypto/hash',
+  'percentage/calculator',
+];
 
-  const defaultPinnedIds = (
-    sortedDefaultTools.length > 0 ? sortedDefaultTools : allTools.slice(0, 4)
-  ).map((t) => t.id);
+const firstVisitRecents = ['text/word-counter', 'units/time', 'json/validator', 'crypto/uuid'];
 
-  useEffect(() => {
-    const storedState = getDashboardState();
-    if (storedState) {
-      const validPinned = storedState.pinnedToolIds.filter((id) => allTools.some((t) => t.id === id));
-      const validRecent = storedState.recentToolIds.filter((id) => allTools.some((t) => t.id === id));
-      setPinnedIds(validPinned.length > 0 ? validPinned : defaultPinnedIds);
-      setRecentIds(validRecent);
-    } else {
-      setPinnedIds(defaultPinnedIds);
-      setRecentIds([]);
-    }
-    setIsLoaded(true);
+function quickLabel(name: string) {
+  return name
+    .replace('JSON Formatter & Validator', 'JSON Formatter')
+    .replace('Base64 Encoder & Decoder', 'Base64 Encoder')
+    .replace('Length Unit Converter', 'Length Converter');
+}
+
+export const DashboardIsland: React.FC<DashboardIslandProps> = ({ allTools, collections }) => {
+  const defaultIds = useMemo(() => {
+    const preferred = preferredQuickAccess.filter((id) => allTools.some((tool) => tool.id === id));
+    const fallback = allTools
+      .filter((tool) => tool.featured && !preferred.includes(tool.id))
+      .sort((a, b) => (a.dashboardOrder || 100) - (b.dashboardOrder || 100))
+      .map((tool) => tool.id);
+    return [...preferred, ...fallback].slice(0, 6);
   }, [allTools]);
 
-  const updateState = (pins: string[], recents: string[]) => {
+  const [pinnedIds, setPinnedIds] = useState(defaultIds);
+  const [recentIds, setRecentIds] = useState<string[]>([]);
+  const [customizing, setCustomizing] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [browseMode, setBrowseMode] = useState<'category' | 'az'>('category');
+
+  useEffect(() => {
+    const state = getDashboardState();
+    if (!state) return;
+    const validPinned = state.pinnedToolIds.filter((id) => allTools.some((tool) => tool.id === id));
+    const validRecent = state.recentToolIds.filter((id) => allTools.some((tool) => tool.id === id));
+    setPinnedIds(validPinned.length ? validPinned.slice(0, 6) : defaultIds);
+    setRecentIds(validRecent);
+  }, [allTools, defaultIds]);
+
+  const persist = (pins: string[], recents = recentIds) => {
     setPinnedIds(pins);
     setRecentIds(recents);
     saveDashboardState(pins, recents);
   };
 
   const togglePin = (toolId: string) => {
-    const isPinned = pinnedIds.includes(toolId);
-    if (isPinned) {
-      track('dashboard_unpin', { tool_key: toolId });
-    } else {
-      track('dashboard_pin', { tool_key: toolId });
-    }
-    const newPins = isPinned
-      ? pinnedIds.filter((id) => id !== toolId)
-      : [...pinnedIds, toolId];
-    updateState(newPins, recentIds);
+    const pinned = pinnedIds.includes(toolId);
+    track(pinned ? 'dashboard_unpin' : 'dashboard_pin', { tool_key: toolId });
+    if (pinned) persist(pinnedIds.filter((id) => id !== toolId));
+    else if (pinnedIds.length < 6) persist([...pinnedIds, toolId]);
   };
 
-  const movePinned = (index: number, direction: 'up' | 'down') => {
-    const targetIndex = direction === 'up' ? index - 1 : index + 1;
-    if (targetIndex < 0 || targetIndex >= pinnedIds.length) return;
-    const newPins = [...pinnedIds];
-    const temp = newPins[index];
-    newPins[index] = newPins[targetIndex];
-    newPins[targetIndex] = temp;
-    updateState(newPins, recentIds);
-  };
+  const quickTools = pinnedIds
+    .map((id) => allTools.find((tool) => tool.id === id))
+    .filter((tool): tool is ToolItem => Boolean(tool));
 
-  const resetDefaults = () => {
-    updateState(defaultPinnedIds, []);
-    setIsCustomizeMode(false);
-  };
+  const actualRecents = recentIds
+    .map((id) => allTools.find((tool) => tool.id === id))
+    .filter((tool): tool is ToolItem => Boolean(tool));
+  const suggestedRecents = firstVisitRecents
+    .map((id) => allTools.find((tool) => tool.id === id))
+    .filter((tool): tool is ToolItem => Boolean(tool));
+  const recentTools = (actualRecents.length ? actualRecents : suggestedRecents).slice(0, 4);
 
-  const pinnedToolItems = pinnedIds
-    .map((id) => allTools.find((t) => t.id === id))
-    .filter((t): t is ToolItem => Boolean(t));
-
-  const recentToolItems = recentIds
-    .map((id) => allTools.find((t) => t.id === id))
-    .filter((t): t is ToolItem => Boolean(t) && !pinnedIds.includes(t!.id));
-
-  if (!isLoaded) {
-    return (
-      <div className="p-6 rounded-lg bg-surface border border-border space-y-4">
-        <div className="h-6 w-36 bg-surface-subtle animate-pulse rounded" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {[1, 2, 3, 4].map((n) => (
-            <div key={n} className="h-24 bg-surface-subtle animate-pulse rounded-lg" />
-          ))}
-        </div>
-      </div>
-    );
-  }
+  const sortedTools = [...allTools].sort((a, b) => a.name.localeCompare(b.name));
 
   return (
-    <div className="space-y-6">
-      {/* Section Header Controls */}
-      <div className="flex items-center justify-between flex-wrap gap-2">
-        <div className="flex items-center gap-2">
-          <Star className="w-4 h-4 text-accent" />
-          <h2 className="text-lg font-bold text-foreground tracking-tight">Your Toolbox</h2>
-          <span className="text-[11px] text-foreground-muted bg-surface-subtle px-2 py-0.5 rounded border border-border">
-            Local-First
-          </span>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => setIsPickerOpen(true)}
-            leftIcon={<Plus className="w-3.5 h-3.5" />}
-          >
-            Add Tools
-          </Button>
-
-          <Button
-            variant={isCustomizeMode ? 'primary' : 'ghost'}
-            size="sm"
-            onClick={() => setIsCustomizeMode(!isCustomizeMode)}
-            leftIcon={isCustomizeMode ? <Check className="w-3.5 h-3.5" /> : <Settings2 className="w-3.5 h-3.5" />}
-          >
-            {isCustomizeMode ? 'Done' : 'Customize'}
-          </Button>
-
-          {isCustomizeMode && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={resetDefaults}
-              title="Reset to default pinned tools"
-              leftIcon={<RotateCcw className="w-3.5 h-3.5" />}
-            >
-              Reset
-            </Button>
-          )}
-        </div>
-      </div>
-
-      {/* Pinned Tools Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        {pinnedToolItems.map((tool, idx) => {
-          if (isCustomizeMode) {
-            // CUSTOMIZE MODE TILE
-            return (
-              <div
-                key={tool.id}
-                className="p-3.5 rounded-lg bg-surface border border-accent/40 shadow-xs flex items-center justify-between gap-2"
-              >
-                <div className="min-w-0 flex-1">
-                  <span className="text-[10px] font-semibold text-accent uppercase tracking-wider block">
-                    {tool.namespace}
-                  </span>
-                  <p className="text-xs font-semibold text-foreground truncate">{tool.name}</p>
-                </div>
-
-                <div className="flex items-center gap-1 shrink-0">
-                  {/* Keyboard Reorder Up/Left */}
-                  {idx > 0 && (
-                    <button
-                      onClick={() => movePinned(idx, 'up')}
-                      aria-label={`Move ${tool.name} left`}
-                      title="Move left"
-                      className="p-1.5 rounded bg-surface-subtle hover:bg-surface border border-border text-foreground-secondary hover:text-foreground focus-visible:outline-2 focus-visible:outline-focus"
-                    >
-                      <ArrowUp className="w-3.5 h-3.5 rotate-270" />
-                    </button>
-                  )}
-                  {/* Keyboard Reorder Down/Right */}
-                  {idx < pinnedToolItems.length - 1 && (
-                    <button
-                      onClick={() => movePinned(idx, 'down')}
-                      aria-label={`Move ${tool.name} right`}
-                      title="Move right"
-                      className="p-1.5 rounded bg-surface-subtle hover:bg-surface border border-border text-foreground-secondary hover:text-foreground focus-visible:outline-2 focus-visible:outline-focus"
-                    >
-                      <ArrowDown className="w-3.5 h-3.5 rotate-270" />
-                    </button>
-                  )}
-                  {/* Unpin Action */}
-                  <button
-                    onClick={() => togglePin(tool.id)}
-                    aria-label={`Unpin ${tool.name}`}
-                    title="Unpin tool"
-                    className="p-1.5 rounded bg-danger/10 text-danger hover:bg-danger/20 focus-visible:outline-2 focus-visible:outline-focus"
-                  >
-                    <PinOff className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </div>
-            );
-          }
-
-          // NORMAL MODE TILE: Single Clean Launch Block Target
-          return (
-            <a
-              key={tool.id}
-              href={tool.url}
-              className="group p-4 rounded-lg bg-surface border border-border hover:border-border-strong hover:bg-surface-subtle transition-all flex flex-col justify-between block space-y-2"
-            >
-              <div className="space-y-1">
-                <span className="text-[10px] font-semibold text-accent uppercase tracking-wider font-mono">
-                  {tool.namespace}
-                </span>
-                <h3 className="font-semibold text-foreground text-sm group-hover:text-accent transition-colors flex items-center justify-between">
-                  <span>{tool.name}</span>
-                  <span className="text-xs text-foreground-muted group-hover:text-accent transition-colors group-hover:translate-x-0.5 transition-transform">
-                    →
-                  </span>
-                </h3>
-                <p className="text-xs text-foreground-secondary line-clamp-2 leading-relaxed">
-                  {tool.summary}
-                </p>
-              </div>
-            </a>
-          );
-        })}
-      </div>
-
-      {/* Recently Used Tools Row (if any) */}
-      {recentToolItems.length > 0 && (
-        <div className="space-y-3 pt-2 border-t border-border">
-          <div className="flex items-center gap-2 text-xs font-semibold text-foreground-muted uppercase tracking-wider">
-            <Clock className="w-3.5 h-3.5" />
-            <span>Recently Used</span>
+    <div className="space-y-10">
+      <div className="grid gap-8 xl:grid-cols-[minmax(0,2fr)_minmax(280px,0.8fr)] xl:gap-5">
+        <section id="quick-access" aria-labelledby="quick-access-heading" className="scroll-mt-24">
+        <div className="mb-3 flex min-h-9 flex-wrap items-center justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <Star className="h-4 w-4 text-warning" />
+              <h2 id="quick-access-heading" className="text-sm font-semibold text-foreground">Quick access</h2>
+              <span className="text-xs text-foreground-muted">{quickTools.length}/6</span>
+            </div>
+            <p className="mt-1 text-xs text-foreground-muted">Your everyday tools, stored on this device.</p>
           </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            {recentToolItems.slice(0, 4).map((tool) => (
-              <div
-                key={tool.id}
-                className="p-3 rounded-lg bg-surface border border-border flex items-center justify-between"
+          <div className="flex items-center gap-2">
+            {customizing && (
+              <button
+                type="button"
+                onClick={() => persist(defaultIds, [])}
+                className="inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-xs text-foreground-muted hover:bg-surface-hover hover:text-foreground"
               >
-                <div className="min-w-0 pr-2">
-                  <a href={tool.url} className="text-xs font-semibold text-foreground hover:text-accent transition-colors block truncate">
-                    {tool.name}
-                  </a>
-                  <span className="text-[10px] text-foreground-muted uppercase font-mono">{tool.namespace}</span>
-                </div>
-                <button
-                  onClick={() => togglePin(tool.id)}
-                  aria-label={`Pin ${tool.name}`}
-                  title="Pin to dashboard"
-                  className="p-1.5 rounded hover:bg-surface-subtle text-foreground-muted hover:text-accent focus-visible:outline-2 focus-visible:outline-focus shrink-0"
+                <RotateCcw className="h-3.5 w-3.5" />
+                Reset
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => setCustomizing((value) => !value)}
+              className={`inline-flex h-8 items-center gap-1.5 rounded-md border px-2.5 text-xs font-medium ${customizing ? 'border-accent bg-accent text-accent-foreground' : 'border-border bg-surface text-foreground-secondary hover:border-border-strong hover:text-foreground'}`}
+            >
+              {customizing ? <Check className="h-3.5 w-3.5" /> : <Settings2 className="h-3.5 w-3.5" />}
+              {customizing ? 'Done' : 'Customize'}
+            </button>
+          </div>
+        </div>
+
+        <div className="overflow-hidden rounded-lg border border-border bg-surface">
+          <div className="grid sm:grid-cols-2 xl:grid-cols-3">
+            {quickTools.map((tool, index) => {
+              const visual = getNamespaceVisual(tool.namespace);
+              const Icon = visual.icon;
+              return (
+                <div
+                  key={tool.id}
+                  className={`group relative min-h-[112px] border-b border-border p-4 last:border-b-0 sm:min-h-[126px] sm:p-5 ${index % 3 !== 2 ? 'xl:border-r' : ''} ${index < 3 ? 'xl:border-b' : ''} ${index % 2 === 0 ? 'sm:border-r xl:border-r' : ''} ${index < 4 ? 'sm:border-b xl:border-b-0' : ''}`}
                 >
-                  <Pin className="w-3.5 h-3.5" />
-                </button>
-              </div>
+                  <a href={tool.url} className="absolute inset-0" aria-label={`Open ${tool.name}`} />
+                  <div className="relative flex items-start gap-3 pointer-events-none">
+                    <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-md ${visual.soft} ${visual.color}`}>
+                      <Icon className="h-[18px] w-[18px]" />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-3">
+                        <h3 className="truncate text-sm font-semibold text-foreground">{quickLabel(tool.name)}</h3>
+                        <ArrowRight className="h-3.5 w-3.5 text-foreground-muted transition-transform group-hover:translate-x-0.5 group-hover:text-foreground" />
+                      </div>
+                      <p className="mt-1.5 line-clamp-2 text-xs leading-5 text-foreground-muted">{tool.summary}</p>
+                    </div>
+                  </div>
+                  {customizing && (
+                    <button
+                      type="button"
+                      onClick={() => togglePin(tool.id)}
+                      className="absolute bottom-3 right-3 z-10 rounded-md border border-border bg-surface-raised px-2 py-1 text-[11px] text-danger hover:border-danger/50"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+            {quickTools.length < 6 && (
+              <button
+                type="button"
+                onClick={() => setPickerOpen(true)}
+                className="min-h-[126px] border-border p-5 text-left text-sm text-foreground-muted hover:bg-surface-subtle hover:text-foreground"
+              >
+                Add a tool to quick access
+              </button>
+            )}
+          </div>
+        </div>
+        </section>
+
+        <section id="recent-tools" aria-labelledby="recent-heading" className="scroll-mt-24">
+        <div className="mb-3 flex items-end justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <Clock3 className="h-4 w-4 text-foreground-muted" />
+              <h2 id="recent-heading" className="text-sm font-semibold text-foreground">
+                {actualRecents.length ? 'Recent' : 'Start here'}
+              </h2>
+            </div>
+            <p className="mt-1 text-xs text-foreground-muted">
+              {actualRecents.length ? 'The tools you opened most recently.' : 'A few useful tools beyond your quick access.'}
+            </p>
+          </div>
+        </div>
+        <div className="divide-y divide-border overflow-hidden rounded-lg border border-border bg-surface">
+          {recentTools.map((tool) => {
+            const visual = getNamespaceVisual(tool.namespace);
+            const Icon = visual.icon;
+            return (
+              <a key={tool.id} href={tool.url} className="group flex min-h-14 items-center gap-3 px-4 py-2.5 hover:bg-surface-subtle">
+                <Icon className={`h-4 w-4 shrink-0 ${visual.color}`} />
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-medium text-foreground">{tool.name}</span>
+                  <span className="block truncate text-xs text-foreground-muted">{tool.summary}</span>
+                </span>
+                <ArrowRight className="h-3.5 w-3.5 shrink-0 text-foreground-muted group-hover:text-foreground" />
+              </a>
+            );
+          })}
+        </div>
+        </section>
+      </div>
+
+      <section aria-labelledby="all-tools-heading">
+        <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 id="all-tools-heading" className="text-sm font-semibold text-foreground">All tools</h2>
+            <p className="mt-1 text-xs text-foreground-muted">Browse {allTools.length} utilities by category or name.</p>
+          </div>
+          <div className="flex rounded-md border border-border bg-surface p-0.5" aria-label="Tool browsing mode">
+            <button
+              type="button"
+              onClick={() => setBrowseMode('category')}
+              className={`inline-flex h-7 items-center gap-1.5 rounded px-2.5 text-xs ${browseMode === 'category' ? 'bg-surface-hover text-foreground' : 'text-foreground-muted'}`}
+            >
+              <LayoutGrid className="h-3.5 w-3.5" /> Categories
+            </button>
+            <button
+              type="button"
+              onClick={() => setBrowseMode('az')}
+              className={`inline-flex h-7 items-center gap-1.5 rounded px-2.5 text-xs ${browseMode === 'az' ? 'bg-surface-hover text-foreground' : 'text-foreground-muted'}`}
+            >
+              <ListFilter className="h-3.5 w-3.5" /> A-Z
+            </button>
+          </div>
+        </div>
+
+        {browseMode === 'category' ? (
+          <div className="divide-y divide-border overflow-hidden rounded-lg border border-border bg-surface">
+            {collections.map((collection) => {
+              const visual = getNamespaceVisual(collection.slug);
+              const Icon = visual.icon;
+              const tools = sortedTools.filter((tool) => tool.namespace === collection.slug);
+              return (
+                <div key={collection.slug} className="grid gap-3 px-4 py-4 md:grid-cols-[220px_1fr] md:px-5">
+                  <a href={`/${collection.slug}`} className="group flex items-start gap-3">
+                    <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-md ${visual.soft} ${visual.color}`}>
+                      <Icon className="h-4 w-4" />
+                    </span>
+                    <span>
+                      <span className="flex items-center gap-1.5 text-sm font-semibold text-foreground group-hover:text-accent">
+                        {collection.name}<ArrowRight className="h-3 w-3" />
+                      </span>
+                      <span className="mt-0.5 block text-xs text-foreground-muted">{collection.toolCount} tools</span>
+                    </span>
+                  </a>
+                  <div className="flex flex-wrap items-center gap-x-5 gap-y-2 md:justify-end">
+                    {tools.map((tool) => (
+                      <a key={tool.id} href={tool.url} className="text-xs text-foreground-secondary hover:text-accent">{tool.name}</a>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="grid overflow-hidden rounded-lg border border-border bg-surface sm:grid-cols-2 xl:grid-cols-3">
+            {sortedTools.map((tool) => (
+              <a key={tool.id} href={tool.url} className="flex min-h-12 items-center justify-between gap-3 border-b border-border px-4 text-sm text-foreground-secondary hover:bg-surface-subtle hover:text-foreground sm:border-r">
+                <span className="truncate">{tool.name}</span>
+                <ArrowRight className="h-3.5 w-3.5 shrink-0 text-foreground-muted" />
+              </a>
             ))}
           </div>
-        </div>
-      )}
+        )}
+      </section>
 
-      {/* Tool Picker Modal */}
       <ToolPickerModal
-        isOpen={isPickerOpen}
-        onClose={() => setIsPickerOpen(false)}
+        isOpen={pickerOpen}
+        onClose={() => setPickerOpen(false)}
         allTools={allTools}
         pinnedIds={pinnedIds}
         onTogglePin={togglePin}
+        limit={6}
       />
     </div>
   );
