@@ -6,25 +6,32 @@ export interface Props {
 }
 
 const { relatedTools } = Astro.props;
+
+const formatToolName = (toolId: string) => {
+  const slug = toolId.split('/').at(-1) || toolId;
+  return slug
+    .split('-')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
 ---
 
 {relatedTools && relatedTools.length > 0 && (
-  <section class="space-y-4">
-    <h2 class="text-xl font-bold text-foreground tracking-tight">Related Tools</h2>
-    <div class="divide-y divide-border border-y border-border">
-      {relatedTools.map((rel) => {
-        const parts = rel.split('/');
-        const relNs = parts[0];
-        const relSlug = parts.length > 1 ? parts[1] : parts[0];
+  <section class="space-y-3">
+    <h2 class="text-sm font-semibold text-foreground tracking-[-0.015em]">Related tools</h2>
+    <div class="divide-y divide-border border-t border-border">
+      {relatedTools.map((relatedTool) => {
+        const parts = relatedTool.split('/');
+        const relatedNamespace = parts[0];
+        const relatedSlug = parts.length > 1 ? parts[1] : parts[0];
+
         return (
           <a
-            href={getToolUrl(relNs, relSlug)}
-            class="py-3 flex items-center justify-between text-sm text-foreground hover:text-accent transition-colors group"
+            href={getToolUrl(relatedNamespace, relatedSlug)}
+            class="py-3 flex items-center justify-between gap-3 text-[13px] text-foreground-secondary hover:text-accent transition-colors group"
           >
-            <span class="font-medium">{rel}</span>
-            <span class="text-xs text-foreground-muted group-hover:text-accent group-hover:translate-x-1 transition-all">
-              →
-            </span>
+            <span class="font-medium">{formatToolName(relatedTool)}</span>
+            <span class="text-xs text-foreground-muted group-hover:text-accent group-hover:translate-x-0.5 transition-transform" aria-hidden="true">→</span>
           </a>
         );
       })}

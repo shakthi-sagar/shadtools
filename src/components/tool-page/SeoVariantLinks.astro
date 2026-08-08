@@ -1,0 +1,44 @@
+---
+import type { SeoSection } from '@/tools/tool-module';
+import { getVariantUrl, getToolUrl } from '@/lib/routing';
+
+export interface Props {
+  namespace: string;
+  toolSlug: string;
+  toolName: string;
+  sections?: SeoSection[];
+}
+
+const { namespace, toolSlug, toolName, sections = [] } = Astro.props;
+const linkSections = sections.filter((section) => section.type === 'links');
+---
+
+<div class="space-y-6">
+  {linkSections.map((section) => (
+    <section class="space-y-3">
+      <h2 class="text-sm font-semibold text-foreground">{section.title}</h2>
+      <div class="divide-y divide-border border-t border-border">
+        {section.links?.map((link) => (
+          <a
+            href={getVariantUrl(namespace, toolSlug, link.slug)}
+            class="group py-3 flex items-center justify-between gap-3 text-[13px] font-medium text-foreground-secondary hover:text-accent transition-colors"
+          >
+            <span>{link.label}</span>
+            <span class="group-hover:translate-x-0.5 transition-transform" aria-hidden="true">→</span>
+          </a>
+        ))}
+      </div>
+    </section>
+  ))}
+
+  <section class="pt-6 border-t border-border space-y-3">
+    <h2 class="text-sm font-semibold text-foreground">Full converter</h2>
+    <a
+      href={getToolUrl(namespace, toolSlug)}
+      class="group py-2 flex items-center justify-between gap-3 text-[13px] font-medium text-foreground-secondary hover:text-accent transition-colors"
+    >
+      <span>{toolName}</span>
+      <span class="group-hover:translate-x-0.5 transition-transform" aria-hidden="true">→</span>
+    </a>
+  </section>
+</div>

@@ -217,7 +217,11 @@ export const temperatureSeoProvider: SeoPageProvider<TempVariant> = {
     }
 
     const reversePair = { from: data.toId, to: data.fromId };
-    const otherPairs = CONVERSION_PAIRS.filter((p) => !(p.from === data.fromId && p.to === data.toId)).slice(0, 4);
+    const otherPairs = CONVERSION_PAIRS.filter(
+      (p) =>
+        !(p.from === data.fromId && p.to === data.toId) &&
+        !(p.from === data.toId && p.to === data.fromId)
+    ).slice(0, 4);
     const linkItems = [reversePair, ...otherPairs].map((p) => {
       const fm = getMeta(p.from);
       const tm = getMeta(p.to);

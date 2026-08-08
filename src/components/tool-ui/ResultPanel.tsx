@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { Check, Copy } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
 
 interface ResultPanelProps {
   label: string;
@@ -9,28 +11,34 @@ interface ResultPanelProps {
 export const ResultPanel: React.FC<ResultPanelProps> = ({ label, value, copyable = true }) => {
   const [copied, setCopied] = useState(false);
 
-  const handleCopy = () => {
+  const handleCopy = async () => {
     if (!value) return;
-    navigator.clipboard.writeText(value);
+    await navigator.clipboard.writeText(value);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   return (
-    <div className="space-y-2">
-      <div className="flex justify-between items-center text-xs font-semibold text-foreground-secondary">
-        <span>{label}</span>
+    <div className="rounded-lg bg-surface-subtle border border-border overflow-hidden">
+      <div className="min-h-10 px-4 py-2 border-b border-border/70 flex items-center justify-between gap-3">
+        <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-foreground-muted">
+          {label}
+        </span>
         {copyable && (
-          <button
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
             onClick={handleCopy}
             disabled={!value}
-            className="px-2.5 py-1 rounded-md bg-surface border border-border hover:bg-surface-subtle text-accent disabled:opacity-50 text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-focus cursor-pointer"
+            leftIcon={copied ? <Check className="w-3.5 h-3.5 text-success" /> : <Copy className="w-3.5 h-3.5" />}
+            className="h-7"
           >
-            {copied ? 'Copied ✓' : 'Copy'}
-          </button>
+            {copied ? 'Copied' : 'Copy result'}
+          </Button>
         )}
       </div>
-      <div className="p-4 rounded-md bg-surface-subtle border border-border font-mono text-lg font-bold text-accent break-all tabular-nums">
+      <div className="px-4 py-4 font-mono text-xl sm:text-2xl leading-tight font-medium text-accent break-words tabular-nums">
         {value || '—'}
       </div>
     </div>

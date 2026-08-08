@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { ArrowRightLeft, Check, Copy, Link as LinkIcon, Trash2 } from 'lucide-react';
 import { CodeEditorPane } from '@/components/tool-ui/CodeEditorPane';
-import { Copy, Check, Share2, ArrowRightLeft, Trash2 } from 'lucide-react';
+import { ToolFrame } from '@/components/tool-ui/ToolFrame';
+import { Button } from '@/components/ui/Button';
 
 export interface ModeOption {
   id: string;
@@ -14,7 +16,7 @@ export interface TwoPaneTransformProps {
   outputTitle?: string;
   input: string;
   output: string;
-  onInputChange: (val: string) => void;
+  onInputChange: (value: string) => void;
   error?: string | null;
   errorMessage?: string | null;
   placeholder?: string;
@@ -28,7 +30,7 @@ export interface TwoPaneTransformProps {
   actions?: React.ReactNode;
   onClear?: () => void;
   onSwap?: () => void;
-  onCopyStateUrl?: () => void;
+  onCopyStateUrl?: () => void | Promise<void>;
   onTransform?: () => void;
 }
 
@@ -61,118 +63,85 @@ export const TwoPaneTransform: React.FC<TwoPaneTransformProps> = ({
   const resolvedInputLabel = inputTitle || inputLabel || 'Input';
   const resolvedOutputLabel = outputTitle || outputLabel || 'Output';
   const resolvedError = errorMessage ?? error;
-  const resolvedInputPlaceholder = inputPlaceholder || placeholder || 'Type or paste content here...';
+  const resolvedInputPlaceholder = inputPlaceholder || placeholder || 'Type or paste content here…';
   const resolvedActiveMode = mode || activeMode;
+  const resolvedModes = modeOptions ?? modes?.map((item) => ({ id: item, label: item }));
 
-  const handleCopyOutput = () => {
-    navigator.clipboard.writeText(output);
+  const handleCopyOutput = async () => {
+    await navigator.clipboard.writeText(output);
     setCopiedOutput(true);
     setTimeout(() => setCopiedOutput(false), 2000);
   };
 
-  const handleCopyLink = () => {
+  const handleCopyLink = async () => {
     if (onCopyStateUrl) {
-      onCopyStateUrl();
+      await onCopyStateUrl();
     } else {
-      navigator.clipboard.writeText(window.location.href);
+      await navigator.clipboard.writeText(window.location.href);
     }
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
   };
 
   return (
-    <div className="space-y-4 max-w-[1120px] mx-auto">
-      {/* Top Action Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-surface p-3 rounded-lg border border-border">
-        {/* Mode Selector Tabs */}
-        {modeOptions && modeOptions.length > 0 && onModeChange ? (
-          <div className="flex items-center gap-1 bg-surface-subtle p-1 rounded-md border border-border">
-            {modeOptions.map((m) => (
+    <ToolFrame>
+      <div className="min-h-[50px] px-3 sm:px-4 py-2.5 bg-surface-subtle border-b border-border flex flex-wrap items-center justify-between gap-3">
+        {resolvedModes && resolvedModes.length > 0 && onModeChange ? (
+          <div className="inline-flex items-center gap-1 p-1 rounded-md bg-surface border border-border" aria-label="Transform mode">
+            {resolvedModes.map((item) => (
               <button
-                key={m.id}
+                key={item.id}
                 type="button"
-                onClick={() => onModeChange(m.id)}
-                className={`px-3 py-1 text-xs font-mono font-medium rounded transition-colors ${
-                  resolvedActiveMode === m.id
-                    ? 'bg-accent text-accent-foreground font-semibold shadow-sm'
-                    : 'text-foreground-secondary hover:text-foreground hover:bg-surface-hover'
+                onClick={() => onModeChange(item.id)}
+                aria-pressed={resolvedActiveMode === item.id}
+                className={`h-7 px-3 rounded text-xs font-medium transition-colors ${
+                  resolvedActiveMode === item.id
+                    ? 'bg-action text-action-foreground shadow-sm'
+                    : 'text-foreground-secondary hover:text-foreground hover:bg-surface-subtle'
                 }`}
               >
-                {m.label}
-              </button>
-            ))}
-          </div>
-        ) : modes && modes.length > 0 && onModeChange ? (
-          <div className="flex items-center gap-1 bg-surface-subtle p-1 rounded-md border border-border">
-            {modes.map((m) => (
-              <button
-                key={m}
-                type="button"
-                onClick={() => onModeChange(m)}
-                className={`px-3 py-1 text-xs font-mono font-medium rounded transition-colors ${
-                  resolvedActiveMode === m
-                    ? 'bg-accent text-accent-foreground font-semibold shadow-sm'
-                    : 'text-foreground-secondary hover:text-foreground hover:bg-surface-hover'
-                }`}
-              >
-                {m}
+                {item.label}
               </button>
             ))}
           </div>
         ) : (
-          <div className="text-xs font-mono font-semibold text-foreground-secondary uppercase tracking-wider">
-            {resolvedInputLabel} → {resolvedOutputLabel}
+          <div className="flex items-center gap-2 text-[13px] font-semibold text-foreground">
+            <ArrowRightLeft className="w-4 h-4 text-accent" aria-hidden="true" />
+            <span>{resolvedInputLabel} to {resolvedOutputLabel}</span>
           </div>
         )}
 
-        {/* Action Controls */}
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {actions}
-
           {onSwap && (
-            <button
-              type="button"
-              onClick={onSwap}
-              className="px-2.5 py-1 text-xs font-mono text-foreground-secondary hover:text-foreground bg-surface-subtle border border-border rounded transition-colors flex items-center gap-1"
-              title="Swap Input & Output"
-            >
-              <ArrowRightLeft className="w-3.5 h-3.5" />
-              <span>Swap</span>
-            </button>
+            <Button type="button" variant="secondary" size="sm" onClick={onSwap} leftIcon={<ArrowRightLeft className="w-3.5 h-3.5" />}>
+              Swap
+            </Button>
           )}
-
           {onClear && (
-            <button
-              type="button"
-              onClick={onClear}
-              className="px-2.5 py-1 text-xs font-mono text-foreground-secondary hover:text-foreground bg-surface-subtle border border-border rounded transition-colors flex items-center gap-1"
-              title="Clear Input"
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-              <span>Clear</span>
-            </button>
+            <Button type="button" variant="secondary" size="sm" onClick={onClear} leftIcon={<Trash2 className="w-3.5 h-3.5" />}>
+              Clear
+            </Button>
           )}
-
-          <button
+          <Button
             type="button"
+            variant="secondary"
+            size="sm"
             onClick={handleCopyLink}
-            className="px-2.5 py-1 text-xs font-mono text-foreground-secondary hover:text-foreground bg-surface-subtle border border-border rounded transition-colors flex items-center gap-1"
-            title="Copy shareable URL"
+            leftIcon={copiedLink ? <Check className="w-3.5 h-3.5 text-success" /> : <LinkIcon className="w-3.5 h-3.5" />}
           >
-            {copiedLink ? <Check className="w-3.5 h-3.5 text-success" /> : <Share2 className="w-3.5 h-3.5" />}
-            <span>{copiedLink ? 'Link Copied' : 'Share'}</span>
-          </button>
+            {copiedLink ? 'Link copied' : 'Share'}
+          </Button>
         </div>
       </div>
 
-      {/* Dual Pane Editor Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border border-border rounded-lg overflow-hidden bg-surface">
+      <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border bg-surface">
         <CodeEditorPane
           label={resolvedInputLabel}
           value={input}
           onChange={onInputChange}
           placeholder={resolvedInputPlaceholder}
-          minHeightClass="min-h-[240px]"
+          minHeightClass="min-h-[280px]"
         />
 
         <CodeEditorPane
@@ -181,20 +150,20 @@ export const TwoPaneTransform: React.FC<TwoPaneTransformProps> = ({
           readOnly
           error={resolvedError}
           placeholder={outputPlaceholder}
-          minHeightClass="min-h-[240px]"
+          minHeightClass="min-h-[280px]"
           actions={
             <button
               type="button"
               onClick={handleCopyOutput}
               disabled={!output || !!resolvedError}
-              className="px-2 py-0.5 text-xs font-mono text-accent hover:text-accent-hover disabled:opacity-40 flex items-center gap-1"
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-accent hover:text-accent-hover disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
-              {copiedOutput ? <Check className="w-3 h-3 text-success" /> : <Copy className="w-3 h-3" />}
+              {copiedOutput ? <Check className="w-3.5 h-3.5 text-success" /> : <Copy className="w-3.5 h-3.5" />}
               <span>{copiedOutput ? 'Copied' : 'Copy'}</span>
             </button>
           }
         />
       </div>
-    </div>
+    </ToolFrame>
   );
 };

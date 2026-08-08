@@ -1,4 +1,5 @@
 import React from 'react';
+import { AlertCircle } from 'lucide-react';
 
 export interface CodeEditorPaneProps {
   label: string;
@@ -23,42 +24,41 @@ export const CodeEditorPane: React.FC<CodeEditorPaneProps> = ({
   actions,
   icon,
   error,
-  minHeightClass = 'min-h-[160px]',
+  minHeightClass = 'min-h-[220px]',
   autoFocus = false,
   showCharCount = true,
 }) => {
   return (
-    <div className="flex flex-col flex-1 bg-surface">
-      {/* Pane Header Strip */}
-      <div className="h-9 px-4 bg-surface-subtle/80 border-b border-border flex items-center justify-between shrink-0">
-        <span className="text-[11px] font-bold text-foreground-secondary uppercase tracking-wider font-mono flex items-center gap-1.5">
+    <div className="flex flex-col flex-1 min-w-0 bg-surface">
+      <div className="min-h-10 px-4 py-2 bg-surface-subtle/70 border-b border-border flex items-center justify-between gap-3 shrink-0">
+        <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
           {icon}
           {label}
         </span>
         <div className="flex items-center gap-2">
           {showCharCount && (
-            <span className="text-[11px] font-mono font-medium text-foreground-muted">
-              {value.length} characters
+            <span className="text-[11px] tabular-nums text-foreground-muted">
+              {value.length.toLocaleString()} chars
             </span>
           )}
           {actions}
         </div>
       </div>
 
-      {/* Editor Body or Error Message */}
       {error ? (
-        <div className="p-4 text-xs font-mono text-danger bg-danger/5 flex-1 leading-relaxed border-l-2 border-danger">
-          ⚠️ {error}
+        <div className="p-4 text-[13px] font-mono text-danger bg-danger/5 flex-1 leading-6 flex gap-2">
+          <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" aria-hidden="true" />
+          <span>{error}</span>
         </div>
       ) : (
         <textarea
           value={value}
-          onChange={(e) => onChange && onChange(e.target.value)}
+          onChange={(event) => onChange?.(event.target.value)}
           readOnly={readOnly}
           placeholder={placeholder}
           aria-label={label}
           autoFocus={autoFocus}
-          className={`flex-1 w-full p-4 bg-surface-input text-foreground font-mono text-xs leading-relaxed outline-none ring-0 focus:outline-none focus:ring-0 focus:border-none focus:bg-surface-input resize-none border-none shadow-none ${minHeightClass} transition-colors`}
+          className={`flex-1 w-full p-4 sm:p-5 bg-surface-input text-foreground placeholder:text-foreground-muted font-mono text-[13px] leading-6 outline-none ring-0 focus:outline-none focus:ring-0 focus:border-none focus:bg-surface-input resize-none border-none shadow-none ${minHeightClass} transition-colors`}
         />
       )}
     </div>

@@ -1,205 +1,97 @@
-import React, { useState, useEffect } from 'react';
-import { ArrowLeftRight, Copy, Check, Ruler, Link as LinkIcon } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Ruler } from 'lucide-react';
+import { ConverterLayout } from '@/components/tool-ui/archetypes/ConverterLayout';
 import { LENGTH_UNITS, convertUnit } from '@/tools/units/length/convert-length';
-import { ToolFrame } from '@/components/tool-ui/ToolFrame';
-import { Button } from '@/components/ui/Button';
-import { parseUrlParams, updateUrlParams, copyShareLink } from '@/lib/url-state';
+import { copyShareLink, parseUrlParams, updateUrlParams } from '@/lib/url-state';
 import { track } from '@/lib/analytics';
 
 interface LengthConverterProps {
-  config?: any;
+  config?: unknown;
   initialValue?: number;
   initialFrom?: string;
   initialTo?: string;
 }
 
+const formatValue = (value: number): string => {
+  if (Number.isInteger(value)) return value.toLocaleString('en-US');
+  return Number(value.toPrecision(8)).toLocaleString('en-US', { maximumFractionDigits: 8 });
+};
+
 export const LengthConverterTool: React.FC<LengthConverterProps> = ({
-  initialValue,
-  initialFrom,
-  initialTo,
+  initialValue = 1,
+  initialFrom = 'm',
+  initialTo = 'ft',
 }) => {
-  const [val, setVal] = useState<string>(
-    initialValue != null ? String(initialValue) : '1'
-  );
-  const [fromUnit, setFromUnit] = useState<string>(initialFrom || 'm');
-  const [toUnit, setToUnit] = useState<string>(initialTo || 'ft');
-  const [copied, setCopied] = useState<boolean>(false);
-  const [copiedLink, setCopiedLink] = useState<boolean>(false);
+  const [amount, setAmount] = useState(initialValue);
+  const [fromUnit, setFromUnit] = useState(initialFrom);
+  const [toUnit, setToUnit] = useState(initialTo);
 
   useEffect(() => {
     const params = parseUrlParams();
-    if (params.value && !isNaN(Number(params.value))) {
-      setVal(params.value);
-    }
-    if (params.from && LENGTH_UNITS.some((u) => u.id === params.from)) {
-      setFromUnit(params.from);
-    }
-    if (params.to && LENGTH_UNITS.some((u) => u.id === params.to)) {
-      setToUnit(params.to);
-    }
+    if (params.value && !Number.isNaN(Number(params.value))) setAmount(Number(params.value));
+    if (params.from && LENGTH_UNITS.some((unit) => unit.id === params.from)) setFromUnit(params.from);
+    if (params.to && LENGTH_UNITS.some((unit) => unit.id === params.to)) setToUnit(params.to);
     track('tool_open', { tool_key: 'units/length', category: 'units' });
   }, []);
 
-  const handleValChange = (newVal: string) => {
-    setVal(newVal);
-    updateUrlParams({ value: newVal, from: fromUnit, to: toUnit });
+  const updateStateUrl = (value: number, from: string, to: string) => {
+    updateUrlParams({ value, from, to });
   };
 
-  const handleFromChange = (newFrom: string) => {
-    setFromUnit(newFrom);
-    updateUrlParams({ value: val, from: newFrom, to: toUnit });
+  const handleAmountChange = (value: number) => {
+    setAmount(value);
+    updateStateUrl(value, fromUnit, toUnit);
   };
 
-  const handleToChange = (newTo: string) => {
-    setToUnit(newTo);
-    updateUrlParams({ value: val, from: fromUnit, to: newTo });
+  const handleFromChange = (value: string) => {
+    setFromUnit(value);
+    updateStateUrl(amount, value, toUnit);
   };
 
-  const numVal = parseFloat(val) || 0;
-  const result = convertUnit(numVal, fromUnit, toUnit, LENGTH_UNITS);
-  const formattedResult = Number.isInteger(result) ? String(result) : result.toFixed(4).replace(/\.?0+$/, '');
+  const handleToChange = (value: string) => {
+    setToUnit(value);
+    updateStateUrl(amount, fromUnit, value);
+  };
 
   const handleSwap = () => {
-    const nextFrom = toUnit;
-    const nextTo = fromUnit;
-    setFromUnit(nextFrom);
-    setToUnit(nextTo);
-    updateUrlParams({ value: val, from: nextFrom, to: nextTo });
+    setFromUnit(toUnit);
+    setToUnit(fromUnit);
+    updateStateUrl(amount, toUnit, fromUnit);
   };
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(`${formattedResult} ${toUnit}`);
-    setCopied(true);
-    track('tool_copy', { tool_key: 'units/length', category: 'units' });
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const handleCopyLink = async () => {
-    const ok = await copyShareLink();
-    if (ok) {
-      setCopiedLink(true);
-      track('tool_share', { tool_key: 'units/length', category: 'units' });
-      setTimeout(() => setCopiedLink(false), 2000);
-    }
-  };
-
-  const fromUnitObj = LENGTH_UNITS.find((u) => u.id === fromUnit);
-  const toUnitObj = LENGTH_UNITS.find((u) => u.id === toUnit);
+  const result = convertUnit(amount, fromUnit, toUnit, LENGTH_UNITS);
+  const factor = convertUnit(1, fromUnit, toUnit, LENGTH_UNITS);
+  const formattedResult = `${formatValue(result)} ${toUnit}`;
+  const formula = `1 ${fromUnit} = ${formatValue(factor)} ${toUnit}`;
+  const steps = `${formatValue(amount)} ${fromUnit} = ${formattedResult}`;
+  const units = LENGTH_UNITS.map((unit) => ({
+    id: unit.id,
+    name: unit.name.replace(/\s+\([^)]*\)$/, ''),
+    symbol: unit.id,
+  }));
 
   return (
-    <ToolFrame className="shadow-xs border-border">
-      {/* Top IDE Control Toolbar */}
-      <div className="flex items-center justify-between px-4 py-3 bg-surface-subtle border-b border-border flex-wrap gap-2">
-        <span className="text-xs font-bold text-foreground tracking-tight flex items-center gap-2">
-          <Ruler className="w-4 h-4 text-accent" />
-          Length & Distance Converter
-        </span>
-
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={handleSwap}
-          leftIcon={<ArrowLeftRight className="w-3.5 h-3.5" />}
-          className="h-8 text-xs font-medium"
-        >
-          Swap Units
-        </Button>
-      </div>
-
-      <div className="p-5 sm:p-6 bg-surface space-y-6">
-        {/* Converter Controls Grid - Clean 3 Columns */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-start">
-          {/* From Value Input */}
-          <div className="space-y-1.5">
-            <label htmlFor="length-val" className="text-xs font-bold text-foreground-secondary block">
-              Distance Value
-            </label>
-            <input
-              id="length-val"
-              type="number"
-              value={val}
-              onChange={(e) => handleValChange(e.target.value)}
-              placeholder="Enter value..."
-              className="w-full h-10 px-3.5 rounded-md bg-surface-input border border-border text-foreground font-mono text-sm focus:outline-none focus:border-border-strong focus:ring-2 focus:ring-accent/20"
-            />
-          </div>
-
-          {/* From Unit Select */}
-          <div className="space-y-1.5">
-            <label htmlFor="length-from" className="text-xs font-bold text-foreground-secondary block">
-              From
-            </label>
-            <select
-              id="length-from"
-              value={fromUnit}
-              onChange={(e) => handleFromChange(e.target.value)}
-              className="w-full h-10 px-3 rounded-md bg-surface border border-border text-foreground text-xs font-medium focus:outline-none focus:border-border-strong cursor-pointer"
-            >
-              {LENGTH_UNITS.map((u) => (
-                <option key={u.id} value={u.id}>
-                  {u.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* To Unit Select */}
-          <div className="space-y-1.5">
-            <label htmlFor="length-to" className="text-xs font-bold text-foreground-secondary block">
-              To
-            </label>
-            <select
-              id="length-to"
-              value={toUnit}
-              onChange={(e) => handleToChange(e.target.value)}
-              className="w-full h-10 px-3 rounded-md bg-surface border border-border text-foreground text-xs font-medium focus:outline-none focus:border-border-strong cursor-pointer"
-            >
-              {LENGTH_UNITS.map((u) => (
-                <option key={u.id} value={u.id}>
-                  {u.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Calculated Result Display Card */}
-        <div className="p-4 rounded-md bg-surface-subtle border border-border space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-foreground-muted uppercase tracking-wider font-mono">
-              CONVERTED RESULT
-            </span>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={handleCopyLink}
-                leftIcon={copiedLink ? <Check className="w-3.5 h-3.5 text-success" /> : <LinkIcon className="w-3.5 h-3.5" />}
-                className="h-7 px-2.5 text-xs font-medium"
-              >
-                {copiedLink ? 'Link Copied' : 'Share Link'}
-              </Button>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={handleCopy}
-                leftIcon={copied ? <Check className="w-3.5 h-3.5 text-success" /> : <Copy className="w-3.5 h-3.5" />}
-                className="h-7 px-2.5 text-xs font-medium"
-              >
-                {copied ? 'Copied Result' : 'Copy Result'}
-              </Button>
-            </div>
-          </div>
-
-          <div className="text-2xl font-bold font-mono text-accent">
-            {formattedResult} <span className="text-base text-foreground font-sans font-normal">{toUnitObj?.id}</span>
-          </div>
-
-          <div className="text-xs font-mono text-foreground-muted border-t border-border/50 pt-2 mt-2">
-            Formula: 1 {fromUnitObj?.id} = {convertUnit(1, fromUnit, toUnit, LENGTH_UNITS).toFixed(4)} {toUnitObj?.id}
-          </div>
-        </div>
-      </div>
-    </ToolFrame>
+    <ConverterLayout
+      title="Length & distance converter"
+      icon={<Ruler className="w-4 h-4 text-accent" aria-hidden="true" />}
+      amount={amount}
+      fromId={fromUnit}
+      toId={toUnit}
+      units={units}
+      result={result}
+      formattedResult={formattedResult}
+      formula={formula}
+      steps={steps}
+      onAmountChange={handleAmountChange}
+      onFromChange={handleFromChange}
+      onToChange={handleToChange}
+      onSwap={handleSwap}
+      onCopy={() => track('tool_copy', { tool_key: 'units/length', category: 'units' })}
+      onCopyStateUrl={async () => {
+        if (await copyShareLink()) {
+          track('tool_share', { tool_key: 'units/length', category: 'units' });
+        }
+      }}
+    />
   );
 };

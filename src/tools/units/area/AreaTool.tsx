@@ -80,6 +80,7 @@ export const AreaTool: React.FC<AreaToolProps> = ({
 
   return (
     <ConverterLayout
+      title="Area converter"
       amount={amount}
       fromId={fromId}
       toId={toId}

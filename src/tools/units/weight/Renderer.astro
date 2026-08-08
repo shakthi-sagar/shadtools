@@ -3,9 +3,23 @@ import { WeightTool } from '@/tools/units/weight/WeightTool';
 
 interface Props {
   config?: any;
+  initialValue?: number;
+  initialFrom?: string;
+  initialTo?: string;
+  variantData?: {
+    value?: number;
+    fromId?: string;
+    toId?: string;
+  };
 }
 
-const { config } = Astro.props;
+const { config, initialValue, initialFrom, initialTo, variantData } = Astro.props;
 ---
 
-<WeightTool client:load config={config} />
+<WeightTool
+  client:load
+  config={config}
+  initialValue={variantData?.value ?? initialValue}
+  initialFrom={variantData?.fromId ?? initialFrom}
+  initialTo={variantData?.toId ?? initialTo}
+/>

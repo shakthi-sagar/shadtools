@@ -39,6 +39,7 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    font-synthesis: none;
   }
 
   body {
@@ -46,6 +47,15 @@
     color: var(--foreground);
     min-height: 100vh;
     margin: 0;
+    letter-spacing: -0.006em;
+  }
+
+  h1, h2, h3, h4 {
+    text-wrap: balance;
+  }
+
+  p, li {
+    text-wrap: pretty;
   }
 
   .home-hero {
@@ -64,5 +74,6 @@
   code, kbd, samp, pre {
     font-family: var(--font-mono);
     font-variant-numeric: tabular-nums;
+    font-feature-settings: "liga" 0, "calt" 0;
   }
 }
