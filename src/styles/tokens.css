@@ -54,10 +54,10 @@
   /* -------------------------------------------------------------------------
      Semantic Tokens — Light Mode Default
      ------------------------------------------------------------------------- */
-  --background: #fafafa;
+  --background: #f8f9fb;
 
   --surface: #ffffff;
-  --surface-subtle: #f4f4f5;
+  --surface-subtle: #f2f4f7;
   --surface-raised: #ffffff;
   --surface-input: #ffffff;
 
