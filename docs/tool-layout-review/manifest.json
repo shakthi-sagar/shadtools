@@ -1,0 +1,258 @@
+{
+  "generatedAt": "2026-08-08T20:46:02.658Z",
+  "selection": "review-set",
+  "captures": [
+    {
+      "tool": "json/formatter",
+      "pattern": "code-editor",
+      "viewport": "desktop",
+      "width": 1440,
+      "height": 1100,
+      "file": "code-editor--json--formatter--desktop.png",
+      "url": "http://localhost:4323/json/formatter"
+    },
+    {
+      "tool": "json/formatter",
+      "pattern": "code-editor",
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "file": "code-editor--json--formatter--mobile.png",
+      "url": "http://localhost:4323/json/formatter"
+    },
+    {
+      "tool": "text/sort-lines",
+      "pattern": "code-editor",
+      "viewport": "desktop",
+      "width": 1440,
+      "height": 1100,
+      "file": "code-editor--text--sort-lines--desktop.png",
+      "url": "http://localhost:4323/text/sort-lines"
+    },
+    {
+      "tool": "text/sort-lines",
+      "pattern": "code-editor",
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "file": "code-editor--text--sort-lines--mobile.png",
+      "url": "http://localhost:4323/text/sort-lines"
+    },
+    {
+      "tool": "text/diff",
+      "pattern": "code-editor",
+      "viewport": "desktop",
+      "width": 1440,
+      "height": 1100,
+      "file": "code-editor--text--diff--desktop.png",
+      "url": "http://localhost:4323/text/diff"
+    },
+    {
+      "tool": "text/diff",
+      "pattern": "code-editor",
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "file": "code-editor--text--diff--mobile.png",
+      "url": "http://localhost:4323/text/diff"
+    },
+    {
+      "tool": "text/word-counter",
+      "pattern": "code-editor",
+      "viewport": "desktop",
+      "width": 1440,
+      "height": 1100,
+      "file": "code-editor--text--word-counter--desktop.png",
+      "url": "http://localhost:4323/text/word-counter"
+    },
+    {
+      "tool": "text/word-counter",
+      "pattern": "code-editor",
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "file": "code-editor--text--word-counter--mobile.png",
+      "url": "http://localhost:4323/text/word-counter"
+    },
+    {
+      "tool": "text/case-converter",
+      "pattern": "code-editor",
+      "viewport": "desktop",
+      "width": 1440,
+      "height": 1100,
+      "file": "code-editor--text--case-converter--desktop.png",
+      "url": "http://localhost:4323/text/case-converter"
+    },
+    {
+      "tool": "text/case-converter",
+      "pattern": "code-editor",
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "file": "code-editor--text--case-converter--mobile.png",
+      "url": "http://localhost:4323/text/case-converter"
+    },
+    {
+      "tool": "crypto/hash",
+      "pattern": "code-editor",
+      "viewport": "desktop",
+      "width": 1440,
+      "height": 1100,
+      "file": "code-editor--crypto--hash--desktop.png",
+      "url": "http://localhost:4323/crypto/hash"
+    },
+    {
+      "tool": "crypto/hash",
+      "pattern": "code-editor",
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "file": "code-editor--crypto--hash--mobile.png",
+      "url": "http://localhost:4323/crypto/hash"
+    },
+    {
+      "tool": "crypto/uuid",
+      "pattern": "code-editor",
+      "viewport": "desktop",
+      "width": 1440,
+      "height": 1100,
+      "file": "code-editor--crypto--uuid--desktop.png",
+      "url": "http://localhost:4323/crypto/uuid"
+    },
+    {
+      "tool": "crypto/uuid",
+      "pattern": "code-editor",
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "file": "code-editor--crypto--uuid--mobile.png",
+      "url": "http://localhost:4323/crypto/uuid"
+    },
+    {
+      "tool": "images/compress",
+      "pattern": "file",
+      "viewport": "desktop",
+      "width": 1440,
+      "height": 1100,
+      "file": "file--images--compress--desktop.png",
+      "url": "http://localhost:4323/images/compress"
+    },
+    {
+      "tool": "images/compress",
+      "pattern": "file",
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "file": "file--images--compress--mobile.png",
+      "url": "http://localhost:4323/images/compress"
+    },
+    {
+      "tool": "percentage/calculator",
+      "pattern": "calculator",
+      "viewport": "desktop",
+      "width": 1440,
+      "height": 1100,
+      "file": "calculator--percentage--calculator--desktop.png",
+      "url": "http://localhost:4323/percentage/calculator"
+    },
+    {
+      "tool": "percentage/calculator",
+      "pattern": "calculator",
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "file": "calculator--percentage--calculator--mobile.png",
+      "url": "http://localhost:4323/percentage/calculator"
+    },
+    {
+      "tool": "currency/converter",
+      "pattern": "converter",
+      "viewport": "desktop",
+      "width": 1440,
+      "height": 1100,
+      "file": "converter--currency--converter--desktop.png",
+      "url": "http://localhost:4323/currency/converter"
+    },
+    {
+      "tool": "currency/converter",
+      "pattern": "converter",
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "file": "converter--currency--converter--mobile.png",
+      "url": "http://localhost:4323/currency/converter"
+    },
+    {
+      "tool": "units/length",
+      "pattern": "converter",
+      "viewport": "desktop",
+      "width": 1440,
+      "height": 1100,
+      "file": "converter--units--length--desktop.png",
+      "url": "http://localhost:4323/units/length"
+    },
+    {
+      "tool": "units/length",
+      "pattern": "converter",
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "file": "converter--units--length--mobile.png",
+      "url": "http://localhost:4323/units/length"
+    },
+    {
+      "tool": "units/time",
+      "pattern": "converter",
+      "viewport": "desktop",
+      "width": 1440,
+      "height": 1100,
+      "file": "converter--units--time--desktop.png",
+      "url": "http://localhost:4323/units/time"
+    },
+    {
+      "tool": "units/time",
+      "pattern": "converter",
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "file": "converter--units--time--mobile.png",
+      "url": "http://localhost:4323/units/time"
+    },
+    {
+      "tool": "units/temperature",
+      "pattern": "converter",
+      "viewport": "desktop",
+      "width": 1440,
+      "height": 1100,
+      "file": "converter--units--temperature--desktop.png",
+      "url": "http://localhost:4323/units/temperature"
+    },
+    {
+      "tool": "units/temperature",
+      "pattern": "converter",
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "file": "converter--units--temperature--mobile.png",
+      "url": "http://localhost:4323/units/temperature"
+    },
+    {
+      "tool": "units/weight",
+      "pattern": "converter",
+      "viewport": "desktop",
+      "width": 1440,
+      "height": 1100,
+      "file": "converter--units--weight--desktop.png",
+      "url": "http://localhost:4323/units/weight"
+    },
+    {
+      "tool": "units/weight",
+      "pattern": "converter",
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "file": "converter--units--weight--mobile.png",
+      "url": "http://localhost:4323/units/weight"
+    }
+  ]
+}

@@ -55,6 +55,24 @@ const preferredRepresentatives: Partial<Record<ToolPattern, string>> = {
   converter: 'units/length',
 };
 
+// Covers each shared workspace archetype plus tools with materially custom layouts.
+const reviewToolIds = [
+  'json/formatter',
+  'text/sort-lines',
+  'text/diff',
+  'text/word-counter',
+  'text/case-converter',
+  'crypto/hash',
+  'crypto/uuid',
+  'images/compress',
+  'percentage/calculator',
+  'currency/converter',
+  'units/length',
+  'units/time',
+  'units/temperature',
+  'units/weight',
+] as const;
+
 const viewportProfiles: ViewportProfile[] = [
   {
     name: 'desktop',
@@ -77,11 +95,13 @@ function printUsage(): void {
 
 Usage:
   npm run capture:tool-layouts
+  npm run capture:tool-layouts -- --review-set
   npm run capture:tool-layouts -- --all
   npm run capture:tool-layouts -- --pattern converter
   npm run capture:tool-layouts -- --tool json/formatter
 
 Options:
+  --review-set          Capture the curated set of distinct tool workspaces.
   --all                 Capture every published tool.
   --tool <id>           Capture one tool, for example json/formatter.
   --pattern <pattern>   Capture every tool with this layout pattern.
@@ -166,10 +186,22 @@ function representativeTools(tools: ToolEntry[]): ToolEntry[] {
 function selectTools(tools: ToolEntry[], args: string[]): ToolEntry[] {
   const toolId = optionValue(args, '--tool');
   const requestedPattern = optionValue(args, '--pattern');
-  const selectorCount = Number(args.includes('--all')) + Number(Boolean(toolId)) + Number(Boolean(requestedPattern));
+  const selectorCount =
+    Number(args.includes('--review-set')) +
+    Number(args.includes('--all')) +
+    Number(Boolean(toolId)) +
+    Number(Boolean(requestedPattern));
 
   if (selectorCount > 1) {
-    throw new Error('Use only one of --all, --tool, or --pattern.');
+    throw new Error('Use only one of --review-set, --all, --tool, or --pattern.');
+  }
+
+  if (args.includes('--review-set')) {
+    return reviewToolIds.map((id) => {
+      const tool = tools.find((candidate) => candidate.id === id);
+      if (!tool) throw new Error(`Review-set tool is not published: ${id}`);
+      return tool;
+    });
   }
 
   if (toolId) {
@@ -298,13 +330,15 @@ async function main(): Promise<void> {
   const baseUrl = suppliedBaseUrl?.replace(/\/$/, '') ?? `http://localhost:${port}`;
   let server: ChildProcess | undefined;
   let browser: Browser | undefined;
-  const selection = args.includes('--all')
-    ? 'all'
-    : optionValue(args, '--tool')
-      ? 'tool'
-      : optionValue(args, '--pattern')
-        ? 'pattern'
-        : 'representative-by-pattern';
+  const selection = args.includes('--review-set')
+    ? 'review-set'
+    : args.includes('--all')
+      ? 'all'
+      : optionValue(args, '--tool')
+        ? 'tool'
+        : optionValue(args, '--pattern')
+          ? 'pattern'
+          : 'representative-by-pattern';
 
   await mkdir(outputDirectory, { recursive: true });
 
