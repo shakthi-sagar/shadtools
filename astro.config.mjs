@@ -1,10 +1,8 @@
 import { defineConfig } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
 import react from '@astrojs/react';
-import sitemap from '@astrojs/sitemap';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { isIndexablePath } from './src/lib/seo/indexability.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -28,8 +26,5 @@ export default defineConfig({
       applyBaseStyles: false,
     }),
     react(),
-    sitemap({
-      filter: isIndexablePath,
-    }),
   ],
 });

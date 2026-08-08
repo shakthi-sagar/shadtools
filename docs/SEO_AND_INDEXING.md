@@ -13,7 +13,7 @@ This document defines the architectural pipeline and strict indexability rules g
 [Static Route Generator] ──► [Canonical URL Hardener]
            │                         │
            ▼                         ▼
-[Astro Sitemap Integration]   [MetaHead & OpenGraph]
+[Grouped Sitemap Generator]   [MetaHead & OpenGraph]
            │                         │
            ▼                         ▼
 [robots.txt Allow / Sitemap]  [Google Indexing & Search Console]
@@ -23,7 +23,7 @@ This document defines the architectural pipeline and strict indexability rules g
 1. **SEO Page Provider**: Defines static page variants (`pair` and curated `exact` values), H1 titles, meta descriptions, and mathematical computations deterministically.
 2. **Static Route Generator**: Renders static HTML entries at build time (`src/pages/[namespace]/[slug]/[variant].astro`).
 3. **Canonical URL Hardener**: Ensures all pages canonicalize to their clean, absolute `https://shadtools.com` URL. Query parameters (e.g. `?value=18&from=yard&to=meter`) are stripped from canonical targets and NEVER create separate SEO surfaces.
-4. **Sitemap Integration**: `@astrojs/sitemap` compiles indexable routes into `sitemap-index.xml`. Post-build automated validation (`scripts/validate-sitemap.ts`) verifies no query params, duplicates, or non-indexable pages exist.
+4. **Grouped Sitemap Generation**: `scripts/generate-sitemaps.ts` emits `sitemap-core.xml`, `sitemap-tools.xml`, and one sitemap per programmatic SEO family. `sitemap-index.xml` references every child. Post-build validation verifies grouping, complete route coverage, indexability, origins, and uniqueness.
 5. **Robots Policy**: `public/robots.txt` references the production sitemap and permits crawling of all public routes without blocking CSS, JS, or Pagefind search assets.
 
 ---

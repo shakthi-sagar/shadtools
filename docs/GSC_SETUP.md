@@ -30,6 +30,7 @@ This document details the manual operational steps required by the repository ow
    https://shadtools.com/sitemap-index.xml
    ```
 3. Click **Submit**. Verify status reads **Success**.
+4. Submit only the index URL. It references the grouped core, tools, and programmatic converter sitemaps; the child files do not need separate submissions.
 
 ### 4. Inspect Representative Landing Pages
 Use the **URL Inspection Tool** to test indexing for representative routes:
