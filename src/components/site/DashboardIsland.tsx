@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Pin, PinOff, RotateCcw, Clock, Plus, Settings2, Check, ArrowRight, GripVertical } from 'lucide-react';
+import { Pin, PinOff, RotateCcw, Clock, Plus, Settings2, Check, ArrowRight, ArrowUp, ArrowDown, GripVertical } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { getDashboardState, saveDashboardState } from '@/lib/dashboard-store';
 import { ToolPickerModal } from '@/components/site/ToolPickerModal';
@@ -188,7 +188,7 @@ export const DashboardIsland: React.FC<DashboardIslandProps> = ({ allTools = [] 
                   setDraggedId(null);
                 }}
                 onDragEnd={() => setDraggedId(null)}
-                className={`group p-5 min-h-44 rounded-lg bg-surface border flex flex-col justify-between transition-all cursor-grab active:cursor-grabbing ${
+                className={`group p-5 min-h-44 rounded-lg bg-surface border flex flex-col justify-between transition-all lg:cursor-grab lg:active:cursor-grabbing ${
                   draggedId === tool.id
                     ? 'border-accent opacity-50 scale-[0.98]'
                     : 'border-accent/40 hover:border-accent'
@@ -198,6 +198,26 @@ export const DashboardIsland: React.FC<DashboardIslandProps> = ({ allTools = [] 
                   <div className="flex items-start justify-between gap-3">
                     <ToolIcon id={tool.id} namespace={tool.namespace} />
                     <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => movePinned(idx, 'up')}
+                        disabled={idx === 0}
+                        aria-label={`Move ${tool.name} up`}
+                        title="Move up"
+                        className="lg:hidden p-1.5 rounded-md text-foreground-muted hover:text-foreground hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-focus disabled:opacity-30 disabled:pointer-events-none"
+                      >
+                        <ArrowUp className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => movePinned(idx, 'down')}
+                        disabled={idx === pinnedToolItems.length - 1}
+                        aria-label={`Move ${tool.name} down`}
+                        title="Move down"
+                        className="lg:hidden p-1.5 rounded-md text-foreground-muted hover:text-foreground hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-focus disabled:opacity-30 disabled:pointer-events-none"
+                      >
+                        <ArrowDown className="w-4 h-4" />
+                      </button>
                       <span
                         role="button"
                         tabIndex={0}
@@ -212,7 +232,7 @@ export const DashboardIsland: React.FC<DashboardIslandProps> = ({ allTools = [] 
                             movePinned(idx, 'down');
                           }
                         }}
-                        className="p-1.5 rounded-md text-foreground-muted hover:text-foreground hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-focus cursor-grab"
+                        className="hidden lg:inline-flex p-1.5 rounded-md text-foreground-muted hover:text-foreground hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-focus cursor-grab"
                       >
                         <GripVertical className="w-4 h-4" />
                       </span>
@@ -235,7 +255,7 @@ export const DashboardIsland: React.FC<DashboardIslandProps> = ({ allTools = [] 
                     {tool.summary}
                   </p>
                 </div>
-                <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-foreground-muted">
+                <span className="mt-4 hidden lg:inline-flex items-center gap-1.5 text-xs font-semibold text-foreground-muted">
                   <GripVertical className="h-3.5 w-3.5" /> Drag to reorder
                 </span>
               </div>

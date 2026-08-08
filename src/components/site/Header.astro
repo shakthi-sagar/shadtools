@@ -25,6 +25,7 @@ const searchTools = toolsCollection
       searchWeight: 10,
     };
   });
+const isHomepage = Astro.url.pathname === '/';
 ---
 
 <header class="sticky top-0 z-50 bg-surface/90 backdrop-blur-xl border-b border-border h-16 flex items-center">
@@ -44,9 +45,11 @@ const searchTools = toolsCollection
 
     <!-- Search Dropdown & Theme Toggle -->
     <div class="flex items-center gap-2 sm:gap-3 flex-1 justify-end max-w-sm">
-      <div class="hidden sm:block w-full">
-        <HeaderSearch client:load tools={searchTools} />
-      </div>
+      {!isHomepage && (
+        <div class="hidden sm:block w-full">
+          <HeaderSearch client:load tools={searchTools} />
+        </div>
+      )}
       <ThemeToggle client:load />
     </div>
   </div>

@@ -3,6 +3,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 import { getNamespaceSlug, getToolSlug, getNamespaceUrl, getToolUrl } from '@/lib/routing';
 import { DashboardIsland } from '@/components/site/DashboardIsland';
+import { HeaderSearch } from '@/components/site/HeaderSearch';
 import { ToolIcon } from '@/components/site/ToolIcon';
 
 const namespaces = await getCollection('namespaces');
@@ -52,6 +53,9 @@ const groups = Array.from(new Set(sortedNamespaces.map((n) => n.data.group))).ma
         <p class="mt-4 text-base sm:text-lg text-foreground-secondary max-w-2xl leading-relaxed">
           Convert, format, calculate, and optimize without uploads, accounts, or unnecessary steps.
         </p>
+        <div class="mt-8 max-w-2xl">
+          <HeaderSearch client:load tools={publishedTools} variant="hero" />
+        </div>
       </div>
     </div>
   </section>
