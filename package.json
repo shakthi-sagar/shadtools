@@ -11,6 +11,7 @@
     "build:sitemaps": "tsx scripts/generate-sitemaps.ts",
     "build:search": "pagefind --site dist",
     "check": "astro check && tsc --noEmit",
+    "capture:tool-layouts": "tsx scripts/capture-tool-layouts.ts",
     "create-tool": "tsx scripts/create-tool.ts",
     "lint": "eslint .",
     "prepare": "husky",
