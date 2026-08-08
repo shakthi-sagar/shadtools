@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Search, X, ArrowRight } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { ArrowRight, Search, X } from 'lucide-react';
 import { track } from '@/lib/analytics';
 
 export interface SearchToolItem {
@@ -67,156 +67,177 @@ const DEFAULT_TOOLS: SearchToolItem[] = [
 ];
 
 export const HeaderSearch: React.FC<HeaderSearchProps> = ({ tools = DEFAULT_TOOLS }) => {
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [query, setQuery] = useState<string>('');
-  const [selectedIndex, setSelectedIndex] = useState<number>(0);
-  const [shortcutText, setShortcutText] = useState<string>('⌘K');
-
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const [query, setQuery] = useState('');
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [shortcutText, setShortcutText] = useState('Ctrl K');
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Detect Mac vs Windows for shortcut display
+  const openSearch = () => setIsOpen(true);
+  const closeSearch = () => {
+    setIsOpen(false);
+    setQuery('');
+  };
+
   useEffect(() => {
     if (typeof navigator !== 'undefined' && /Mac/i.test(navigator.userAgent)) {
-      setShortcutText('⌘K');
-    } else {
-      setShortcutText('Ctrl K');
+      setShortcutText('Cmd K');
     }
   }, []);
 
-  // Global Ctrl+K / Cmd+K listener
   useEffect(() => {
-    const handleGlobalKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
-        e.preventDefault();
-        setIsOpen(true);
-        inputRef.current?.focus();
+    const handleGlobalKeyDown = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        openSearch();
       }
+      if (event.key === 'Escape') closeSearch();
     };
 
     window.addEventListener('keydown', handleGlobalKeyDown);
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
   }, []);
 
-  // Close on outside click
   useEffect(() => {
-    const handleOutsideClick = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setIsOpen(false);
-      }
+    if (!isOpen) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    window.setTimeout(() => inputRef.current?.focus(), 0);
+    return () => {
+      document.body.style.overflow = originalOverflow;
     };
+  }, [isOpen]);
 
-    document.addEventListener('mousedown', handleOutsideClick);
-    return () => document.removeEventListener('mousedown', handleOutsideClick);
-  }, []);
+  const normalizedQuery = query.trim().toLowerCase();
+  const getSearchScore = (tool: SearchToolItem) => {
+    const name = tool.name.toLowerCase();
+    const namespace = tool.namespace.toLowerCase();
+    let score = tool.searchWeight || 1;
+    if (name === normalizedQuery) score += 100;
+    else if (name.startsWith(normalizedQuery)) score += 60;
+    else if (name.includes(normalizedQuery)) score += 40;
+    if (namespace === normalizedQuery) score += 30;
+    else if (namespace.includes(normalizedQuery)) score += 15;
+    if (tool.summary.toLowerCase().includes(normalizedQuery)) score += 5;
+    return score;
+  };
 
-  const filtered = (query.trim()
+  const filtered = (normalizedQuery
     ? tools.filter(
-        (t) =>
-          t.name.toLowerCase().includes(query.toLowerCase()) ||
-          t.summary.toLowerCase().includes(query.toLowerCase()) ||
-          t.namespace.toLowerCase().includes(query.toLowerCase())
+        (tool) =>
+          tool.name.toLowerCase().includes(normalizedQuery) ||
+          tool.summary.toLowerCase().includes(normalizedQuery) ||
+          tool.namespace.toLowerCase().includes(normalizedQuery)
       )
-    : tools
-  ).sort((a, b) => (b.searchWeight || 1) - (a.searchWeight || 1));
+    : [...tools]
+  )
+    .sort((a, b) => normalizedQuery ? getSearchScore(b) - getSearchScore(a) : (b.searchWeight || 1) - (a.searchWeight || 1))
+    .slice(0, 8);
 
   useEffect(() => {
     setSelectedIndex(0);
-    if (query.trim()) {
-      track('search_used', { query_length: query.trim().length });
-    }
+    if (query.trim()) track('search_used', { query_length: query.trim().length });
   }, [query]);
 
-  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      setSelectedIndex((prev) => (prev < filtered.length - 1 ? prev + 1 : 0));
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      setSelectedIndex((prev) => (prev > 0 ? prev - 1 : filtered.length - 1));
-    } else if (e.key === 'Enter' && filtered[selectedIndex]) {
-      e.preventDefault();
+  const handleInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      setSelectedIndex((current) => (current < filtered.length - 1 ? current + 1 : 0));
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      setSelectedIndex((current) => (current > 0 ? current - 1 : filtered.length - 1));
+    } else if (event.key === 'Enter' && filtered[selectedIndex]) {
+      event.preventDefault();
       window.location.href = filtered[selectedIndex].url;
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      setIsOpen(false);
-      inputRef.current?.blur();
     }
   };
 
   return (
-    <div ref={containerRef} className="relative w-full max-w-xs sm:max-w-sm">
-      {/* Search Input Bar (Mounted statically in Header) */}
-      <div className="relative flex items-center">
-        <Search className="w-4 h-4 text-foreground-muted absolute left-3 pointer-events-none" />
-        <input
-          ref={inputRef}
-          type="text"
-          value={query}
-          onFocus={() => setIsOpen(true)}
-          onChange={(e) => {
-            setQuery(e.target.value);
-            if (!isOpen) setIsOpen(true);
-          }}
-          onKeyDown={handleInputKeyDown}
-          placeholder="Search tools..."
+    <>
+      <div className="w-auto sm:w-full sm:max-w-sm">
+        <button
+          id="cmd-k-trigger"
+          type="button"
+          onClick={openSearch}
           aria-label="Search tools"
-          className="w-full pl-9 pr-12 py-1.5 text-xs rounded-md bg-surface-input border border-border text-foreground placeholder:text-foreground-muted font-sans focus:outline-none focus:border-border-strong focus:ring-2 focus:ring-focus transition-colors h-8"
-        />
-        
-        {query ? (
-          <button
-            type="button"
-            onClick={() => {
-              setQuery('');
-              inputRef.current?.focus();
-            }}
-            aria-label="Clear query"
-            className="absolute right-2.5 text-foreground-muted hover:text-foreground p-0.5 rounded focus-visible:outline-2 focus-visible:outline-focus cursor-pointer"
-          >
-            <X className="w-3.5 h-3.5" />
-          </button>
-        ) : (
-          <kbd className="absolute right-2 text-[10px] font-mono text-foreground-muted bg-surface-subtle border border-border px-1.5 py-0.5 rounded pointer-events-none select-none">
+          className="flex h-9 w-9 items-center justify-center rounded-md border border-border bg-surface text-foreground-secondary transition-colors hover:border-border-strong hover:bg-surface-subtle hover:text-foreground sm:w-full sm:justify-between sm:px-3"
+        >
+          <span className="flex items-center gap-2 min-w-0">
+            <Search className="h-4 w-4 shrink-0" />
+            <span className="hidden truncate text-xs text-foreground-muted sm:inline">Search tools</span>
+          </span>
+          <kbd className="hidden rounded border border-border bg-surface-subtle px-1.5 py-0.5 font-mono text-[10px] text-foreground-muted sm:inline">
             {shortcutText}
           </kbd>
-        )}
+        </button>
       </div>
 
-      {/* Floating Dropdown Results Popover */}
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-1.5 z-50 bg-surface-raised border border-border shadow-popover rounded-md max-h-80 overflow-y-auto divide-y divide-border">
-          {filtered.length === 0 ? (
-            <div className="p-3 text-center text-xs text-foreground-muted">
-              No tools matching "{query}"
-            </div>
-          ) : (
-            filtered.slice(0, 8).map((tool, idx) => (
-              <a
-                key={tool.id}
-                href={tool.url}
-                onClick={() => setIsOpen(false)}
-                className={`flex items-center justify-between p-2.5 transition-colors group ${
-                  idx === selectedIndex ? 'bg-surface-subtle border-l-2 border-l-accent' : 'hover:bg-surface-subtle'
-                }`}
+        <div className="fixed inset-0 z-[80] flex items-start justify-center px-4 pt-[72px] sm:pt-24" role="dialog" aria-modal="true" aria-label="Search tools">
+          <button
+            type="button"
+            className="absolute inset-0 cursor-default bg-black/65 backdrop-blur-sm"
+            onClick={closeSearch}
+            aria-label="Close search"
+          />
+
+          <div className="relative z-10 w-full max-w-xl overflow-hidden rounded-lg border border-border bg-surface-raised shadow-dialog">
+            <div className="relative border-b border-border">
+              <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-foreground-muted" />
+              <input
+                ref={inputRef}
+                type="text"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                onKeyDown={handleInputKeyDown}
+                placeholder="Search tools and converters..."
+                aria-label="Search tools and converters"
+                className="h-14 w-full bg-transparent pl-12 pr-12 text-sm text-foreground outline-none placeholder:text-foreground-muted"
+              />
+              <button
+                type="button"
+                onClick={query ? () => setQuery('') : closeSearch}
+                aria-label={query ? 'Clear search' : 'Close search'}
+                className="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-md text-foreground-muted hover:bg-surface-subtle hover:text-foreground"
               >
-                <div className="space-y-0.5 min-w-0 pr-2">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-semibold text-foreground group-hover:text-accent truncate">
-                      {tool.name}
-                    </span>
-                    <span className="text-[9px] text-accent uppercase font-mono px-1 py-0.2 rounded bg-accent-subtle shrink-0">
-                      {tool.namespace}
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-foreground-muted truncate">{tool.summary}</p>
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="max-h-[min(60vh,420px)] overflow-y-auto p-2">
+              {filtered.length === 0 ? (
+                <div className="px-4 py-10 text-center text-sm text-foreground-muted">
+                  No tools found for "{query}"
                 </div>
-                <ArrowRight className="w-3.5 h-3.5 text-foreground-muted group-hover:text-accent shrink-0" />
-              </a>
-            ))
-          )}
+              ) : (
+                filtered.map((tool, index) => (
+                  <a
+                    key={tool.id}
+                    href={tool.url}
+                    className={`group flex items-center justify-between gap-4 rounded-md px-3 py-3 transition-colors ${
+                      index === selectedIndex ? 'bg-accent-subtle' : 'hover:bg-surface-subtle'
+                    }`}
+                  >
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="truncate text-sm font-semibold text-foreground">{tool.name}</span>
+                        <span className="shrink-0 text-[10px] font-semibold uppercase text-accent">{tool.namespace}</span>
+                      </div>
+                      <p className="mt-0.5 truncate text-xs text-foreground-muted">{tool.summary}</p>
+                    </div>
+                    <ArrowRight className="h-4 w-4 shrink-0 text-foreground-muted transition-transform group-hover:translate-x-0.5 group-hover:text-accent" />
+                  </a>
+                ))
+              )}
+            </div>
+
+            <div className="hidden items-center justify-between border-t border-border bg-surface-subtle px-4 py-2 text-[10px] text-foreground-muted sm:flex">
+              <span>Use arrow keys to navigate</span>
+              <span>Esc to close</span>
+            </div>
+          </div>
         </div>
       )}
-    </div>
+    </>
   );
 };

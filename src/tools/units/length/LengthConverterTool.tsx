@@ -165,17 +165,17 @@ export const LengthConverterTool: React.FC<LengthConverterProps> = ({
 
         {/* Calculated Result Display Card */}
         <div className="p-4 rounded-md bg-surface-subtle border border-border space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-foreground-muted uppercase tracking-wider font-mono">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <span className="whitespace-nowrap text-[11px] font-bold text-foreground-muted uppercase tracking-wider font-mono">
               CONVERTED RESULT
             </span>
-            <div className="flex items-center gap-2">
+            <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:items-center">
               <Button
                 variant="secondary"
                 size="sm"
                 onClick={handleCopyLink}
                 leftIcon={copiedLink ? <Check className="w-3.5 h-3.5 text-success" /> : <LinkIcon className="w-3.5 h-3.5" />}
-                className="h-7 px-2.5 text-xs font-medium"
+                className="h-8 w-full px-2.5 text-xs font-medium sm:w-auto"
               >
                 {copiedLink ? 'Link Copied' : 'Share Link'}
               </Button>
@@ -184,7 +184,7 @@ export const LengthConverterTool: React.FC<LengthConverterProps> = ({
                 size="sm"
                 onClick={handleCopy}
                 leftIcon={copied ? <Check className="w-3.5 h-3.5 text-success" /> : <Copy className="w-3.5 h-3.5" />}
-                className="h-7 px-2.5 text-xs font-medium"
+                className="h-8 w-full px-2.5 text-xs font-medium sm:w-auto"
               >
                 {copied ? 'Copied Result' : 'Copy Result'}
               </Button>

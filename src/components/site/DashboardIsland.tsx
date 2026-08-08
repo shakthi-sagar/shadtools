@@ -22,20 +22,18 @@ export interface DashboardIslandProps {
 }
 
 export const DashboardIsland: React.FC<DashboardIslandProps> = ({ allTools = [] }) => {
-  const [pinnedIds, setPinnedIds] = useState<string[]>([]);
-  const [recentIds, setRecentIds] = useState<string[]>([]);
-  const [isLoaded, setIsLoaded] = useState<boolean>(false);
-  const [isCustomizeMode, setIsCustomizeMode] = useState<boolean>(false);
-  const [isPickerOpen, setIsPickerOpen] = useState<boolean>(false);
-
-  // Compute default fallback tools (sorted by dashboardOrder || 100)
   const sortedDefaultTools = [...allTools]
     .filter((t) => t.featured || (t.dashboardOrder && t.dashboardOrder < 100))
     .sort((a, b) => (a.dashboardOrder || 100) - (b.dashboardOrder || 100));
 
   const defaultPinnedIds = (
     sortedDefaultTools.length > 0 ? sortedDefaultTools : allTools.slice(0, 4)
-  ).map((t) => t.id);
+  ).slice(0, 8).map((t) => t.id);
+
+  const [pinnedIds, setPinnedIds] = useState<string[]>(defaultPinnedIds);
+  const [recentIds, setRecentIds] = useState<string[]>([]);
+  const [isCustomizeMode, setIsCustomizeMode] = useState<boolean>(false);
+  const [isPickerOpen, setIsPickerOpen] = useState<boolean>(false);
 
   useEffect(() => {
     const storedState = getDashboardState();
@@ -48,7 +46,6 @@ export const DashboardIsland: React.FC<DashboardIslandProps> = ({ allTools = [] 
       setPinnedIds(defaultPinnedIds);
       setRecentIds([]);
     }
-    setIsLoaded(true);
   }, [allTools]);
 
   const updateState = (pins: string[], recents: string[]) => {
@@ -93,28 +90,15 @@ export const DashboardIsland: React.FC<DashboardIslandProps> = ({ allTools = [] 
     .map((id) => allTools.find((t) => t.id === id))
     .filter((t): t is ToolItem => Boolean(t) && !pinnedIds.includes(t!.id));
 
-  if (!isLoaded) {
-    return (
-      <div className="p-6 rounded-lg bg-surface border border-border space-y-4">
-        <div className="h-6 w-36 bg-surface-subtle animate-pulse rounded" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {[1, 2, 3, 4].map((n) => (
-            <div key={n} className="h-24 bg-surface-subtle animate-pulse rounded-lg" />
-          ))}
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       {/* Section Header Controls */}
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-2">
           <Star className="w-4 h-4 text-accent" />
-          <h2 className="text-lg font-bold text-foreground tracking-tight">Your Toolbox</h2>
+          <h2 className="text-lg font-semibold text-foreground">Pinned tools</h2>
           <span className="text-[11px] text-foreground-muted bg-surface-subtle px-2 py-0.5 rounded border border-border">
-            Local-First
+            {pinnedToolItems.length} pinned
           </span>
         </div>
 
@@ -125,7 +109,7 @@ export const DashboardIsland: React.FC<DashboardIslandProps> = ({ allTools = [] 
             onClick={() => setIsPickerOpen(true)}
             leftIcon={<Plus className="w-3.5 h-3.5" />}
           >
-            Add Tools
+            Add tools
           </Button>
 
           <Button
@@ -134,7 +118,7 @@ export const DashboardIsland: React.FC<DashboardIslandProps> = ({ allTools = [] 
             onClick={() => setIsCustomizeMode(!isCustomizeMode)}
             leftIcon={isCustomizeMode ? <Check className="w-3.5 h-3.5" /> : <Settings2 className="w-3.5 h-3.5" />}
           >
-            {isCustomizeMode ? 'Done' : 'Customize'}
+            {isCustomizeMode ? 'Done' : 'Edit layout'}
           </Button>
 
           {isCustomizeMode && (
@@ -210,7 +194,7 @@ export const DashboardIsland: React.FC<DashboardIslandProps> = ({ allTools = [] 
             <a
               key={tool.id}
               href={tool.url}
-              className="group p-4 rounded-lg bg-surface border border-border hover:border-border-strong hover:bg-surface-subtle transition-all flex flex-col justify-between block space-y-2"
+              className="group flex min-h-32 flex-col justify-between rounded-lg border border-border bg-surface p-4 transition-colors hover:border-border-strong hover:bg-surface-subtle"
             >
               <div className="space-y-1">
                 <span className="text-[10px] font-semibold text-accent uppercase tracking-wider font-mono">
@@ -222,7 +206,7 @@ export const DashboardIsland: React.FC<DashboardIslandProps> = ({ allTools = [] 
                     →
                   </span>
                 </h3>
-                <p className="text-xs text-foreground-secondary line-clamp-2 leading-relaxed">
+                <p className="mt-1.5 text-xs text-foreground-secondary line-clamp-2 leading-relaxed">
                   {tool.summary}
                 </p>
               </div>
@@ -230,6 +214,13 @@ export const DashboardIsland: React.FC<DashboardIslandProps> = ({ allTools = [] 
           );
         })}
       </div>
+
+      {pinnedToolItems.length === 0 && (
+        <div className="flex min-h-28 flex-col items-center justify-center rounded-lg border border-dashed border-border p-5 text-center">
+          <p className="text-sm font-medium text-foreground">No pinned tools yet</p>
+          <p className="mt-1 text-xs text-foreground-muted">Add the utilities you use most for quick access.</p>
+        </div>
+      )}
 
       {/* Recently Used Tools Row (if any) */}
       {recentToolItems.length > 0 && (

@@ -127,15 +127,15 @@ export const ConverterLayout: React.FC<ConverterLayoutProps> = ({
       {/* Converted Result Card */}
       <div className="bg-surface rounded-lg border border-border overflow-hidden">
         {/* Header Strip with Copy Result Button (Mandatory Directive 4) */}
-        <div className="h-10 px-4 bg-surface-subtle border-b border-border flex items-center justify-between">
-          <span className="text-[11px] font-bold text-foreground-secondary uppercase tracking-wider font-mono">
+        <div className="flex min-h-10 flex-col gap-3 border-b border-border bg-surface-subtle px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:py-2">
+          <span className="whitespace-nowrap text-[11px] font-bold text-foreground-secondary uppercase tracking-wider font-mono">
             Converted Result
           </span>
-          <div className="flex items-center gap-2">
+          <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:items-center">
             <button
               type="button"
               onClick={handleShare}
-              className="px-2.5 py-1 text-xs font-medium font-mono text-foreground-secondary hover:text-foreground bg-surface border border-border rounded transition-colors flex items-center gap-1.5 cursor-pointer"
+              className="flex min-h-8 w-full items-center justify-center gap-1.5 rounded border border-border bg-surface px-2.5 py-1 text-xs font-medium text-foreground-secondary transition-colors hover:text-foreground sm:w-auto"
               title="Copy shareable link"
             >
               {shared ? <Check className="w-3.5 h-3.5 text-success" /> : <Share2 className="w-3.5 h-3.5" />}
@@ -144,7 +144,7 @@ export const ConverterLayout: React.FC<ConverterLayoutProps> = ({
             <button
               type="button"
               onClick={handleCopy}
-              className="px-2.5 py-1 text-xs font-medium font-mono text-accent hover:text-accent-hover bg-accent-subtle/40 border border-accent/30 rounded transition-colors flex items-center gap-1.5 cursor-pointer"
+              className="flex min-h-8 w-full items-center justify-center gap-1.5 rounded border border-accent/30 bg-accent-subtle/40 px-2.5 py-1 text-xs font-medium text-accent transition-colors hover:text-accent-hover sm:w-auto"
             >
               {copied ? <Check className="w-3.5 h-3.5 text-success" /> : <Copy className="w-3.5 h-3.5" />}
               <span>{copied ? 'Copied!' : 'Copy Result'}</span>

@@ -8,114 +8,99 @@ const namespaces = await getCollection('namespaces');
 const allToolsCollection = await getCollection('tools');
 
 const publishedTools = allToolsCollection
-  .filter((e) => e.data.status === 'published')
-  .map((e) => {
-    const ns = getNamespaceSlug(e);
-    const sl = getToolSlug(e);
+  .filter((entry) => entry.data.status === 'published')
+  .map((entry) => {
+    const namespace = getNamespaceSlug(entry);
+    const slug = getToolSlug(entry);
     return {
-      id: e.data.id || sl,
-      name: e.data.name,
-      namespace: ns,
-      slug: sl,
-      summary: e.data.summary,
-      featured: e.data.featured,
-      url: getToolUrl(ns, sl),
+      id: entry.data.id || slug,
+      name: entry.data.name,
+      namespace,
+      slug,
+      summary: entry.data.summary,
+      featured: entry.data.featured,
+      url: getToolUrl(namespace, slug),
     };
   });
 
-const sortedNamespaces = namespaces.sort((a, b) => (a.data.order || 100) - (b.data.order || 100));
+const groupLabels = new Map(
+  namespaces
+    .filter((namespace) => namespace.data.groupLabel)
+    .map((namespace) => [namespace.data.group, namespace.data.groupLabel])
+);
 
-const groups = Array.from(new Set(sortedNamespaces.map((n) => n.data.group))).map((groupKey) => {
-  const groupItems = sortedNamespaces.filter((n) => n.data.group === groupKey);
-  const groupLabel = groupItems[0]?.data.groupLabel || groupKey.charAt(0).toUpperCase() + groupKey.slice(1);
-  return {
-    key: groupKey,
-    label: groupLabel,
-    namespaces: groupItems,
-  };
-});
+const collectionItems = namespaces
+  .sort((a, b) => (a.data.order || 100) - (b.data.order || 100))
+  .map((namespace) => {
+    const slug = getNamespaceSlug(namespace);
+    return {
+      name: namespace.data.name,
+      slug,
+      summary: namespace.data.summary,
+      groupLabel:
+        namespace.data.groupLabel ||
+        groupLabels.get(namespace.data.group) ||
+        namespace.data.group.charAt(0).toUpperCase() + namespace.data.group.slice(1),
+      toolCount: publishedTools.filter((tool) => tool.namespace === slug).length,
+    };
+  });
 ---
 
 <BaseLayout
-  title="ShadTools – Instant Browser Utilities"
+  title="ShadTools - Instant Browser Utilities"
   description="Fast, free, privacy-first browser utilities. Format JSON, convert units, compare text, and generate hashes instantly."
   canonicalUrl="https://shadtools.com"
 >
-  <div class="max-w-[1120px] mx-auto px-4 sm:px-6 py-6 space-y-8" data-pagefind-body>
-    
-    <!-- Clean Header & Command Trigger Launcher -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
-      <div class="space-y-1">
-        <h1 class="text-2xl font-bold text-foreground tracking-tight flex items-center gap-2">
-          <span>SHADTOOLS</span>
-          <span class="text-xs px-2 py-0.5 rounded bg-accent/10 text-accent font-mono font-medium">v1.0</span>
-        </h1>
-        <p class="text-xs text-foreground-secondary font-mono">
-          Instant, privacy-first utilities in your browser memory.
+  <div class="max-w-[1120px] mx-auto px-4 sm:px-6 py-8 sm:py-10 space-y-10" data-pagefind-body>
+    <div class="flex flex-col gap-3 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
+      <div class="space-y-1.5">
+        <h1 class="text-2xl sm:text-3xl font-semibold text-foreground">Your toolbox</h1>
+        <p class="max-w-2xl text-sm text-foreground-secondary">
+          Fast browser utilities for everyday work. Your inputs stay on this device whenever the tool allows it.
         </p>
       </div>
-
-      <!-- Quick Command Search Trigger Button (Raycast style) -->
-      <button
-        type="button"
-        onclick="document.getElementById('cmd-k-trigger')?.click()"
-        class="flex items-center justify-between gap-3 px-4 py-2 bg-surface border border-border hover:border-border-strong rounded-lg text-xs font-mono text-foreground-muted hover:text-foreground shadow-xs transition-colors w-full sm:w-72"
-      >
-        <span class="flex items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-foreground-secondary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-          <span>Search tools...</span>
-        </span>
-        <kbd class="px-1.5 py-0.5 bg-surface-subtle border border-border rounded text-[10px] text-foreground-muted">⌘K</kbd>
-      </button>
+      <div class="flex items-center gap-2 text-xs text-foreground-muted">
+        <span class="rounded-md border border-border bg-surface px-2.5 py-1">{publishedTools.length} tools</span>
+        <span class="rounded-md border border-border bg-surface px-2.5 py-1">No account needed</span>
+      </div>
     </div>
 
-    <!-- Personalized App Launcher Dashboard -->
     <section>
       <DashboardIsland client:load allTools={publishedTools} />
     </section>
 
-    <!-- Explore by Tool Collections & Categories -->
-    <section class="space-y-4 pt-4 border-t border-border">
-      <h2 class="text-xs font-semibold text-foreground-muted uppercase tracking-wider font-mono">
-        EXPLORE BY CATEGORY
-      </h2>
+    <section class="space-y-4 border-t border-border pt-8">
+      <div>
+        <h2 class="text-lg font-semibold text-foreground">Browse collections</h2>
+        <p class="mt-0.5 text-sm text-foreground-muted">Find tools by the kind of work you are doing.</p>
+      </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {groups.map((grp) => (
-          <div class="space-y-3">
-            <h3 class="text-xs font-semibold text-foreground-muted uppercase tracking-wider font-sans border-b border-border pb-1.5">
-              {grp.label}
-            </h3>
-            <div class="space-y-2">
-              {grp.namespaces.map((ns) => {
-                const nsSlug = getNamespaceSlug(ns);
-                return (
-                  <a
-                    href={getNamespaceUrl(nsSlug)}
-                    class="block p-3 rounded-md bg-surface border border-border hover:border-accent/40 hover:bg-surface-subtle transition-all group"
-                  >
-                    <div class="flex items-center justify-between">
-                      <span class="font-medium text-sm text-foreground group-hover:text-accent transition-colors">{ns.data.name}</span>
-                      <span class="text-xs text-foreground-muted group-hover:translate-x-0.5 transition-transform">→</span>
-                    </div>
-                    <p class="text-xs text-foreground-secondary mt-1 line-clamp-1">{ns.data.summary}</p>
-                  </a>
-                );
-              })}
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {collectionItems.map((collection) => (
+          <a
+            href={getNamespaceUrl(collection.slug)}
+            class="group flex min-h-32 flex-col justify-between rounded-lg border border-border bg-surface p-4 transition-colors hover:border-border-strong hover:bg-surface-subtle"
+          >
+            <div>
+              <span class="text-[10px] font-semibold uppercase text-accent">{collection.groupLabel}</span>
+              <h3 class="mt-1 text-sm font-semibold text-foreground group-hover:text-accent">{collection.name}</h3>
+              <p class="mt-1.5 line-clamp-2 text-xs leading-relaxed text-foreground-secondary">{collection.summary}</p>
             </div>
-          </div>
+            <div class="mt-4 flex items-center justify-between text-xs text-foreground-muted">
+              <span>{collection.toolCount} {collection.toolCount === 1 ? 'tool' : 'tools'}</span>
+              <span class="transition-transform group-hover:translate-x-0.5">&rarr;</span>
+            </div>
+          </a>
         ))}
       </div>
     </section>
 
-    <!-- Client-Side Privacy Guarantee -->
-    <section class="p-3.5 rounded-lg bg-surface-subtle border border-border text-xs flex items-center justify-between gap-4">
+    <section class="p-3.5 rounded-lg bg-surface-subtle border border-border text-xs flex flex-col items-start sm:flex-row sm:items-center justify-between gap-3">
       <div class="flex items-center gap-2 text-foreground-secondary">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-success shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
-        <span>Zero server tracking. 100% client-side local calculation.</span>
+        <span>Zero server tracking. Client-side local calculation by default.</span>
       </div>
-      <a href="/privacy" class="text-accent hover:underline font-mono font-medium shrink-0">Privacy Details →</a>
+      <a href="/privacy" class="text-accent hover:underline font-medium shrink-0">Privacy details &rarr;</a>
     </section>
-
   </div>
 </BaseLayout>
