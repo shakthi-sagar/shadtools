@@ -4,18 +4,19 @@ test.describe('ShadTools Key User Interactions', () => {
   test('Homepage loads and displays category cards', async ({ page }) => {
     await page.goto('/');
     await expect(page).toHaveTitle(/ShadTools/);
-    await expect(page.locator('h1')).toContainText('Free In-Browser Utility Tools');
+    await expect(page.locator('main h1').first()).toContainText('SHADTOOLS');
   });
 
   test('JSON Formatter formats input correctly', async ({ page }) => {
-    await page.goto('/developer-tools/json-formatter');
-    await expect(page.locator('h1')).toContainText('JSON Formatter');
+    await page.goto('/json/formatter', { waitUntil: 'networkidle' });
+    await expect(page.locator('main h1').first()).toContainText('JSON Formatter');
 
-    const textarea = page.locator('textarea').first();
+    const tool = page.locator('main');
+    const textarea = tool.locator('textarea').first();
     await textarea.fill('{"key":"value"}');
 
-    await page.click('button:has-text("Format JSON")');
-    const outputTextarea = page.locator('textarea').nth(1);
+    await tool.getByRole('button', { name: 'Format', exact: true }).click();
+    const outputTextarea = tool.locator('textarea').nth(1);
     await expect(outputTextarea).toHaveValue(/{\n  "key": "value"\n}/);
   });
 });

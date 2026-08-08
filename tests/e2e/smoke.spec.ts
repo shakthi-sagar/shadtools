@@ -24,17 +24,21 @@ test.describe('ShadTools Production E2E Smoke Tests', () => {
   });
 
   test('Shareable URL state initializes state and canonical URL strips query params', async ({ page }) => {
-    await page.goto('/units/length?value=25&from=meter&to=foot');
-    
-    // Check canonical link element
+    await page.goto('/units/length?value=25&from=m&to=ft');
+
+    await expect(page.locator('#length-val')).toHaveValue('25');
+    await expect(page.locator('#length-from')).toHaveValue('m');
+    await expect(page.locator('#length-to')).toHaveValue('ft');
+    await expect(page.getByText(/82\.021\s*ft/)).toBeVisible();
+
     const canonicalHref = await page.locator('link[rel="canonical"]').getAttribute('href');
     expect(canonicalHref).toBe('https://shadtools.com/units/length');
   });
 
   test('Pair SEO page loads direct answer and breadcrumbs', async ({ page }) => {
     await page.goto('/units/length/meter-to-foot');
-    await expect(page).toHaveTitle(/Meter to Foot/i);
-    await expect(page.locator('h1')).toContainText(/Meter to Foot/i);
+    await expect(page).toHaveTitle(/Meters to Feet/i);
+    await expect(page.locator('main h1').first()).toContainText(/Meter to Foot Converter/i);
   });
 
   test('Exact SEO page loads direct answer and computes formula', async ({ page }) => {
