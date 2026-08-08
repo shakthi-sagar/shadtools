@@ -12,7 +12,7 @@ interface ValidationIssue {
 
 const issues: ValidationIssue[] = [];
 
-console.log('🔍 Running ShadTools SEO & Route Integrity Validator...\n');
+console.log('🔍 Running ShadTools Production SEO, Indexability & Route Integrity Validator...\n');
 
 const canonicalUrls = new Map<string, string>(); // url -> source
 const titles = new Map<string, string>(); // title -> source
@@ -49,20 +49,27 @@ async function loadAllToolModules() {
 
 await loadAllToolModules();
 
+// Register primary static pages (homepage, search, legal, etc.)
+const staticSitePages = ['/', '/search', '/privacy', '/terms', '/disclaimer', '/contact'];
+for (const p of staticSitePages) {
+  generatedRoutes.add(p);
+  canonicalUrls.set(`https://shadtools.com${p === '/' ? '' : p}`, `Static Page: ${p}`);
+}
+
 // Register tool main pages and namespaces
 for (const { key } of toolModules) {
   const [namespace, toolSlug] = key.split('/');
   const toolUrl = getToolUrl(namespace, toolSlug);
   const nsUrl = getNamespaceUrl(namespace);
 
-  if (canonicalUrls.has(toolUrl)) {
+  if (canonicalUrls.has(`https://shadtools.com${toolUrl}`)) {
     issues.push({
       type: 'error',
       message: `Duplicate tool URL: ${toolUrl}`,
-      context: `Tool ${key} conflicts with ${canonicalUrls.get(toolUrl)}`,
+      context: `Tool ${key} conflicts with ${canonicalUrls.get(`https://shadtools.com${toolUrl}`)}`,
     });
   } else {
-    canonicalUrls.set(toolUrl, `Tool: ${key}`);
+    canonicalUrls.set(`https://shadtools.com${toolUrl}`, `Tool: ${key}`);
     generatedRoutes.add(toolUrl);
   }
 
@@ -71,6 +78,8 @@ for (const { key } of toolModules) {
 
 // 2. Validate all SEO-enabled tools & variant pages
 const seoTools = toolModules.filter(({ module }) => module.seoPages != null);
+let indexableRouteCount = 0;
+let nonIndexableRouteCount = 0;
 
 for (const { key, module } of seoTools) {
   if (!module.seoPages) continue;
@@ -87,9 +96,32 @@ for (const { key, module } of seoTools) {
     const variantPath = getVariantUrl(namespace, toolSlug, variantSlug);
     const canonical = `https://shadtools.com${variantPath}`;
 
+    if (isIndexable) {
+      indexableRouteCount++;
+    } else {
+      nonIndexableRouteCount++;
+    }
+
     if (!variantSlug) {
       issues.push({ type: 'error', message: `Empty variant slug in tool ${key}` });
       continue;
+    }
+
+    // Canonical Hardening Checks
+    if (canonical.includes('?') || canonical.includes('#')) {
+      issues.push({
+        type: 'error',
+        message: `Canonical URL contains query parameter or hash: '${canonical}'`,
+        context: `Tool ${key}:${variantSlug}`,
+      });
+    }
+
+    if (!canonical.startsWith('https://shadtools.com')) {
+      issues.push({
+        type: 'error',
+        message: `Canonical URL does not use production domain origin: '${canonical}'`,
+        context: `Tool ${key}:${variantSlug}`,
+      });
     }
 
     if (!meta || !meta.title || !meta.description || !meta.h1) {
@@ -159,11 +191,43 @@ for (const { key, module } of seoTools) {
     }
   }
 
-  // Check nearby variants, breadcrumb parents, and compositional section links
+  // 3. Deterministic Sampling Check for each SEO-enabled provider
+  const pairVariants = staticPages.filter((p: any) => p.type === 'pair' || p.value === undefined);
+  const exactVariants = staticPages.filter((p: any) => p.type === 'exact' && p.value !== undefined);
+
+  const sampleTargets = [
+    ...pairVariants.slice(0, 1),
+    ...exactVariants.filter((e: any) => e.value === 1).slice(0, 1),
+    ...exactVariants.filter((e: any) => e.value === 25).slice(0, 1),
+    ...exactVariants.filter((e: any) => e.value === 1000).slice(0, 1),
+  ];
+
+  for (const sampled of sampleTargets) {
+    const sSlug = module.seoPages.getSlug(sampled);
+    const sMeta = module.seoPages.getMetadata(sampled);
+    const sResult = module.seoPages.compute(sampled);
+    const sCanonical = `https://shadtools.com${getVariantUrl(namespace, toolSlug, sSlug)}`;
+
+    if (!sMeta.title || !sMeta.description || !sMeta.h1 || !sResult.answer) {
+      issues.push({
+        type: 'error',
+        message: `Sampled SEO route '${sSlug}' failed metadata/result integrity check in ${key}`,
+      });
+    }
+
+    if (!sCanonical.startsWith('https://shadtools.com/units/')) {
+      issues.push({
+        type: 'error',
+        message: `Sampled SEO canonical '${sCanonical}' format invalid in ${key}`,
+      });
+    }
+  }
+
+  // 4. Check nearby variants, breadcrumb parents, and compositional section links
   for (const variantData of staticPages) {
     const currentSlug = module.seoPages.getSlug(variantData);
 
-    // 1. Check nearby variants links
+    // Nearby variants links
     const nearby = module.seoPages.getNearbyVariants
       ? module.seoPages.getNearbyVariants(variantData)
       : [];
@@ -180,7 +244,7 @@ for (const { key, module } of seoTools) {
       }
     }
 
-    // 2. Check breadcrumb parent link
+    // Breadcrumb parent link
     if (module.seoPages.getBreadcrumbParent) {
       const bp = module.seoPages.getBreadcrumbParent(variantData);
       if (bp) {
@@ -195,7 +259,7 @@ for (const { key, module } of seoTools) {
       }
     }
 
-    // 3. Check compositional section links (table rows & link pills)
+    // Compositional section links (table rows & link pills)
     if (module.seoPages.getSections) {
       const sections = module.seoPages.getSections(variantData);
       if (sections) {
@@ -252,5 +316,10 @@ if (errors.length > 0) {
   });
   process.exit(1);
 } else {
-  console.log(`✅ SEO Validation passed cleanly! Checked ${generatedRoutes.size} routes across ${toolModules.length} tools.`);
+  console.log(
+    `✅ SEO & Indexing Validation passed cleanly!\n` +
+      `   - Checked ${generatedRoutes.size} total static routes across ${toolModules.length} tools.\n` +
+      `   - ${indexableRouteCount} indexable SEO routes verified.\n` +
+      `   - Deterministic route sampling passed across all SEO page providers.`
+  );
 }

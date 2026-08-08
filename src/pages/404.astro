@@ -1,25 +1,63 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import { HeaderSearch } from '@/components/site/HeaderSearch';
 import { Button } from '@/components/ui/Button';
+
+const popularTools = [
+  { name: 'Length Converter', url: '/units/length' },
+  { name: 'Word Counter', url: '/text/word-counter' },
+  { name: 'JSON Formatter', url: '/json/formatter' },
+  { name: 'Base64 Encoder', url: '/base64/encode' },
+  { name: 'UUID Generator', url: '/crypto/uuid' },
+  { name: 'Volume Converter', url: '/units/volume' },
+];
 ---
 
 <BaseLayout
   title="404 Page Not Found - ShadTools"
-  description="The requested utility tool or page could not be found."
+  description="The requested tool page or conversion route could not be found."
   noindex={true}
 >
-  <div class="max-w-md mx-auto my-20 p-8 text-center space-y-4 rounded-lg bg-surface border border-border">
-    <div class="w-14 h-14 rounded-md bg-danger/10 text-danger mx-auto flex items-center justify-center font-bold text-xl">
+  <div class="max-w-xl mx-auto my-16 px-4 py-8 text-center space-y-6">
+    <div class="w-16 h-16 rounded-lg bg-danger/10 text-danger mx-auto flex items-center justify-center font-bold text-2xl border border-danger/20">
       404
     </div>
-    <h1 class="text-2xl font-bold text-foreground">Tool Page Not Found</h1>
-    <p class="text-xs text-foreground-secondary leading-relaxed">
-      The utility page you are looking for may have been moved or does not exist.
-    </p>
-    <div class="pt-2">
+    
+    <div class="space-y-2">
+      <h1 class="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
+        Page Not Found
+      </h1>
+      <p class="text-xs sm:text-sm text-foreground-secondary leading-relaxed max-w-md mx-auto">
+        The tool or page you requested does not exist or may have been moved. Try searching below or explore popular utilities.
+      </p>
+    </div>
+
+    <!-- Interactive Search Bar -->
+    <div class="max-w-md mx-auto py-2">
+      <HeaderSearch client:load />
+    </div>
+
+    <!-- Popular Tools Shortcut Grid -->
+    <div class="pt-4 border-t border-border space-y-3">
+      <h2 class="text-xs font-semibold uppercase tracking-wider text-foreground-muted">
+        Popular Tools
+      </h2>
+      <div class="flex flex-wrap justify-center gap-2">
+        {popularTools.map((tool) => (
+          <a
+            href={tool.url}
+            class="px-3 py-1.5 rounded-lg bg-surface border border-border hover:border-border-strong text-xs font-medium text-foreground-secondary hover:text-foreground transition-colors"
+          >
+            {tool.name}
+          </a>
+        ))}
+      </div>
+    </div>
+
+    <div class="pt-4">
       <a href="/">
-        <Button variant="primary" size="md">
-          Return to Homepage
+        <Button variant="outline" size="md">
+          ← Return to Homepage
         </Button>
       </a>
     </div>

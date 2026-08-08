@@ -11,17 +11,27 @@ export interface Props {
 const {
   title,
   description,
-  canonicalUrl = Astro.url.href,
+  canonicalUrl,
   ogImage = 'https://shadtools.com/og-default.png',
   keywords = [],
-  noindex = false
+  noindex = false,
 } = Astro.props;
 
 const siteName = 'ShadTools';
 const fullTitle = title.includes(siteName) ? title : `${title} | ${siteName}`;
-const cfAnalyticsToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN || '';
 
-const websiteSchema = {
+// Production Canonical URL Hardening: Always strip query parameters & hash
+const cleanPath = Astro.url.pathname.replace(/\/$/, '') || '';
+const defaultCanonical = `https://shadtools.com${cleanPath}`;
+const rawCanonical = canonicalUrl || defaultCanonical;
+const finalCanonical = rawCanonical.split('?')[0].split('#')[0];
+
+const cfAnalyticsToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN || '';
+const googleVerificationToken = import.meta.env.PUBLIC_GOOGLE_SITE_VERIFICATION || '';
+
+const isHomepage = Astro.url.pathname === '/' || Astro.url.pathname === '';
+
+const websiteSchema = isHomepage ? {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
   name: siteName,
@@ -32,7 +42,7 @@ const websiteSchema = {
     target: 'https://shadtools.com/search?q={search_term_string}',
     'query-input': 'required name=search_term_string',
   },
-};
+} : null;
 ---
 
 <!-- Global Metadata -->
@@ -41,8 +51,13 @@ const websiteSchema = {
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <meta name="generator" content={Astro.generator} />
 
+<!-- Google Search Console Verification (when token configured) -->
+{googleVerificationToken && (
+  <meta name="google-site-verification" content={googleVerificationToken} />
+)}
+
 <!-- Canonical URL -->
-<link rel="canonical" href={canonicalUrl} />
+<link rel="canonical" href={finalCanonical} />
 
 <!-- Primary Meta Tags -->
 <title>{fullTitle}</title>
@@ -53,7 +68,7 @@ const websiteSchema = {
 
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="website" />
-<meta property="og:url" content={canonicalUrl} />
+<meta property="og:url" content={finalCanonical} />
 <meta property="og:title" content={fullTitle} />
 <meta property="og:description" content={description} />
 <meta property="og:image" content={ogImage} />
@@ -61,13 +76,15 @@ const websiteSchema = {
 
 <!-- Twitter -->
 <meta property="twitter:card" content="summary_large_image" />
-<meta property="twitter:url" content={canonicalUrl} />
+<meta property="twitter:url" content={finalCanonical} />
 <meta property="twitter:title" content={fullTitle} />
 <meta property="twitter:description" content={description} />
 <meta property="twitter:image" content={ogImage} />
 
-<!-- Central JSON-LD WebSite Structured Data -->
-<script type="application/ld+json" is:inline set:html={JSON.stringify(websiteSchema)} />
+<!-- Central JSON-LD WebSite Structured Data (Homepage only) -->
+{websiteSchema && (
+  <script type="application/ld+json" is:inline set:html={JSON.stringify(websiteSchema)} />
+)}
 
 <!-- Cloudflare Web Analytics (only when token configured) -->
 {cfAnalyticsToken && (
