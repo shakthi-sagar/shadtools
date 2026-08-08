@@ -6,8 +6,9 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "npm run validate && npm run build:astro && npm run build:search && npm run validate:post-build",
+    "build": "npm run validate && npm run build:astro && npm run build:sitemaps && npm run build:search && npm run validate:post-build",
     "build:astro": "astro build",
+    "build:sitemaps": "tsx scripts/generate-sitemaps.ts",
     "build:search": "pagefind --site dist",
     "check": "astro check && tsc --noEmit",
     "create-tool": "tsx scripts/create-tool.ts",
@@ -21,7 +22,6 @@
   },
   "dependencies": {
     "@astrojs/react": "^3.6.2",
-    "@astrojs/sitemap": "^3.1.4",
     "@astrojs/tailwind": "^5.1.0",
     "astro": "^4.15.0",
     "clsx": "^2.1.1",
