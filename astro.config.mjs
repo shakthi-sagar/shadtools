@@ -4,6 +4,7 @@ import react from '@astrojs/react';
 import sitemap from '@astrojs/sitemap';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { isIndexablePath } from './src/lib/seo/indexability.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -28,10 +29,7 @@ export default defineConfig({
     }),
     react(),
     sitemap({
-      filter: (page) => {
-        if (page.includes('/404')) return false;
-        return true;
-      },
+      filter: isIndexablePath,
     }),
   ],
 });
