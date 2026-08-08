@@ -250,18 +250,20 @@ export const DashboardIsland: React.FC<DashboardIslandProps> = ({ allTools = [] 
               className="group p-5 min-h-44 rounded-lg bg-surface border border-border hover:border-accent/40 hover:-translate-y-1 hover:shadow-sm transition-all flex flex-col justify-between"
             >
               <div>
-                <ToolIcon id={tool.id} namespace={tool.namespace} />
-                <span className="mt-4 block text-[10px] font-semibold text-foreground-muted uppercase tracking-wider">
-                  {tool.namespace}
-                </span>
-                <h3 className="mt-1 font-semibold text-foreground text-base group-hover:text-accent transition-colors">
+                <div className="flex items-start justify-between gap-3">
+                  <ToolIcon id={tool.id} namespace={tool.namespace} />
+                  <span className="text-[10px] font-semibold text-foreground-muted uppercase tracking-wider">
+                    {tool.namespace}
+                  </span>
+                </div>
+                <h3 className="mt-4 font-semibold text-foreground text-base group-hover:text-accent transition-colors">
                   {tool.name}
                 </h3>
                 <p className="mt-1.5 text-xs text-foreground-secondary line-clamp-2 leading-relaxed">
                   {tool.summary}
                 </p>
               </div>
-              <span className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-accent opacity-80 group-hover:opacity-100">
+              <span className="mt-4 inline-flex w-full items-center justify-end gap-1 text-xs font-semibold text-accent opacity-80 group-hover:opacity-100">
                 Open tool <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
               </span>
             </a>
@@ -281,10 +283,10 @@ export const DashboardIsland: React.FC<DashboardIslandProps> = ({ allTools = [] 
             {recentToolItems.slice(0, 4).map((tool) => (
               <div
                 key={tool.id}
-                className="p-3 rounded-lg bg-surface border border-border flex items-center justify-between gap-3"
+                className="p-3 rounded-lg bg-surface border border-border flex items-center gap-3 text-left"
               >
                 <ToolIcon id={tool.id} namespace={tool.namespace} className="h-9 w-9" />
-                <div className="min-w-0 pr-2">
+                <div className="min-w-0 flex-1 pr-2 text-left">
                   <a href={tool.url} className="text-xs font-semibold text-foreground hover:text-accent transition-colors block truncate">
                     {tool.name}
                   </a>
@@ -294,7 +296,7 @@ export const DashboardIsland: React.FC<DashboardIslandProps> = ({ allTools = [] 
                   onClick={() => togglePin(tool.id)}
                   aria-label={`Pin ${tool.name}`}
                   title="Pin to dashboard"
-                  className="p-1.5 rounded hover:bg-surface-subtle text-foreground-muted hover:text-accent focus-visible:outline-2 focus-visible:outline-focus shrink-0"
+                  className="ml-auto p-1.5 rounded hover:bg-surface-subtle text-foreground-muted hover:text-accent focus-visible:outline-2 focus-visible:outline-focus shrink-0"
                 >
                   <Pin className="w-3.5 h-3.5" />
                 </button>

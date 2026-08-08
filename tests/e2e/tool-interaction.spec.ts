@@ -4,7 +4,9 @@ test.describe('ShadTools Key User Interactions', () => {
   test('Homepage loads and displays category cards', async ({ page }) => {
     await page.goto('/');
     await expect(page).toHaveTitle(/ShadTools/);
-    await expect(page.locator('main h1').first()).toContainText('SHADTOOLS');
+    await expect(page.locator('main h1').first()).toContainText(
+      'Everyday tools, ready when you are.',
+    );
   });
 
   test('JSON Formatter formats input correctly', async ({ page }) => {
